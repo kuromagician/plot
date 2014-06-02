@@ -1,0 +1,11 @@
+#ignore graphs
+*.png
+*.eps
+*.pdf
+*~
+*.pyo
+build/
+graphs/
+raw_data/
+*.txt
+*.mp4

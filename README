@@ -1,0 +1,5 @@
+model.py log parameters of ctp and orw into files *Paras.txt
+		 and compare model to real test
+dataR&D log real data to DC_measure*.txt
+compare.py related to energy, also provide PRR.
+plot

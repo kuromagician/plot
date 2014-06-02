@@ -1,0 +1,25 @@
+WakeupT	SinkN	Relay	Leaf	Proto	Tw
+ 0.25 	 3.43 	 4.13 	 3.30 	  ORW   	 False  
+ 0.50 	 2.26 	 3.50 	 2.58 	  ORW   	 False  
+ 1.00 	 1.19 	 3.62 	 2.56 	  ORW   	 False  
+ 2.00 	 0.82 	 4.57 	 3.36 	  ORW   	 False  
+ 4.00 	 0.66 	 5.21 	 4.39 	  ORW   	 False  
+ 8.00 	 0.52 	 5.10 	 4.53 	  ORW   	 False  
+ 0.25 	 3.76 	 5.54 	 4.14 	  CTP   	 False  
+ 0.50 	 2.73 	 5.43 	 3.43 	  CTP   	 False  
+ 1.00 	 2.03 	 6.04 	 3.55 	  CTP   	 False  
+ 2.00 	 1.46 	 6.27 	 4.34 	  CTP   	 False  
+ 4.00 	 1.81 	 7.07 	 5.63 	  CTP   	 False  
+ 8.00 	 2.85 	 6.66 	 5.95 	  CTP   	 False  
+ 0.25 	 8.39 	 7.91 	 6.50 	  ORW   	  True  
+ 0.50 	 3.61 	 4.18 	 3.37 	  ORW   	  True  
+ 1.00 	 2.23 	 3.33 	 2.46 	  ORW   	  True  
+ 2.00 	 1.37 	 4.44 	 3.03 	  ORW   	  True  
+ 4.00 	 4.74 	 6.30 	 5.29 	  ORW   	  True  
+ 8.70 	 4.10 	 5.71 	 5.47 	  ORW   	  True  
+ 0.25 	 7.39 	 7.34 	 6.99 	  CTP   	  True  
+ 0.50 	 3.50 	 4.72 	 3.67 	  CTP   	  True  
+ 1.00 	 3.94 	 5.21 	 3.60 	  CTP   	  True  
+ 2.00 	 1.78 	 5.98 	 3.34 	  CTP   	  True  
+ 4.00 	 4.69 	 6.95 	 5.58 	  CTP   	  True  
+ 8.70 	 5.30 	 6.45 	 5.84 	  CTP   	  True  
