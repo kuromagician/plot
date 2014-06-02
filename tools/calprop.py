@@ -125,7 +125,7 @@ def prop_ctp(FileDict, args):
 			if msg.dbg__a + msg.dbg__c < 10000:
 				DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
 			else:
-				print node, msg.dbg__a, msg.dbg__c, msg.dbg__b
+				print msg.node, msg.dbg__a, msg.dbg__c, msg.dbg__b
 		elif msg.type == NET_C_FE_FWD_MSG:
 			num_fwd_ctp[msg.node] += 1
 			if msg.dbg__c == SINK_ID:

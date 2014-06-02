@@ -95,7 +95,7 @@ _T_test = 56.5*1000*60.0
 #Tw: wakeup interval
 
 def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
-	prob = ((1)*Tw)/_Tipi
+	prob = ((1.5)*Tw)/_Tipi
 	newF = 0
 	total_prob = 0
 	temp = max(Tao, int(F))
@@ -108,7 +108,7 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 		newF += 12*(1-total_prob)
 	Ff = F*1.0/(newF + 1)
 	#print F, Ff, newF'''
-	Ff= F
+	#Ff= F
 	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N/8  + Tw/2/_Tipi*Ff + (_Trx)/_Tipi*L
 	return dc*100
 	

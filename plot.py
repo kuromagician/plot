@@ -329,8 +329,8 @@ pl.savefig(folder + "hops_Fwd.png")
 
 
 ########graph shows send and forward########
-pl.figure(figsize=(24,20), dpi=100)
-ind = np.arange(1, 300)
+pl.figure(figsize=(12,10), dpi=100)
+ind = np.arange(0, 300)
 width = 0.4
 pl.bar(ind, init_orw, width, color='b', label='orw_own', edgecolor='none')
 pl.bar(ind, fwd_orw, width, bottom = init_orw, color = '#FF0000', label='orw_forward', edgecolor='none')

@@ -49,7 +49,8 @@ def group_barplot(ax, group, values, positions, text, unit=""):
 	#so that we assume the rest should be the same among the two
 	temp=[]
 	for item in group[0]:
-		temp.append(values[0][item])
+		if item in values[0]:
+			temp.append(values[0][item])
 	Avg = mean(temp)
 	print "{0[0][0]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
 	ax.boxplot(temp, positions=positions[0:1], widths=0.4)
@@ -372,6 +373,7 @@ for node in Avg_DC_orw:
 leaf_orw = set()
 relay_orw = set()
 for k in load_orw:
+	print k, load_orw[k]
 	load = load_orw[k]
 	if load > TH_load:
 		pass
@@ -798,7 +800,3 @@ if ELIMIT:
 	fig.savefig('./graphs/' + prefix + "combined.pdf")
 '''	
 pl.show()
-'''
-for count, thing in enumerate(args):
-...         print '{0}. {1}'.format(count, thing)
-'''

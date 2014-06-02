@@ -138,7 +138,7 @@ def loadNtDebug(path, fileNames):
                 if startTime == 0:
                     startTime = long(milli_time)
                 globalTime = (long(milli_time) - startTime) * 1000
-                ntDebugMsgs.append(reader.ntDebugMsg.NtDebugMsg(node, globalTime, 
+                ntDebugMsgs.append(ntDebugMsg.NtDebugMsg(node, globalTime, 
                          int(type), int(edc), int(nextHopEdc), int(indexesInUse), 
                          int(indexes), int(seqNum), int(avgDc), int(txTime), int(timestamp)))            
             f.close()

@@ -17,7 +17,6 @@ DataMsgOffset = 8
 def convertLine(dataLine):
     #data = ''.join(chr(int(x, 16)) for x in dataLine.rstrip().split(' '))
     dataLine = dataLine.rstrip()
-    print dataLine
     strList = []
     while dataLine != '':
         str = dataLine[:2]

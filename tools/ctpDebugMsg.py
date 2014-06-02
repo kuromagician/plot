@@ -133,5 +133,4 @@ def build(node, timestamp, offset, data):
 def buildData(node, timestamp, offset, data):
     Ctpheader = struct.unpack('!BBHHBB', data[offset:offset+ctpDataoffset])
     CtpDataMsgs = struct.unpack('!HHHHH', data[offset+ctpDataoffset:offset+ctpDataoffset+datapayloadlength])
-    print Ctpheader
     return CtpDataMsg(node, timestamp, Ctpheader[1], Ctpheader[3], Ctpheader[4], CtpDataMsgs[2])

@@ -6,9 +6,9 @@ import twistReader as Treader
 def main(argv):
 	result = {'kill':False, 'simple':False, 'lim':0, 'twist':False, \
 			  'connected':False, 'experiment':False, 'model':False,\
-			  'wakeup':float(1.5), 'check':False}
+			  'wakeup':float(1.5), 'check':False, 'desktop':False}
 	try:
-		opts, args = getopt.getopt(argv,"ehl:m:kstca",["limit","twist","experiment","cca"])
+		opts, args = getopt.getopt(argv,"ehdl:m:kstca",["limit","twist","experiment","cca"])
 	except getopt.GetoptError:
 		print 'plot.py -l <energy limit>\
              \n        -k \tkill some nodes\
@@ -21,6 +21,8 @@ def main(argv):
 		if opt == '-h':
 			print 'plot.py -l <energy limit>'
 			sys.exit()
+		elif opt in ("-d"):
+			result['desktop'] = True
 		elif opt in ("-l", "--limit"):
 			result['lim'] = int(arg, 16)
 		elif opt in ("-k",):
@@ -45,7 +47,10 @@ def main(argv):
 def getfile(args):
 	ELIMIT = args['lim']
 	CONNECT = args['connected']
-	base_path = '/media/Data/ThesisData/Indriya/'
+	if args['desktop']:
+		base_path = '/home/nagatoyuki/Thesis/Traces/Indriya/'
+	else:
+		base_path = '/media/Data/ThesisData/Indriya/'
 	FileNames = {'OrwDebug':('23739.dat',), 'CtpDebug':('24460.dat',), 
 	             'CtpData':('24463.dat',), 'ConnectDebug':('25593.dat',),
 	             'OrwNt':('23738.dat',)}
@@ -92,23 +97,23 @@ def getfile(args):
 					limited_orw = 'data-48775'
 			else:
 				if args['wakeup'] == 0.25:
-					limited_ctp = 'data-48828'
-					limited_orw = 'data-48795'
+					limited_ctp = 'data-48929'
+					limited_orw = 'data-48936'
 				elif args['wakeup'] == 0.5:
-					limited_ctp = 'data-48829'
-					limited_orw = 'data-48847'
+					limited_ctp = 'data-48928'
+					limited_orw = 'data-48934'
 				elif args['wakeup'] == 1:
-					limited_ctp = 'data-48836'
-					limited_orw = 'data-48848'
+					limited_ctp = 'data-48925'
+					limited_orw = 'data-48933'
 				elif args['wakeup'] == 2:
-					limited_ctp = 'data-48837'
-					limited_orw = 'data-48849'
+					limited_ctp = 'data-48924'
+					limited_orw = 'data-48932'
 				elif args['wakeup'] == 4:
-					limited_ctp = 'data-48839'
-					limited_orw = 'data-48850'
+					limited_ctp = 'data-48923'
+					limited_orw = 'data-48931'
 				elif args['wakeup'] == 8:
 					limited_ctp = 'data-48922'
-					limited_orw = 'data-48851'
+					limited_orw = 'data-48930'
 			FileDict['CtpDebug'] = reader.loadDebug(base_path+limited_ctp, FileNames['CtpDebug']) 
 			FileDict['CtpData'] = reader.loadDataMsg(base_path+limited_ctp, FileNames['CtpData']) 
 			FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
@@ -154,7 +159,11 @@ def getfile(args):
 	else:
 		props['SINK_ID'] = 153
 		props['timeratio'] = 1000000.0
-		base_path = '/media/Data/ThesisData/Twist/'
+		
+		if args['desktop']:
+			base_path = '/home/nagatoyuki/Thesis/Traces/Twist/'
+		else:
+			base_path = '/media/Data/ThesisData/Twist/'
 		props['prefix']='Twist_'
 		#
 		# use wakeup time as parameters, Indriya
