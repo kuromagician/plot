@@ -85,7 +85,7 @@ for msg in CtpDebugMsgs:
 				rcv_num_ctp.append(counter_r)
 	if msg.type == NET_C_FE_SENT_MSG:
 		temp = msg.timestamp/time_ratio
-		if True:#(msg.dbg__b, msg.dbg__a) not in hist_ctp:
+		if (msg.dbg__b, msg.dbg__a) not in hist_ctp:
 			send_hist_ctp.add((msg.dbg__b, msg.dbg__a))
 			counter_s += 1
 			send_num_ctp.append(counter_s)
@@ -150,7 +150,7 @@ for msg in OrwDebugMsgs:
 				rcv_time_orw.append(temp/60.0)
 				rcv_num_orw.append(counter_r)
 	if msg.type == NET_APP_SENT:
-		if True:#(msg.dbg__b, msg.dbg__a) not in hist_orw:
+		if (msg.dbg__b, msg.dbg__a) not in hist_orw:
 			send_hist_orw.add((msg.dbg__b, msg.dbg__a))
 			counter_s += 1
 			send_num_orw.append(counter_s)

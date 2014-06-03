@@ -12,8 +12,10 @@ def prop_orw(FileDict, args):
 	OrwDebugMsgs = FileDict['OrwDebug']
 	if args['twist'] == True:
 		SINK_ID = 153
+		time_ratio = 1000000.0
 	else:
 		SINK_ID = 1
+		time_ratio = 1000.0
 	#######################section for ORW############################
 	num_fwd_orw = defaultdict(int)
 	num_init_orw = defaultdict(int)
@@ -23,23 +25,26 @@ def prop_orw(FileDict, args):
 	total_receive_orw = 0
 
 	for msg in OrwDebugMsgs:
-		if msg.type == NET_C_FE_RCV_MSG:
-			#if origin != last_hop, then last hop is forwarder
-			if msg.dbg__b != msg.dbg__c:
-				num_fwd_orw[msg.dbg__c] += 1
-			# (origin, SeqNo) += lasthop
-			route_hist_orw[(msg.msg__origin, msg.dbg__a)].add(msg.dbg__c)
-			#if node is SINK, add node to direct neighbour
-			if msg.node == SINK_ID:
-				dir_neig_orw.add(msg.dbg__c)
-				total_receive_orw += 1
-		elif msg.type == NET_DC_REPORT:
-			if msg.dbg__a + msg.dbg__c < 10000:
-				DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
-			else:
-				print msg.node, msg.dbg__a, msg.dbg__c, msg.dbg__b
-		elif msg.type == NET_APP_SENT:
-			num_init_orw[msg.node] += 1
+		#only record data after 10 minutes
+		if msg.timestamp / time_ratio /60 >= 10:
+			if msg.type == NET_C_FE_RCV_MSG:
+				#if origin != last_hop, then last hop is forwarder
+				if msg.dbg__b != msg.dbg__c:
+					num_fwd_orw[msg.dbg__c] += 1
+				# (origin, SeqNo) += lasthop
+				route_hist_orw[(msg.msg__origin, msg.dbg__a)].add(msg.dbg__c)
+				#if node is SINK, add node to direct neighbour
+				if msg.node == SINK_ID:
+					dir_neig_orw.add(msg.dbg__c)
+					total_receive_orw += 1
+			elif msg.type == NET_DC_REPORT:
+				if msg.dbg__a + msg.dbg__c < 10000:
+					DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
+				else:
+					#print msg.node, msg.dbg__a, msg.dbg__c, msg.dbg__b
+					DutyCycle_orw[msg.node].append((10000, msg.dbg__b, 0))
+			elif msg.type == NET_APP_SENT:
+				num_init_orw[msg.node] += 1
 
 	#Calculate Avg load
 	load_orw = {k: num_fwd_orw[k] * 1.0 / num_init_orw[k] + 1 for k in num_init_orw}
@@ -98,8 +103,10 @@ def prop_ctp(FileDict, args):
 	CtpDataMsgs = FileDict['CtpData']
 	if args['twist'] == True:
 		SINK_ID = 153
+		time_ratio = 1000000.0
 	else:
 		SINK_ID = 1
+		time_ratio = 1000.0
 	#######################section for ORW############################
 	DutyCycle_ctp = defaultdict(list)
 	Avg_DC_ctp = defaultdict(int)
@@ -114,32 +121,35 @@ def prop_ctp(FileDict, args):
 
 
 	for msg in CtpDebugMsgs:
-		if msg.type == NET_C_FE_SENT_MSG:
-			num_init_ctp[msg.node] += 1
-			if msg.dbg__c == SINK_ID:
-				dir_neig_ctp.add(msg.node)
-		#record beacon
-		elif msg.type == 0x33:
-			pass
-		elif msg.type == NET_DC_REPORT and msg.node != SINK_ID:
-			if msg.dbg__a + msg.dbg__c < 10000:
-				DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
-			else:
-				print msg.node, msg.dbg__a, msg.dbg__c, msg.dbg__b
-		elif msg.type == NET_C_FE_FWD_MSG:
-			num_fwd_ctp[msg.node] += 1
-			if msg.dbg__c == SINK_ID:
-				dir_neig_ctp.add(msg.node)
-		elif msg.type == NET_C_FE_RCV_MSG:
-			if msg.node == SINK_ID:
-				total_receive_ctp += 1
-				#dir_neig_ctp.add(msg.msg__other_node)
-		elif msg.type == NET_C_FE_SEND_QUEUE_FULL:
-			send_Qfull_ctp[msg.node] += 1
-		elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND:
-			send_noACK_ctp[msg.node] += 1
-		elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
-			fwd_noACK_ctp[msg.node] += 1
+		#only record data after 10 minutes
+		if msg.timestamp / time_ratio /60 >= 10:
+			if msg.type == NET_C_FE_SENT_MSG:
+				num_init_ctp[msg.node] += 1
+				if msg.dbg__c == SINK_ID:
+					dir_neig_ctp.add(msg.node)
+			#record beacon
+			elif msg.type == 0x33:
+				pass
+			elif msg.type == NET_DC_REPORT and msg.node != SINK_ID:
+				if msg.dbg__a + msg.dbg__c < 10000:
+					DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
+				else:
+					#print msg.node, msg.dbg__a, msg.dbg__c, msg.dbg__b
+					DutyCycle_ctp[msg.node].append((10000, msg.dbg__b, 0))
+			elif msg.type == NET_C_FE_FWD_MSG:
+				num_fwd_ctp[msg.node] += 1
+				if msg.dbg__c == SINK_ID:
+					dir_neig_ctp.add(msg.node)
+			elif msg.type == NET_C_FE_RCV_MSG:
+				if msg.node == SINK_ID:
+					total_receive_ctp += 1
+					#dir_neig_ctp.add(msg.msg__other_node)
+			elif msg.type == NET_C_FE_SEND_QUEUE_FULL:
+				send_Qfull_ctp[msg.node] += 1
+			elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND:
+				send_noACK_ctp[msg.node] += 1
+			elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
+				fwd_noACK_ctp[msg.node] += 1
 
 	#packet lost statics
 	'''Qfull = sum(send_Qfull_ctp.values())

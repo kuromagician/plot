@@ -30,6 +30,7 @@ if resultc['twist'] == True:
 	FileCollection_ctp = ['trace_20140515_120916.0.txt', 'trace_20140515_145530.2.txt', 
 						'trace_20140515_174113.4.txt', 'trace_20140515_200012.6.txt', 
 						'trace_20140515_221814.8.txt', 'trace_20140516_020516.10.txt']
+	time_ratio = 1000000.0
 else:
 	base_path = '/media/Data/ThesisData/Indriya/'
 	FileCollection_orw = ['data-48680', 'data-48564', 'data-48640', 'data-48627', 
@@ -38,6 +39,7 @@ else:
 	FileCollection_ctp = ['data-48672', 'data-48556', 'data-48639', 'data-48641', 
 							'data-48637', 'data-48642', 'data-48651', 'data-48710',
 							'data-48774']
+	time_ratio = 1000.0
 
 
 FileNames = {'OrwDebug':('23739.dat',), 'CtpDebug':('24460.dat',), 
@@ -115,40 +117,42 @@ counter1=0
 counter2=0
 sink_neighbour_orw = set()
 for msg in OrwDebugMsgs:
-	if msg.node != SINK_ID:
-		nodelist.add(msg.node)
-	#if msg.node != 13:
-	#	nodelist.add(msg.node)
-	if msg.type == NET_SNOOP_RCV:
-		L_orw[msg.node] += 1
-		counter1 += 1
-	elif msg.type == NET_C_FE_SENT_MSG:
-		t = (msg.dbg__c >> 8)/10.0
-		#print t, (msg.dbg__c & 0x00ff)/10.0
-		#if t > 25:
-		#	print "Node{} has Big Tao{:.2f}".format(msg.node, t)
-		#else:
-		#Tao_orw[msg.node].append(t)
-	elif msg.type == NET_C_FE_RCV_MSG:
-		F_orw[msg.dbg__c] += 1
-		if msg.dbg__c != msg.dbg__b:
-			FWD_orw[msg.node] += 1
-		if(msg.node == SINK_ID):
-			sink_neighbour_orw.add(msg.dbg__c)
-		counter2 += 1
-		Tao_orw[msg.node].add(msg.dbg__c)
-	elif msg.type == NET_DC_REPORT:
-		if msg.dbg__a + msg.dbg__c < 10000:
-			DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
-		else:
-			print msg.node, msg.dbg__a, msg.dbg__c
-	elif msg.type == NET_C_FE_SENDDONE_WAITACK or msg.type == NET_C_FE_SENDDONE_FAIL:
-		fail_orw[msg.node] += 1
-	'''if msg.node == 8:
-		if msg.type == NET_C_FE_SENT_MSG:
-			next_hop_edc = msg.dbg__c >> 8
-			own_edc = msg.dbg__c & 0xFF
-			print "NextHop EDC:{}, Own EDC:{}".format(next_hop_edc/10.0, own_edc/10.0)'''
+	if msg.timestamp / time_ratio / 60>= 10:
+		if msg.node != SINK_ID:
+			nodelist.add(msg.node)
+		#if msg.node != 13:
+		#	nodelist.add(msg.node)
+		if msg.type == NET_SNOOP_RCV:
+			L_orw[msg.node] += 1
+			counter1 += 1
+		elif msg.type == NET_C_FE_SENT_MSG:
+			t = (msg.dbg__c >> 8)/10.0
+			#print t, (msg.dbg__c & 0x00ff)/10.0
+			#if t > 25:
+			#	print "Node{} has Big Tao{:.2f}".format(msg.node, t)
+			#else:
+			#Tao_orw[msg.node].append(t)
+		elif msg.type == NET_C_FE_RCV_MSG:
+			F_orw[msg.dbg__c] += 1
+			if msg.dbg__c != msg.dbg__b:
+				FWD_orw[msg.node] += 1
+			if(msg.node == SINK_ID):
+				sink_neighbour_orw.add(msg.dbg__c)
+			counter2 += 1
+			Tao_orw[msg.node].add(msg.dbg__c)
+		elif msg.type == NET_DC_REPORT:
+			if msg.dbg__a + msg.dbg__c < 10000:
+				DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
+			else:
+				print msg.node, msg.dbg__a, msg.dbg__b, msg.dbg__c
+				DutyCycle_orw[msg.node].append((10000, msg.dbg__b, 0))
+		elif msg.type == NET_C_FE_SENDDONE_WAITACK or msg.type == NET_C_FE_SENDDONE_FAIL:
+			fail_orw[msg.node] += 1
+		'''if msg.node == 8:
+			if msg.type == NET_C_FE_SENT_MSG:
+				next_hop_edc = msg.dbg__c >> 8
+				own_edc = msg.dbg__c & 0xFF
+				print "NextHop EDC:{}, Own EDC:{}".format(next_hop_edc/10.0, own_edc/10.0)'''
 print counter1, counter2
 #print fail_orw
 
@@ -240,7 +244,6 @@ values = [modeled_dc_orw[k] for k in sink_neighbour_orw]
 #ax1.bar(sink_neighbour_orw, Avg_Total_dc_orw.values(), alpha=0.5)
 ax1.bar(modeled_dc_orw.keys(), modeled_dc_orw.values(), color='r', alpha=0.5)
 #ax1.bar(sink_neighbour_orw ,values, color='r', alpha=0.5)
-#pl.show()
 ax2 = fig.add_subplot(2,1,2)
 diff_value = {}
 diff_ratio = {}
@@ -287,39 +290,45 @@ petx = defaultdict(list)
 L_ctp = defaultdict(int)
 N_ctp = defaultdict(int)
 sink_neighbour_ctp = set()
+neighbour_ctp = defaultdict(set)
 relay_ctp = set()
 leaf_ctp = set()
 fail_ctp = defaultdict(int)
 counter1=0
 counter2=0
 for msg in CtpDebugMsgs:
-	if msg.type == NET_SNOOP_RCV:
-		counter1 += 1
-		L_ctp[msg.node] += 1
-	elif msg.type == NET_C_TREE_RCV_BEACON:
-		counter2 += 1
-		N_ctp[msg.node] += 1
-	elif msg.type == NET_DC_REPORT:
-		if msg.dbg__a + msg.dbg__c < 10000:
-			DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
-	elif msg.type == NET_C_TREE_SENT_BEACON:
-		fail_ctp[msg.node] += 1
-		#Tao_ctp[msg.node].append(msg.route_info__metric/100.0)
-		'''elif msg.type == 0x73:
-		Tao_ctp[msg.node].append(route_info__parent/10.0)'''
-	elif msg.type == NET_C_FE_SENT_MSG or msg.type == NET_C_FE_FWD_MSG:
-		F_ctp[msg.node] += 1
-		if msg.dbg__c == SINK_ID:
-			sink_neighbour_ctp.add(msg.node)
-		Tao_ctp[msg.dbg__c].add(msg.node)
-	#elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND or\
-	#     msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
-	elif msg.type == NET_C_FE_SENDDONE_FAIL or\
-         msg.type == NET_C_FE_SENDDONE_WAITACK: 
-		pass
-		#fail_ctp[msg.node] += 1
-	elif msg.type == 0x73:
-		petx[msg.node].append(msg.route_info__parent/10.0)
+	if msg.timestamp / time_ratio / 60 >= 10:
+		if msg.type == NET_SNOOP_RCV:
+			counter1 += 1
+			L_ctp[msg.node] += 1
+		elif msg.type == NET_C_TREE_RCV_BEACON:
+			counter2 += 1
+			N_ctp[msg.node] += 1
+			neighbour_ctp[msg.node].add(msg.route_info__hopcount)
+		elif msg.type == NET_DC_REPORT:
+			if msg.dbg__a + msg.dbg__c < 10000:
+				DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
+			else:
+				print msg.node, msg.dbg__a, msg.dbg__b, msg.dbg__c, msg.timestamp / time_ratio
+				DutyCycle_ctp[msg.node].append((10000, msg.dbg__b, 0))
+		elif msg.type == NET_C_TREE_SENT_BEACON:
+			fail_ctp[msg.node] += 1
+			#Tao_ctp[msg.node].append(msg.route_info__metric/100.0)
+			'''elif msg.type == 0x73:
+			Tao_ctp[msg.node].append(route_info__parent/10.0)'''
+		elif msg.type == NET_C_FE_SENT_MSG or msg.type == NET_C_FE_FWD_MSG:
+			F_ctp[msg.node] += 1
+			if msg.dbg__c == SINK_ID:
+				sink_neighbour_ctp.add(msg.node)
+			Tao_ctp[msg.dbg__c].add(msg.node)
+		#elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND or\
+		#     msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
+		elif msg.type == NET_C_FE_SENDDONE_FAIL or\
+		     msg.type == NET_C_FE_SENDDONE_WAITACK: 
+			pass
+			#fail_ctp[msg.node] += 1
+		elif msg.type == 0x73:
+			petx[msg.node].append(msg.route_info__parent/10.0)
 			
 haha={k:mean(petx[k]) for k in petx}
 #for k in haha:
@@ -349,7 +358,8 @@ print mean(Avg_Total_dc_ctp.values())
 Avg_F_ctp = {k:F_ctp[k]*ratio_ipi for k in F_ctp}
 Avg_L_ctp = {k:L_ctp[k]*ratio_ipi for k in L_ctp}
 #Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
-Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
+#Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
+Avg_N_ctp = {k:len(neighbour_ctp[k]) for k in neighbour_ctp}
 Avg_Tao_ctp = defaultdict(int)
 for k in Tao_ctp:
 	Avg_Tao_ctp[k] = len(Tao_ctp[k])
@@ -407,7 +417,7 @@ fig = pl.figure()
 ax = fig.add_subplot(1,1,1)
 ax.boxplot([Avg_F_ctp.values(),Avg_F_orw.values()] , positions=[1,2])
 #ax.boxplot(Avg_F_orw.values())
-pl.show()
+#pl.show()
 
 
 ###################### draw model curve ########################
@@ -424,7 +434,6 @@ L_SN, L_leaf, L_relay = Seperate_Avg(Avg_L_ctp, sink_neighbour_ctp, leaf_ctp, re
 
 Fail_SN, Fail_leaf, Fail_relay = Seperate_Avg(Avg_Fail_ctp, sink_neighbour_ctp, leaf_ctp, relay_ctp)
 
-print Fail_SN
 '''
 
 if resultc['twist'] == True:

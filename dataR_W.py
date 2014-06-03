@@ -20,9 +20,11 @@ result = command.main(sys.argv[1:])
 TWIST = result['twist']
 CHECK = result['check']
 FileDict = {}
-result = defaultdict(bool)
 if not TWIST:
-	base_path = '/media/Data/ThesisData/Indriya/'
+	if result['desktop']:
+		base_path = '/home/nagatoyuki/Thesis/Traces/Indriya/'
+	else:
+		base_path = '/media/Data/ThesisData/Indriya/'
 	FileNames = {'OrwDebug':('23739.dat',), 'CtpDebug':('24460.dat',), 
 				'CtpData':('24463.dat',), 'ConnectDebug':('25593.dat',),
 				'OrwNt':('23738.dat',)}
@@ -34,15 +36,15 @@ if not TWIST:
 		FileCollection_ctp = ['data-48672', 'data-48556', 'data-48639', 'data-48641', 
 							'data-48637', 'data-48642', 'data-48651', 'data-48710', 'data-48774']
 	else:
-		wakeup = [0.25, 0.5, 1, 2, 4, 8]
+		wakeup = [0.25, 0.5, 1, 2, 4, 8, 16]
 		'''FileCollection_orw = ['data-48795', 'data-48847', 'data-48848', 'data-48849', 
 							'data-48850', 'data-48851']
 		FileCollection_ctp = ['data-48828', 'data-48829', 'data-48836', 'data-48837', 
 							'data-48839', 'data-48846']'''
 		FileCollection_orw = ['data-48936', 'data-48934', 'data-48933', 'data-48932', 
-							'data-48931', 'data-48930']
+							'data-48931', 'data-48930', 'data-48952']
 		FileCollection_ctp = ['data-48929', 'data-48928', 'data-48925', 'data-48924', 
-							'data-48923', 'data-48922']
+							'data-48923', 'data-48922', 'data-48949']
 else:
 	base_path = '/media/Data/ThesisData/Twist/'
 	if not CHECK:

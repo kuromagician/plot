@@ -132,15 +132,16 @@ def loadNtDebug(path, fileNames):
             except StopIteration:
                 pass
             for row in fileReader:
-                type, edc, nextHopEdc, indexesInUse, indexes, seqNum, avgDc, txTime,\
-                timestamp, _, motelabMoteID, milli_time, _ = row
-                node = int(motelabMoteID) - 40000
-                if startTime == 0:
-                    startTime = long(milli_time)
-                globalTime = (long(milli_time) - startTime) * 1000
-                ntDebugMsgs.append(ntDebugMsg.NtDebugMsg(node, globalTime, 
-                         int(type), int(edc), int(nextHopEdc), int(indexesInUse), 
-                         int(indexes), int(seqNum), int(avgDc), int(txTime), int(timestamp)))            
+            	if len(row) == 13:
+		            type, edc, nextHopEdc, indexesInUse, indexes, seqNum, avgDc, txTime,\
+		            timestamp, _, motelabMoteID, milli_time, _ = row
+		            node = int(motelabMoteID) - 40000
+		            if startTime == 0:
+		                startTime = long(milli_time)
+		            globalTime = (long(milli_time) - startTime) * 1000
+		            ntDebugMsgs.append(ntDebugMsg.NtDebugMsg(node, globalTime, 
+		                     int(type), int(edc), int(nextHopEdc), int(indexesInUse), 
+		                     int(indexes), int(seqNum), int(avgDc), int(txTime), int(timestamp)))            
             f.close()
     return ntDebugMsgs
 

@@ -89,12 +89,13 @@ _T_test = 56.5*1000*60.0
 ###########################CTP##########################
 #F: number of forward
 #Tao: number of children
-#N: number of received beacon
+#N: number of received beacon (actually it's number of neighbours) 
 #L: number of overhearing
 #Fail: number of send beacon
 #Tw: wakeup interval
 
 def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
+	#print F, Tao, N, L, Fail
 	prob = ((1.5)*Tw)/_Tipi
 	newF = 0
 	total_prob = 0
@@ -108,12 +109,12 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 		newF += 12*(1-total_prob)
 	Ff = F*1.0/(newF + 1)
 	#print F, Ff, newF'''
-	#Ff= F
-	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N/8  + Tw/2/_Tipi*Ff + (_Trx)/_Tipi*L
+	Ff= F
+	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N  + Tw/2/_Tipi*Ff + (_Trx)/_Tipi*L
 	return dc*100
 	
 def DC_Model_ctp_SN(F, Tao, N, L, Fail, Tw):
-	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N/8 + _Ttx/_Tipi*F + (_Trx)/_Tipi*(L)
+	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N + _Ttx/_Tipi*F + (_Trx)/_Tipi*(L)
 	return dc*100
 
 ###########################ORW##########################
@@ -136,8 +137,6 @@ def DC_Model_orw(F, Tao, Fs, L, FWD, Tw):
 			total_prob += p
 	if temp >= 12:
 		newF += 12*(1-total_prob)
-	
-	print F, Fs, temp, newF
 	F = F*1.0/(newF + 1)
 	dc1 = _Tmin/Tw
 	dc2 = 1.0/(Fs+1)*F*Tw/_Tipi

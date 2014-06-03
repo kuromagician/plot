@@ -4,6 +4,7 @@
 *.pdf
 *~
 *.pyo
+*.pyc
 build/
 graphs/
 raw_data/

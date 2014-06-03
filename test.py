@@ -193,6 +193,8 @@ with open(path) as fo:
 y_SN=[]
 y_RL=[]
 y_LF=[]
+print x
+print SN_Paras
 for i, Tw in enumerate(x):
 	temp = DC_Model_ctp_SN(*(zip(*SN_Paras)[i]), Tw=Tw*1000.0)
 	y_SN.append(temp)

@@ -112,8 +112,12 @@ def getfile(args):
 					limited_ctp = 'data-48923'
 					limited_orw = 'data-48931'
 				elif args['wakeup'] == 8:
-					limited_ctp = 'data-48922'
+					#limited_ctp = 'data-48922'
+					limited_ctp = 'data-48993'
 					limited_orw = 'data-48930'
+				elif args['wakeup'] == 16:
+					limited_ctp = 'data-48949'
+					limited_orw = 'data-48952'
 			FileDict['CtpDebug'] = reader.loadDebug(base_path+limited_ctp, FileNames['CtpDebug']) 
 			FileDict['CtpData'] = reader.loadDataMsg(base_path+limited_ctp, FileNames['CtpData']) 
 			FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
