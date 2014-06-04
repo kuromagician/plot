@@ -1,0 +1,69 @@
+trace_20140419_034050.1 orw 0x1500 2 hour
+trace_20140420_194245.1 orw nolimit 1 hour
+trace_20140420_182200.0 ctp nolimit 1 hour
+trace_20140420_212823.2 orw 0x1000 2 hour
+trace_20140420_234914.3 ctp 0x1000 2 hour
+
+
+trace_20140515_120916.0 ctp 1h tw=256, cca=400, sink=153, powerlv=3
+trace_20140515_132005.1 orw 1h tw=256, cca=400, sink=153, powerlv=3
+trace_20140515_145530.2 ctp 1h tw=512, cca=400, sink=153, powerlv=3
+trace_20140515_160513.3 orw 1h tw=512, cca=400, sink=153, powerlv=3
+trace_20140515_174113.4 ctp 1h tw=1024, ... -------> data corrupted, but fixed
+trace_20140515_185012.5 orw 1h tw=1024, ...
+trace_20140515_200012.6 ctp 1h tw=2048, ...	-------> data corrupted, but fixed datalength == 31
+trace_20140515_210915.7 orw 1h tw=2048, ...
+trace_20140515_221814.8 ctp 1h tw=4096, ...
+trace_20140515_232715.9 orw 1h tw=4096, ...
+trace_20140516_020516.10 ctp 1h tw=8912, ...
+trace_20140516_031415.11 orw 1h tw=8912, ...
+trace_20140518_220334.37 1h 16318 ctp
+trace_20140518_231215.38 1h 16318 orw
+
+
+
+
+
+next: cca=900
+first2 2048
+then 512
+then 1024
+then 256
+then 4096
+then 8912
+then fix
+trace_20140516_043214.12	2048 ctp
+trace_20140516_054116.13	2048 orw
+//trace_20140516_075801.14 		-----> fail
+//trace_20140516_090701.15		-----> fail
+trace_20140516_115018.14	512 ctp
+trace_20140516_125914.15	512 orw
+trace_20140516_160435.17	1024 orw
+trace_20140516_171413.18	256 ctp
+trace_20140516_182314.19	256 orw
+trace_20140516_193515.20	4096 ctp
+trace_20140516_204414.21	4096 orw
+trace_20140516_215516.22	8912 ctp
+trace_20140516_230416.23	8912 orw
+trace_20140517_004915.24	1024 ctp
+39 1h 16318 orw --> this one doen't work, so ignore all 16381
+40 1h 16318 ctp
+========================================================
+trace_20140517_133316.27 2048 limit=0x1000 3h ctp
+trace_20140517_164214.28 2048 limit=0x1000 3h orw
+trace_20140517_195115.29 1024 limit=0x1000 3h ctp
+30, 31 0x2000 ctp, orw
+trace_20140518_101919.33	4000 ctp 
+trace_20140518_132824.34	4000 orw
+35 connectivity
+//41 6000 ctp
+//42 6000 orw
+
+
+
+========================================================
+Evergreen
+trace_20140517_033516.25 tw=512 on all nodes data size=13, 1 packet/min
+trace_20140517_045214.26 tw=1024 ...
+trace_20140518_064313.32 tw=2048
+trace_20140518_205313.36 tw=2048 cca=900

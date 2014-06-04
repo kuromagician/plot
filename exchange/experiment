@@ -1,0 +1,169 @@
+//47105 orw elimit=0x1000 all 60 minutes
+//47158 ctp elimit=0x1000 all 60 minutes
+//47245 orw elimit=0x500 all 60 minutes
+47266 ctp elimit=0x500 all 60 minutes
+//47267 ctp nolimit all 60 minutes
+47276 orw nolimit all 60 minutes
+47287 ctp elimit=0x700 all 60 minutes
+//47288 orw elimit=0x700 all 60 minutes
+47308 orw elimit=0x400 all 60 minutes
+47307 ctp elimit=0x400 all 60 minutes
+47344 orw elimit=0x500 kill odd nodes
+47350 orw elimit=0x500 kill odd nodes
+47355 orw elimit=0x1000 kill odd nodes
+47357 orw elimit=0x700 kill odd nodes
+//47385 ctp nolimit kill odd nodes 60 minutes wrong setting(no result)
+47390 orw elimit=0x700 kill odd nodes 60 minutes (repeated with 47357)
+47392 orw nolimit kill odd nodes 60 minutes
+####################ORW######################
+47470 orw nolimit data=13 60 minutes dc constant=10000
+47396 orw elimit=0x500 data=13 60 minutes dc constant=10000
+47395 orw elimit=0x700 data=13 60 minutes dc constant=10000
+47438 orw elimit=0xA00 data=13 60 minutes dc constant=10000
+47440 orw elimit=0xC00 data=13 60 minutes dc constant=10000
+47452 orw elimit=0xE00 data=13 60 minutes dc constant=10000
+47398 orw elimit=0x1000 data=13 60 minutes dc constant=10000
+47581 orw elimit=0x1200 data=13 60 minutes dc constant=10000
+
+####################CTP######################
+47464 ctp nolimit 60 minutes dc constant=10000				--------------> ok
+47436 ctp elimit=0xA00 60 minutes dc constant=10000			--------------> ok
+//47457 ctp elimit=0x1000 60 minutes dc constant=10000		--------------> above 100 lose connection
+47473 ctp elimit=0x700 60 minutes dc constant=10000			--------------> 14 nodes disconnected
+//47494 ctp elimit=0x1200 60 minutes dc constant=10000 fix order but above 100 nodes lost connection note: in testbed ctp_elimit_700_p1000 is elimit=1200
+47540 ctp elimit=0x1000 60 minutes dc constant=1000			--------------> ok
+//47542 ctp elimit=0x1000 60 minutes dc constant=10000? not sure about the elimit = 1000 or 1200?
+47546 ctp elimit=0x1200 60 minutes dc constant=10000		--------------> ok
+//47553 ctp elimit=0x1400 60 minutes dc constant=10000		too many(24) nodes get disconected
+47558 ctp elimit=0x1400 60 minutes dc constant=10000	
+47566 ctp elimit=0x1400 60 minutes dc constant=10000		remove nodes aboe 115
+47657 ctp nolimit 60 minutes dc constant=10000 remove node 20 and 75
+47662 orw nolimit 60 minutes dc constant=10000 remove node 20 and 75
+47697 ctp elimit=0x1200 60 minutes dc constant=10000 remove node 20 and 75
+47699 orw elimit=0x1200 data=13 60 minutes dc constant=10000 removenode 20 and 75 
+47855 orw elimit=0x1000 data=13 60 minutes dc constant=10000 removenode 20 and 75 
+47863 ctp elimit=0x1000 60 minutes dc constant=10000 remove node 20 and 75
+47933 ctp no elimit dc constant=10000 remove node >=87 and 20, 75
+47934 orw no elimit dc constant=10000 remove node >=87 and 20, 75
+47970 ctp elimit=0x1000 dc constant=10000 remove node >=87 and 20, 75 no info ----------->why?
+47949 kill half orw not working(SINK ID)
+47941 ctp kill odd on all nodes(SINK=13)
+48017 ctp elimit=0x1000 dc constant=10000 remove node >=87 and 20, 75 no info 
+48019 orw elimit=0x1000 dc constant=10000 remove node >=87 and 20, 75 no info 
+48353 ctp no limit all
+48467 ctp with every receive (beacon and msg), but failed  ----------------> from now add NET_SNOOP_RCV 0x72
+48473 orw with every receive
+48556 ctp with every wakeup + delay logging in defaultLplC
+//48560 orw with every wakeup + delay logging in defaultLplC but delay_after_receive is 30
+48564 orw with DELAY_AFTER_RECEIVE=20
+48614 ctp wakeup=2s
+
+48680 orw wakeup=0.25s ----->being done
+48626 orw wakeup=1s --------> not sure
+48640 orw wakeup=1s
+48627 orw wakeup=1.5s
+48623 orw wakeup=2s
+48631 orw wakeup=2.5s
+48646 orw wakeup=4s
+48714 orw wakeup=6s
+48775 orw wakeup=16s
+//48632 orw wakeup=2s, but log everytime when detected(not in f anymore)
+48719 orw wakeup=2 cca=800
+48633 ctp wakeup=2s
+
+48672 ctp wakeup=0.25s log parent etx as 0x73
+48639 ctp wakeup=1s log parent etx as 0x73
+48641 ctp wakeup=1.5s log parent etx as 0x73
+48637 ctp wakeup=2s log parent etx as 0x73
+48642 ctp wakeup=2.5s log parent etx as 0x73
+48651 ctp wakeup=4.0s
+48710 ctp wakeup=6s
+48774 ctp wakeup=16s
+note: ctp above the logging is within the if statement
+48718 ctp wakeup=2s cca=800
+
+
+//48628 ctp 1s    no dbug    dont use
+//48629 ctp 1.5s  no dbg... dont use
+note: model.py can use file above 48556
+
+#####################################################################
+      #######################cca=900#######################
+#####################################################################
+48795 orw tw=0.25s
+48828 ctp tw=0.25s
+48829 ctp tw=0.5s
+48836 ctp tw=1s
+48837 ctp tw=2s
+48839 ctp tw=4s
+48846 ctp tw=8s
+48847 orw tw=0.5s
+48848 orw tw=1s
+48849 orw tw=2s
+48850 orw tw=4s
+48851 orw tw=8s
+48894 orw tw=16s
+#####################################################################
+      ###############cca=900 fix dc measurement##########
+#####################################################################
+48922 ctp tw=8s
+48923 ctp tw=4s
+48924 ctp tw=2s
+48925 ctp tw=1s
+48928 ctp tw=0.5s
+48929 ctp tw=0.25s
+48949 ctp tw=16s
+
+48993 ctp tw=2s log beacon source
+
+
+48930 orw tw=8s
+48931 orw tw=4s
+48932 orw tw=2s
+48933 orw tw=1s
+48934 orw tw=0.5s
+48936 orw tw=0.25s
+48952 orw tw=16s
+
+
+
+
+
+
+
+
+
+
+
+
+#######################
+ctp_debug_more7:
+1. logging within if statement
+2. record parent etx(link etx) as 0x73
+
+ctp_debug_more8:
+same as 7, but cca=800
+ctp_debug_more9:
+same as 7, but cca=900
+ctp_debug_fix0:
+same as more9, but now constant=1000
+ctp_debug_fix1:
+same as fix0, but now change to (uint64_t)10000*...
+so again it's 10000
+ctp_debug_fix2:
+same as fix1, but add to both data and idle
+ctp_debug_fix3:
+log the source of beacon
+#######################
+orw_debug_more5:
+logging within if statement, and delay after receive=20
+orw_debug_more6:
+same as 5, cca=800
+
+orwdebug_more7:
+same as 5
+cca = 900
+orw_debug_fix0:
+same as more9, but now constant=1000
+
+
