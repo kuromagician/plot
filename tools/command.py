@@ -55,6 +55,7 @@ def getfile(args):
 	             'CtpData':('24463.dat',), 'ConnectDebug':('25593.dat',),
 	             'OrwNt':('23738.dat',)}
 	FileDict = {}
+	lookup_dic = {}
 	props = {'SINK_ID':1, 'prefix':'Indriya_', 'timeratio':1000.0}
 	props['energy'] = hex(ELIMIT)
 	
@@ -67,65 +68,29 @@ def getfile(args):
 		#
 		if args['model']:
 			if not args['check']:
-				if args['wakeup'] == 0.5:
-					limited_ctp = 'data-48556'
-					limited_orw = 'data-48564'
-				elif args['wakeup'] == 1.5:
-					limited_ctp = 'data-48556'
-					limited_orw = 'data-48627'
-				elif args['wakeup'] == 1:
-					limited_ctp = 'data-48639'
-					limited_orw = 'data-48640'
-				elif args['wakeup'] == 2:
-					limited_ctp = 'data-48633'
-					#limited_orw = 'data-48632'
-					limited_orw = 'data-48623'
-				elif args['wakeup'] == 2.5:
-					limited_ctp = 'data-48556'
-					limited_orw = 'data-48631'
-				elif args['wakeup'] == 4:
-					limited_ctp = 'data-48651'
-					limited_orw = 'data-48646'
-				elif args['wakeup'] == 0.25:
-					limited_ctp = 'data-48672'
-					limited_orw = 'data-48680'
-				elif args['wakeup'] == 6:
-					limited_ctp = 'data-48710'
-					limited_orw = 'data-48714'
-				elif args['wakeup'] == 16:
-					limited_ctp = 'data-48774'
-					limited_orw = 'data-48775'
+				wakeup_i = [0.25, 0.5, 1, 1.5, 2, 2.5, 4, 6, 16]
+				FileCollection_orw = ['data-48680', 'data-48564', 'data-48640', 'data-48627', 
+							'data-48623', 'data-48631', 'data-48646', 'data-48714', 'data-48775']
+				FileCollection_ctp = ['data-48672', 'data-48556', 'data-48639', 'data-48641', 
+							'data-48637', 'data-48642', 'data-48651', 'data-48710', 'data-48774']
 			else:
-				if args['wakeup'] == 0.25:
-					limited_ctp = 'data-48929'
-					limited_orw = 'data-48936'
-				elif args['wakeup'] == 0.5:
-					limited_ctp = 'data-48928'
-					limited_orw = 'data-48934'
-				elif args['wakeup'] == 1:
-					limited_ctp = 'data-48925'
-					limited_orw = 'data-48933'
-				elif args['wakeup'] == 2:
-					limited_ctp = 'data-48924'
-					limited_orw = 'data-48932'
-				elif args['wakeup'] == 4:
-					limited_ctp = 'data-48923'
-					limited_orw = 'data-48931'
-				elif args['wakeup'] == 8:
-					#limited_ctp = 'data-48922'
-					limited_ctp = 'data-48993'
-					limited_orw = 'data-48930'
-				elif args['wakeup'] == 16:
-					limited_ctp = 'data-48949'
-					limited_orw = 'data-48952'
+				wakeup_i = [0.25, 0.5, 1, 2, 4, 8, 16]
+				FileCollection_orw = ['data-48936', 'data-48934', 'data-48933', 'data-48932', 
+							'data-48931', 'data-48930', 'data-48952']
+				FileCollection_ctp = ['data-48929', 'data-48928', 'data-48925', 'data-48924', 
+							'data-48923', 'data-48922', 'data-48949']
+			if args['wakeup'] not in wakeup_i:
+				print "No traces available for this setting, exit"
+				sys.exit(0)
+			for k, ORW, CTP in zip(wakeup_i, FileCollection_orw, FileCollection_ctp):
+				lookup_dic[k] = (CTP, ORW)
+			limited_ctp = lookup_dic[args['wakeup']][0]
+			limited_orw = lookup_dic[args['wakeup']][1]
 			FileDict['CtpDebug'] = reader.loadDebug(base_path+limited_ctp, FileNames['CtpDebug']) 
 			FileDict['CtpData'] = reader.loadDataMsg(base_path+limited_ctp, FileNames['CtpData']) 
 			FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
 			FileDict['OrwNt'] = reader.loadNtDebug(base_path+limited_orw, FileNames['OrwNt']) 
 			return FileDict, props
-		if args['check']:
-			limited_ctp = 'data-48718'
-			limited_orw = 'data-48719'
 		#file prefix
 		if ELIMIT == 0:
 			if not CONNECT:
