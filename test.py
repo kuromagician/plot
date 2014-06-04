@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import tools.twistReader as Treader
 import tools.command as command
 import tools.calprop as calprop
