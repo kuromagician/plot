@@ -114,8 +114,10 @@ note: model.py can use file above 48556
 48929 ctp tw=0.25s
 48949 ctp tw=16s
 
-48993 ctp tw=2s log beacon source
+//48993 ctp tw=2s log beacon source ---> not totally correct
 
+49023 ctp tw=0.25s log beacon source in pos1
+49029 ctp tw=0.5s log beacon source in pos1
 
 48930 orw tw=8s
 48931 orw tw=4s
@@ -154,6 +156,8 @@ ctp_debug_fix2:
 same as fix1, but add to both data and idle
 ctp_debug_fix3:
 log the source of beacon
+ctp_debug_fix4:
+change the beacon source to position 1
 #######################
 orw_debug_more5:
 logging within if statement, and delay after receive=20

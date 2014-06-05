@@ -37,12 +37,18 @@ def Seperate_Avg(data, set1, set2, set3):
 	tempdict = {}
 	for k in keys & set2:
 		tempdict[k] = data[k]
-	s2 = np.mean(tempdict.values())
+	if len(tempdict):
+		s2 = np.mean(tempdict.values())
+	else:
+		s2 = 0
 	
 	tempdict = {}
 	for k in keys & set3:
 		tempdict[k] = data[k]
-	s3 = np.mean(tempdict.values())
+	if len(tempdict):
+		s3 = np.mean(tempdict.values())
+	else:
+		s3 = 0
 	
 	return s1, s2, s3
 
@@ -78,7 +84,9 @@ def constant_factory(value):
 	
 ########################################################
 ##################IMPORTANT MODEL!!!!!!#################
-_Tc = _Tmin = 12.8
+#cca check time if nothing happens
+_Tc = 12.8
+#receive a packet
 _Trx = 20.0 + _Tc/2.0
 #time needed for a transmition to sink
 _Ttx = 3 + 3.0 + 20 #cca + trans+ack + post(20ms)
@@ -99,7 +107,7 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 	prob = ((1.5)*Tw)/_Tipi
 	newF = 0
 	total_prob = 0
-	temp = max(Tao, int(F))
+	temp = max(Tao, int(math.ceil(F)))
 	for i in xrange(1, 13):
 		if i <= temp:
 			p = misc.comb(temp, i, 1)*prob**i*(1-prob)**(temp-i)
@@ -108,13 +116,11 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 	if temp >= 13:
 		newF += 12*(1-total_prob)
 	Ff = F*1.0/(newF + 1)
-	#print F, Ff, newF'''
-	Ff= F
-	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N  + Tw/2/_Tipi*Ff + (_Trx)/_Tipi*L
+	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N  + Tw/2/_Tipi*Ff + (_Trx)/_Tipi*L + Fail*Tw/_Tipi
 	return dc*100
 	
 def DC_Model_ctp_SN(F, Tao, N, L, Fail, Tw):
-	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N + _Ttx/_Tipi*F + (_Trx)/_Tipi*(L)
+	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N + _Ttx/_Tipi*F + (_Trx)/_Tipi*(L) + Fail*Tw/_Tipi
 	return dc*100
 
 ###########################ORW##########################
@@ -129,7 +135,7 @@ def DC_Model_orw(F, Tao, Fs, L, FWD, Tw):
 	newF = 0
 	total_prob = 0
 	#temp = max(Tao, int(F))
-	temp = int(F)
+	temp = int(math.ceil(F))
 	for i in xrange(1, 12):
 		if i <= temp:
 			p = misc.comb(temp, i, 1)*prob**i*(1-prob)**(temp-i)
@@ -138,15 +144,16 @@ def DC_Model_orw(F, Tao, Fs, L, FWD, Tw):
 	if temp >= 12:
 		newF += 12*(1-total_prob)
 	F = F*1.0/(newF + 1)
-	dc1 = _Tmin/Tw
+	dc1 = _Tc/Tw
 	dc2 = 1.0/(Fs+1)*F*Tw/_Tipi
 	dc3 = L*(_Trx)/_Tipi
 	return dc1*100, dc2*100, dc3*100
 	
 def DC_Model_orw_SN(F, Tao, Fs, L, FWD, Tw):
-	dc2 = (_Tmin+_Tpost)*(F)/_Tipi
+	print F, Tao, Fs, L, FWD 
+	dc2 = _Ttx*(F)/_Tipi
 	dc3 = L*_Trx/_Tipi
-	dc1 = _Tmin/Tw
+	dc1 = _Tc/Tw
 	return dc1*100, dc2*100, dc3*100
 	
 

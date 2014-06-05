@@ -1,4 +1,18 @@
 #!/bin/bash
+function generate_data(){
+	#theses genereate model parameters
+	./model.py -$1 0.25
+	./model.py -$1 0.5
+	./model.py -$1 1
+	./model.py -$1 2
+	./model.py -$1 4
+	./model.py -$1 8
+	./model.py -$1 16
+	#this generates real measurements, notice the 1 is just dummy
+	python dataR_W.py -$1 1
+}
+
+
 name=$(uname -n)
 if [ "$1" == "t" ]||[ "$1" == "twist" ]; then
 	echo "Using twist data is not recommended"
@@ -10,23 +24,9 @@ else
 	rm -f DC_measure_indriya.txt
 	#detect which computer it is
 	if [ "$name" == "js41" ]; then
-		args="am"
+		arg1="am"
 	else
-		args="dam"
+		arg1="dam"
 	fi
 fi
-
-function generate_data(){
-	#theses genereate model parameters
-	./model.py -$1 0.25
-	./model.py -$1 0.5
-	./model.py -$1 1
-	./model.py -$1 2
-	./model.py -$1 4
-	./model.py -$1 8
-	./model.py -$1 16
-	#this generates real measurements
-	python dataR_W.py -a
-}
-
-generate_data $args
+generate_data $arg1

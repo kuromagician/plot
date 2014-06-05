@@ -20,6 +20,7 @@ def prop_orw(FileDict, args):
 	num_fwd_orw = defaultdict(int)
 	num_init_orw = defaultdict(int)
 	route_hist_orw = defaultdict(set)
+	rcv_hist_orw = set()
 	DutyCycle_orw = defaultdict(list)
 	dir_neig_orw = set()
 	total_receive_orw = 0
@@ -28,15 +29,16 @@ def prop_orw(FileDict, args):
 		#only record data after 10 minutes
 		if msg.timestamp / time_ratio /60 >= 10:
 			if msg.type == NET_C_FE_RCV_MSG:
-				#if origin != last_hop, then last hop is forwarder
-				if msg.dbg__b != msg.dbg__c:
-					num_fwd_orw[msg.dbg__c] += 1
-				# (origin, SeqNo) += lasthop
-				route_hist_orw[(msg.msg__origin, msg.dbg__a)].add(msg.dbg__c)
-				#if node is SINK, add node to direct neighbour
-				if msg.node == SINK_ID:
-					dir_neig_orw.add(msg.dbg__c)
-					total_receive_orw += 1
+				#make sure we don't count duplicate
+				if (msg.msg__origin, msg.dbg__a) not in rcv_hist_orw:
+					#add to path and total receive history
+					# (origin, SeqNo) += lasthop
+					route_hist_orw[(msg.msg__origin, msg.dbg__a)].add(msg.dbg__c)
+					rcv_hist_orw.add((msg.msg__origin, msg.dbg__a))
+					#if node is SINK, add node to direct neighbour
+					if msg.node == SINK_ID:
+						dir_neig_orw.add(msg.dbg__c)
+						total_receive_orw += 1
 			elif msg.type == NET_DC_REPORT:
 				if msg.dbg__a + msg.dbg__c < 10000:
 					DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
@@ -45,6 +47,10 @@ def prop_orw(FileDict, args):
 					DutyCycle_orw[msg.node].append((10000, msg.dbg__b, 0))
 			elif msg.type == NET_APP_SENT:
 				num_init_orw[msg.node] += 1
+			elif msg.type == NET_C_FE_SENT_MSG:
+				#if origin != curr node, then it's is forwarder
+				if msg.dbg__b != msg.node:
+					num_fwd_orw[msg.node] += 1
 
 	#Calculate Avg load
 	load_orw = {k: num_fwd_orw[k] * 1.0 / num_init_orw[k] + 1 for k in num_init_orw}
@@ -107,10 +113,11 @@ def prop_ctp(FileDict, args):
 	else:
 		SINK_ID = 1
 		time_ratio = 1000.0
-	#######################section for ORW############################
+	#######################section for CTP############################
 	DutyCycle_ctp = defaultdict(list)
 	Avg_DC_ctp = defaultdict(int)
 	children_ctp = defaultdict(set)
+	rcv_hist_ctp = set()
 	num_fwd_ctp = defaultdict(int)
 	num_init_ctp = defaultdict(int)
 	send_noACK_ctp = defaultdict(int)
@@ -118,6 +125,7 @@ def prop_ctp(FileDict, args):
 	fwd_noACK_ctp = defaultdict(int)
 	dir_neig_ctp = set()
 	total_receive_ctp = 0
+	
 
 
 	for msg in CtpDebugMsgs:
@@ -142,7 +150,9 @@ def prop_ctp(FileDict, args):
 					dir_neig_ctp.add(msg.node)
 			elif msg.type == NET_C_FE_RCV_MSG:
 				if msg.node == SINK_ID:
-					total_receive_ctp += 1
+					if (msg.dbg__b, msg.dbg__a) not in rcv_hist_ctp:
+						rcv_hist_ctp.add((msg.dbg__b, msg.dbg__a))
+						total_receive_ctp += 1
 					#dir_neig_ctp.add(msg.msg__other_node)
 			elif msg.type == NET_C_FE_SEND_QUEUE_FULL:
 				send_Qfull_ctp[msg.node] += 1

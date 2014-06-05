@@ -59,56 +59,18 @@ Tmin = 6.0
 Tpost=20.0
 Tipi = 1000*60.0
 Tibi = 8*1000*60.0
-T_test = 56.5*1000*60.0
+T_test = 46.5*1000*60.0
 ratio_ipi = Tipi/T_test
 ratio_ibi = Tibi/T_test
-#normally how many wakeups are there
-#normal_w = Tipi/Tw
+
 SINK_ID = props['SINK_ID']
 
-
-#################################
-#    MODEL SECTION
-#    For ORW:
-#    DC = Tc/Tw + Tw/2/Tipi*F*TAO + Trx/Tipi*Li
-#
-'''def DC_Model_orw(F, Tao, Fs, L, Tw):
-	#print Tao, L
-	#print "F:{:2f} L:{:2f} Tao:{:2f} Fs:{:2f}".format(F, L, Tao, Fs)
-	#dc1 = Tmin/Tw*(1-(L)*Tw/Tipi)
-	dc1 = Tmin/Tw
-	dc2 = (4/11.0)**Fs*Tw/Tipi + Tw/Tipi/(Fs+1)*F
-	#if F >= 3:
-	#	F = F*1.0/min(F,4)
-	#dc2 = Tw/Tipi*F*Tao
-	#dc2 = Tao*10/Tipi*F
-	dc3 = L*(Trx)/Tipi
-	return dc1*100, dc2*100, dc3*100
-	
-def DC_Model_orw_SN(F, L, FWD):
-	dc1 = Tc/Tw*(1-(L+F)/normal_w)/2
-	dc2 = Ttx/Tipi + 50/Tipi*(F - 1)
-	dc3 = 0 #(Trx+Tc/2)/Tipi*L
-	return dc1*100, dc2*100, dc3*100
-	
-def DC_Model_orw_SN(F, L, FWD, Tw):
-	#print "F:{:2f} L:{:2f} FWD:{:2f}".format(F, L, FWD)
-	dc2 = (Tmin+Tpost)*(F)/Tipi
-	#dc3 = FWD*12/Tipi
-	dc3 = L*Trx/Tipi
-	dc1 = Tmin/Tw
-	return dc1*100, dc2*100, dc3*100'''
-#
-#
-#################################
-
-counter1=0
-counter2=0
 DutyCycle_orw = defaultdict(list)
 F_orw = defaultdict(int)
 FWD_orw = defaultdict(int)
 Tao_orw = defaultdict(set)
 L_orw = defaultdict(int)
+rcv_hist_orw = set()
 nodelist = set()
 relay_orw = set()
 leaf_orw = set()
@@ -120,26 +82,24 @@ for msg in OrwDebugMsgs:
 	if msg.timestamp / time_ratio / 60>= 10:
 		if msg.node != SINK_ID:
 			nodelist.add(msg.node)
-		#if msg.node != 13:
-		#	nodelist.add(msg.node)
 		if msg.type == NET_SNOOP_RCV:
 			L_orw[msg.node] += 1
 			counter1 += 1
 		elif msg.type == NET_C_FE_SENT_MSG:
 			t = (msg.dbg__c >> 8)/10.0
+			F_orw[msg.node] += 1
 			#print t, (msg.dbg__c & 0x00ff)/10.0
 			#if t > 25:
 			#	print "Node{} has Big Tao{:.2f}".format(msg.node, t)
 			#else:
 			#Tao_orw[msg.node].append(t)
 		elif msg.type == NET_C_FE_RCV_MSG:
-			F_orw[msg.dbg__c] += 1
-			if msg.dbg__c != msg.dbg__b:
-				FWD_orw[msg.node] += 1
-			if(msg.node == SINK_ID):
-				sink_neighbour_orw.add(msg.dbg__c)
-			counter2 += 1
-			Tao_orw[msg.node].add(msg.dbg__c)
+			if (msg.msg__origin, msg.dbg__a) not in rcv_hist_orw:
+				rcv_hist_orw.add((msg.msg__origin, msg.dbg__a))
+				if msg.node == SINK_ID:
+					sink_neighbour_orw.add(msg.dbg__c)
+				counter2 += 1
+				Tao_orw[msg.node].add(msg.dbg__c)
 		elif msg.type == NET_DC_REPORT:
 			if msg.dbg__a + msg.dbg__c < 10000:
 				DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
@@ -148,19 +108,14 @@ for msg in OrwDebugMsgs:
 				DutyCycle_orw[msg.node].append((10000, msg.dbg__b, 0))
 		elif msg.type == NET_C_FE_SENDDONE_WAITACK or msg.type == NET_C_FE_SENDDONE_FAIL:
 			fail_orw[msg.node] += 1
-		'''if msg.node == 8:
-			if msg.type == NET_C_FE_SENT_MSG:
-				next_hop_edc = msg.dbg__c >> 8
-				own_edc = msg.dbg__c & 0xFF
-				print "NextHop EDC:{}, Own EDC:{}".format(next_hop_edc/10.0, own_edc/10.0)'''
+		#NOTE: Here is TEMPERORY, need change!!!!!!
+		elif msg.node == SINK_ID:
+			FWD_orw[msg.node] += 1
 print counter1, counter2
 #print fail_orw
 
 
 Avg_F_orw = {k:F_orw[k]*ratio_ipi for k in F_orw}
-#print sorted(F_orw.keys())
-#print sorted(L_orw.keys())
-#print sorted(Tao_orw.keys())
 Avg_L_orw = {k:L_orw[k]*ratio_ipi for k in L_orw}
 Avg_Tao_orw = {k: len(Tao_orw[k]) for k in Tao_orw}
 
@@ -182,9 +137,6 @@ modeled_dc_orw = {}
 part1 = {}
 part2 = {}
 part3 = {}
-#Avg_Tao_orw.pop(20, 0)
-#Avg_Tao_orw.pop(75, 0)
-#sink_neighbour_orw.remove(20)
 #print sorted(Avg_Tao_orw.keys())
 #print sorted(sink_neighbour_orw)
 for node in nodelist:
@@ -256,33 +208,9 @@ for k in set(modeled_dc_orw.keys()) & set(Avg_Total_dc_orw.keys()) :
 ax2.bar(diff_value.keys(), diff_value.values(), color='r')
 print "diff ratio orw:", mean(absolute(diff_ratio.values())), "%"
 
-###############################  CTP ##########################
-#################################
-#    MODEL SECTION
-#    For CTP:
-#    DC = Tc/Tw + Tw/2/Tipi*F*TAO + Trx/Tipi*Li
-#
-'''def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
-	#print "F:{:2f} L:{:2f} Tao:{:2f} N:{:2f} Fail:{:.2f}".format(F, L, Tao, N, Fail)
-	prob = Tw/2/Tipi
-	temp = int(round(F))
-	newF = 1*misc.comb(temp,1,1)*prob**1 + 2*misc.comb(temp,2,1)*prob**2 + 3*misc.comb(temp,3,1)*prob**3
-	print F, newF
-	F = F*1.0/(newF + 1)
-	dc = Tc/Tw + Tw/Tibi + Trx/Tibi*N/6  + Tw/2/Tipi*F + (Trx)/Tipi*L#+ (Fail)*Tw/Tipi
-	
-	#dc = Tc/Tw + Tw/Tibi + Trx/Tibi*N/6 + (1/2.0)*Tw/Tipi*max(1, F-Fail*11/4.0) + (Trx)/Tipi*(L)
-	return dc*100
-	
-def DC_Model_ctp_SN(F, Tao, N, L, Fail, Tw):
-	#print "F:{:2f} L:{:2f} Tao:{:2f} N:{:2f}".format(F, L, Tao, N)
-	#dc = Tc/Tw + Tw/Tibi  + Ttx/Tipi*F*Tao + (Trx)/Tipi*L
-	dc = Tc/Tw + Tw/Tibi + Trx/Tibi*N/6 + Ttx/Tipi*F + (Trx)/Tipi*(L)
-	return dc*100'''
-	
-#
-#
-#################################
+##################################  CTP ################################
+###############################  Data Process ##########################
+
 DutyCycle_ctp = defaultdict(list)
 F_ctp = defaultdict(int)
 Tao_ctp = defaultdict(set)
@@ -291,6 +219,7 @@ L_ctp = defaultdict(int)
 N_ctp = defaultdict(int)
 sink_neighbour_ctp = set()
 neighbour_ctp = defaultdict(set)
+rcv_hist_ctp = set()
 relay_ctp = set()
 leaf_ctp = set()
 fail_ctp = defaultdict(int)
@@ -312,21 +241,22 @@ for msg in CtpDebugMsgs:
 				print msg.node, msg.dbg__a, msg.dbg__b, msg.dbg__c, msg.timestamp / time_ratio
 				DutyCycle_ctp[msg.node].append((10000, msg.dbg__b, 0))
 		elif msg.type == NET_C_TREE_SENT_BEACON:
-			fail_ctp[msg.node] += 1
+			#fail_ctp[msg.node] += 1
 			#Tao_ctp[msg.node].append(msg.route_info__metric/100.0)
 			'''elif msg.type == 0x73:
 			Tao_ctp[msg.node].append(route_info__parent/10.0)'''
 		elif msg.type == NET_C_FE_SENT_MSG or msg.type == NET_C_FE_FWD_MSG:
+			if msg.node == 4:
+				print "4 send to {}".format(msg.dbg__c)
 			F_ctp[msg.node] += 1
 			if msg.dbg__c == SINK_ID:
 				sink_neighbour_ctp.add(msg.node)
 			Tao_ctp[msg.dbg__c].add(msg.node)
 		#elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND or\
 		#     msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
-		elif msg.type == NET_C_FE_SENDDONE_FAIL or\
-		     msg.type == NET_C_FE_SENDDONE_WAITACK: 
+		elif msg.type == NET_C_FE_SENDDONE_WAITACK: 
 			pass
-			#fail_ctp[msg.node] += 1
+			fail_ctp[msg.node] += 1
 		elif msg.type == 0x73:
 			petx[msg.node].append(msg.route_info__parent/10.0)
 			
@@ -357,9 +287,8 @@ print mean(Avg_Total_dc_ctp.values())
 
 Avg_F_ctp = {k:F_ctp[k]*ratio_ipi for k in F_ctp}
 Avg_L_ctp = {k:L_ctp[k]*ratio_ipi for k in L_ctp}
-#Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
-#Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
-Avg_N_ctp = {k:len(neighbour_ctp[k]) for k in neighbour_ctp}
+Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
+#Avg_N_ctp = {k:len(neighbour_ctp[k]) for k in neighbour_ctp}
 Avg_Tao_ctp = defaultdict(int)
 for k in Tao_ctp:
 	Avg_Tao_ctp[k] = len(Tao_ctp[k])
@@ -388,8 +317,9 @@ for node in F_ctp.keys():
 		modeled_dc_ctp[node] = DC_Model_ctp_SN(F, Tao, N, L, Fail, Tw)
 	else:
 		modeled_dc_ctp[node] = DC_Model_ctp(F, Tao, N, L, Fail, Tw)
-	if node == 74:
-		print "Node!!!", F, N, L, Tao, Fail, modeled_dc_ctp[node], "%"
+	if node == 4 or node == 74:
+		print "Node!!!", node, F, N, L, Tao, Fail, "\n", \
+			             modeled_dc_ctp[node], "%", Avg_Total_dc_ctp[node], "%"
 
 print counter1, counter2
 
@@ -417,7 +347,7 @@ fig = pl.figure()
 ax = fig.add_subplot(1,1,1)
 ax.boxplot([Avg_F_ctp.values(),Avg_F_orw.values()] , positions=[1,2])
 #ax.boxplot(Avg_F_orw.values())
-#pl.show()
+pl.show()
 
 
 ###################### draw model curve ########################
