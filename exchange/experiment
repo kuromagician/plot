@@ -118,6 +118,9 @@ note: model.py can use file above 48556
 
 49023 ctp tw=0.25s log beacon source in pos1
 49029 ctp tw=0.5s log beacon source in pos1
+49030 ctp ..1s ..
+49045 ctp ..2s ..
+
 
 48930 orw tw=8s
 48931 orw tw=4s
