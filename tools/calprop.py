@@ -16,6 +16,11 @@ def prop_orw(FileDict, args):
 	else:
 		SINK_ID = 1
 		time_ratio = 1000.0
+	#whether or not to delay the record
+	if args['postpone']:
+		time_TH = 60*time_ratio*10
+	else:
+		time_TH = -1
 	#######################section for ORW############################
 	num_fwd_orw = defaultdict(int)
 	num_init_orw = defaultdict(int)
@@ -26,17 +31,18 @@ def prop_orw(FileDict, args):
 	total_receive_orw = 0
 
 	for msg in OrwDebugMsgs:
-		#only record data after 10 minutes
-		if msg.timestamp / time_ratio /60 >= 10:
+		#only record data after 10 minutes, 
+		#can be set to -1 to record all
+		if msg.timestamp >= time_TH:
 			if msg.type == NET_C_FE_RCV_MSG:
-				#make sure we don't count duplicate
-				if (msg.msg__origin, msg.dbg__a) not in rcv_hist_orw:
-					#add to path and total receive history
-					# (origin, SeqNo) += lasthop
-					route_hist_orw[(msg.msg__origin, msg.dbg__a)].add(msg.dbg__c)
-					rcv_hist_orw.add((msg.msg__origin, msg.dbg__a))
-					#if node is SINK, add node to direct neighbour
-					if msg.node == SINK_ID:
+				route_hist_orw[(msg.msg__origin, msg.dbg__a)].add(msg.dbg__c)
+				if msg.node == SINK_ID:
+					#make sure we don't count duplicate
+					if (msg.msg__origin, msg.dbg__a) not in rcv_hist_orw:
+						#add to path and total receive history
+						# (origin, SeqNo) += lasthop
+						rcv_hist_orw.add((msg.msg__origin, msg.dbg__a))
+						#if node is SINK, add node to direct neighbour
 						dir_neig_orw.add(msg.dbg__c)
 						total_receive_orw += 1
 			elif msg.type == NET_DC_REPORT:
@@ -113,6 +119,11 @@ def prop_ctp(FileDict, args):
 	else:
 		SINK_ID = 1
 		time_ratio = 1000.0
+	#whether or not to delay the record
+	if args['postpone']:
+		time_TH = 60*time_ratio*10
+	else:
+		time_TH = -1
 	#######################section for CTP############################
 	DutyCycle_ctp = defaultdict(list)
 	Avg_DC_ctp = defaultdict(int)
@@ -129,8 +140,9 @@ def prop_ctp(FileDict, args):
 
 
 	for msg in CtpDebugMsgs:
-		#only record data after 10 minutes
-		if msg.timestamp / time_ratio /60 >= 10:
+		
+		#only record data after 10 minutes, controlled by 
+		if msg.timestamp >= time_TH:
 			if msg.type == NET_C_FE_SENT_MSG:
 				num_init_ctp[msg.node] += 1
 				if msg.dbg__c == SINK_ID:

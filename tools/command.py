@@ -6,9 +6,10 @@ import twistReader as Treader
 def main(argv):
 	result = {'kill':False, 'simple':False, 'lim':0, 'twist':False, \
 			  'connected':False, 'experiment':False, 'model':False,\
-			  'wakeup':float(1.5), 'check':False, 'desktop':False}
+			  'wakeup':float(1.5), 'check':False, 'desktop':False,\
+			  'postpone':False}
 	try:
-		opts, args = getopt.getopt(argv,"ehdl:m:kstca",["limit","twist","experiment","cca"])
+		opts, args = getopt.getopt(argv,"ehdl:m:kstcap",["limit","twist","experiment","cca"])
 	except getopt.GetoptError:
 		print 'plot.py -l <energy limit>\
              \n        -k \tkill some nodes\
@@ -40,6 +41,8 @@ def main(argv):
 			result['wakeup'] = float(arg)
 		elif opt in ("-a", "--cca"):
 			result['check'] = True
+		elif opt in ("-p",):
+			result['postpone'] = True
 	return result
 
 	

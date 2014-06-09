@@ -122,6 +122,7 @@ note: model.py can use file above 48556
 49045 ctp ..2s ..
 49054 ctp ..4s ..
 49059 ctp ..8s ..
+49079 ctp ..16s ..
 
 48930 orw tw=8s
 48931 orw tw=4s
@@ -131,9 +132,11 @@ note: model.py can use file above 48556
 48936 orw tw=0.25s
 48952 orw tw=16s
 
-
-
-
+49088 orw tw=16s
+49102 orw tw=8s
+49103 orw tw=4s
+49104 orw tw=2s
+49115 orw tw=1s
 
 
 
@@ -172,6 +175,8 @@ orwdebug_more7:
 same as 5
 cca = 900
 orw_debug_fix0:
-same as more9, but now constant=1000
+same as more7, but now change to (uint64_t)10000*...
 
-
+WARNING: now we only take things happens 10 minutes later. 
+So if there should be any experiment that related to node dying,
+be sure to make the first 10 minutes blank.

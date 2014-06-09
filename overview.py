@@ -32,15 +32,14 @@ time_ratio = props['timeratio']
 SINK_ID = props['SINK_ID']
 
 
-##################################section of CTP#########################
+################################section of CTP#########################
 CtpDebugMsgs = FileDict['CtpDebug']
-#Calibrate timestamp
+#Calibrate timestamp not needed?
 '''for msg in CtpDebugMsgs:
 	if msg.type == NET_DC_REPORT:
 		dt = msg.dbg__b - msg.timestamp/time_ratio
 		break'''
-		
-		
+
 #store the packet as (src, seqNo)
 hist_ctp = set()
 send_hist_ctp = set()
@@ -75,32 +74,33 @@ c = len(leaf_set)
 print "CTP:", a, b, c
 
 for msg in CtpDebugMsgs:
-	if msg.type == NET_C_FE_RCV_MSG:
-		if msg.node == SINK_ID:
-			temp = msg.timestamp/time_ratio
-			if (msg.dbg__b, msg.dbg__a) not in hist_ctp:
-				hist_ctp.add((msg.dbg__b, msg.dbg__a))
-				counter_r += 1
-				rcv_time_ctp.append(temp/60.0)
-				rcv_num_ctp.append(counter_r)
-	if msg.type == NET_C_FE_SENT_MSG:
+	if msg.timestamp / time_ratio /60 >= 10:
 		temp = msg.timestamp/time_ratio
-		if (msg.dbg__b, msg.dbg__a) not in hist_ctp:
-			send_hist_ctp.add((msg.dbg__b, msg.dbg__a))
-			counter_s += 1
-			send_num_ctp.append(counter_s)
-			send_time_ctp.append(temp/60.0)
-	if msg.type == NET_C_DIE:
-		if msg.node in relay_set:
-			counter_d_RL += 1
-		elif msg.node in leaf_set:
-			counter_d_LF += 1
-		elif msg.node in dirn_set:
-			counter_d_SN += 1
-		die_num_SN_ctp.append(counter_d_SN*100.0/a)
-		die_num_RL_ctp.append(counter_d_RL*100.0/b)
-		die_num_LF_ctp.append(counter_d_LF*100.0/c)
-		die_time_ctp.append(temp/60.0)
+		if msg.type == NET_C_FE_RCV_MSG:
+			if msg.node == SINK_ID:
+				#remove dumplicate
+				if (msg.dbg__b, msg.dbg__a) not in hist_ctp:
+					hist_ctp.add((msg.dbg__b, msg.dbg__a))
+					counter_r += 1
+					rcv_time_ctp.append(temp/60.0)
+					rcv_num_ctp.append(counter_r)
+		if msg.type == NET_C_FE_SENT_MSG:
+			if (msg.dbg__b, msg.dbg__a) not in hist_ctp:
+				send_hist_ctp.add((msg.dbg__b, msg.dbg__a))
+				counter_s += 1
+				send_num_ctp.append(counter_s)
+				send_time_ctp.append(temp/60.0)
+		if msg.type == NET_C_DIE:
+			if msg.node in relay_set:
+				counter_d_RL += 1
+			elif msg.node in leaf_set:
+				counter_d_LF += 1
+			elif msg.node in dirn_set:
+				counter_d_SN += 1
+			die_num_SN_ctp.append(counter_d_SN*100.0/a)
+			die_num_RL_ctp.append(counter_d_RL*100.0/b)
+			die_num_LF_ctp.append(counter_d_LF*100.0/c)
+			die_time_ctp.append(temp/60.0)
 
 
 
@@ -141,56 +141,64 @@ c = len(leaf_set)
 print "ORW:", a, b, c
 
 for msg in OrwDebugMsgs:
-	temp = msg.timestamp/time_ratio
-	if msg.type == NET_C_FE_RCV_MSG:
-		if msg.node == SINK_ID:
+	if msg.timestamp / time_ratio /60 >= 10:
+		temp = msg.timestamp/time_ratio
+		if msg.type == NET_C_FE_RCV_MSG:
+			if msg.node == SINK_ID:
+				if (msg.dbg__b, msg.dbg__a) not in hist_orw:
+					hist_orw.add((msg.dbg__b, msg.dbg__a))
+					counter_r += 1
+					rcv_time_orw.append(temp/60.0)
+					rcv_num_orw.append(counter_r)
+		if msg.type == NET_APP_SENT:
 			if (msg.dbg__b, msg.dbg__a) not in hist_orw:
-				hist_orw.add((msg.dbg__b, msg.dbg__a))
-				counter_r += 1
-				rcv_time_orw.append(temp/60.0)
-				rcv_num_orw.append(counter_r)
-	if msg.type == NET_APP_SENT:
-		if (msg.dbg__b, msg.dbg__a) not in hist_orw:
-			send_hist_orw.add((msg.dbg__b, msg.dbg__a))
-			counter_s += 1
-			send_num_orw.append(counter_s)
-			send_time_orw.append(temp/60.0)
-	if msg.type == NET_C_DIE:
-		if msg.node in relay_set:
-			counter_d_RL += 1
-		elif msg.node in leaf_set:
-			counter_d_LF += 1
-		elif msg.node in dirn_set:
-			counter_d_SN += 1
-		die_num_SN_orw.append(counter_d_SN*100.0/a)
-		die_num_RL_orw.append(counter_d_RL*100.0/b)
-		die_num_LF_orw.append(counter_d_LF*100.0/c)
-		die_time_orw.append(temp/60.0)
+				send_hist_orw.add((msg.dbg__b, msg.dbg__a))
+				counter_s += 1
+				send_num_orw.append(counter_s)
+				send_time_orw.append(temp/60.0)
+		if msg.type == NET_C_DIE:
+			if msg.node in relay_set:
+				counter_d_RL += 1
+			elif msg.node in leaf_set:
+				counter_d_LF += 1
+			elif msg.node in dirn_set:
+				counter_d_SN += 1
+			die_num_SN_orw.append(counter_d_SN*100.0/a)
+			die_num_RL_orw.append(counter_d_RL*100.0/b)
+			die_num_LF_orw.append(counter_d_LF*100.0/c)
+			die_time_orw.append(temp/60.0)
 
 
 
 ###########################PLOT SECTION##############################
+###########################  FIGURE 1  ##############################
+#      ax1: send/receive over time for ORW, CTP
+#      ax2: throughput over time for ORW, CTP                    
+#      ax3: die % over time for ORW, CTP, classified into LF, SN, RL
+#####################################################################
 fig = pl.figure()
 lb = max(rcv_time_ctp[0], rcv_time_orw[0])
 ub = min(rcv_time_ctp[-1], rcv_time_orw[-1])
 x = np.arange(lb, ub, 0.1)
 
 ax1 = fig.add_subplot(3,1,1)
-ax1.plot(rcv_time_ctp, rcv_num_ctp, lw=2, color='b')
-ax1.plot(send_time_ctp, send_num_ctp, 'b--', lw=2)
-ax1.plot(rcv_time_orw, rcv_num_orw, lw=2, color='g')
-ax1.plot(send_time_orw, send_num_orw, 'g--', lw=2)
+ax1.plot(rcv_time_ctp, rcv_num_ctp, lw=2, color='b', label='CTP_Receive')
+ax1.plot(send_time_ctp, send_num_ctp, 'b--', lw=2, label='CTP_Send')
+ax1.plot(rcv_time_orw, rcv_num_orw, lw=2, color='g', label='ORW_Receive')
+ax1.plot(send_time_orw, send_num_orw, 'g--', lw=2, label='ORW_Send')
+ax1.legend(prop={'size':6})
 #create interpolate curves so that we can use same x axis
 f_ctp = interp1d(rcv_time_ctp, rcv_num_ctp)
 f_orw = interp1d(rcv_time_orw, rcv_num_orw)
 
 #calculate derivative using interpolated result get from above
-xp = np.arange(lb+2, ub-2, 0.1)
+xp = np.arange(lb+2, ub-2, 1)
 drcv_ctp = derivative(f_ctp,xp,dx=1,n=1)
 drcv_orw = derivative(f_orw,xp,dx=1,n=1)
 ax2 = fig.add_subplot(3,1,2)
-ax2.plot(xp, drcv_ctp)
-ax2.plot(xp, drcv_orw)
+ax2.plot(xp, drcv_ctp, label='CTP_Throughput')
+ax2.plot(xp, drcv_orw, label='ORW_Throughput')
+ax2.legend()
 
 if result['lim']:
 	ax3 = fig.add_subplot(3,1,3)
@@ -200,6 +208,61 @@ if result['lim']:
 	ax3.plot(die_time_ctp, die_num_SN_ctp, color='b', label='SN_ctp')
 	ax3.plot(die_time_ctp, die_num_RL_ctp, color='r', label='RL_ctp')
 	ax3.plot(die_time_ctp, die_num_LF_ctp, color='g', label='LF_ctp')
+	
+###########################  FIGURE 2  ##############################
+#      ax1: load over hops for ORW, CTP
+#      ax2: die % over time for ORW, CTP, classified into LF, SN, RL
+#      ax3: dutycycle over load                    
+#      
+#####################################################################
+fig = pl.figure()
+
+###########################     ax1    ##############################   
+#to prevent unexpect error, we get the common part
+hops_ctp, load_ctp = common_dict (cal_prop_ctp['Avg_Hops'], cal_prop_ctp['Fwd_Load'])
+hops_orw, load_orw = common_dict (cal_prop_orw['Avg_Hops'], cal_prop_orw['Fwd_Load'])
+
+ax1 = fig.add_subplot(1,1,1)
+ax1.scatter(hops_ctp.values(), load_ctp.values(), label='CTP')
+ax1.scatter(hops_orw.values(), load_orw.values(), marker='x', color='g', label='ORW')
+ax1.legend()
+ax1.set_xlabel("Average Hops to Sink")
+ax1.set_ylabel("Average Load")
+fig.savefig("figures/hops_load.pdf")
+
+###########################     ax2    ##############################
+fig = pl.figure()
+hops_ctp, dc_ctp = common_dict (cal_prop_ctp['Avg_Hops'], cal_prop_ctp['Avg_Total_dc'])
+hops_orw, dc_orw = common_dict (cal_prop_orw['Avg_Hops'], cal_prop_orw['Avg_Total_dc'])
+
+ax2 = fig.add_subplot(1,1,1)
+ax2.scatter(hops_ctp.values(), dc_ctp.values(), label='CTP')
+ax2.scatter(hops_orw.values(), dc_orw.values(), marker='x', color='g', label='ORW')
+ax2.legend()
+ax2.set_xlabel("Average Hops to Sink")
+ax2.set_ylabel("Average Duty Cycle(%)")
+fig.savefig("figures/hops_dc.pdf")
+
+###########################     ax3    ##############################
+fig = pl.figure()
+load_ctp, dc_ctp = common_dict (cal_prop_ctp['Fwd_Load'], cal_prop_ctp['Avg_Total_dc'])
+load_orw, dc_orw = common_dict (cal_prop_orw['Fwd_Load'], cal_prop_orw['Avg_Total_dc'])
+
+ax3 = fig.add_subplot(1,1,1)
+ax3.scatter(load_ctp.values(), dc_ctp.values(), label='CTP')
+ax3.scatter(load_orw.values(), dc_orw.values(), marker='x', color='g', label='ORW')
+ax3.legend()
+ax3.set_xlabel("Average Load")
+ax3.set_ylabel("Average Duty Cycle(%)")
+
+#final axis adjustment
+limits = ax1.axis()
+ax1.set_ylim([0, limits[3]])
+ax1.set_xlim([-0.5, limits[1]])
+limits = ax3.axis()
+ax3.set_xlim([-1, limits[1]])
+fig.tight_layout()
+fig.savefig("figures/load_dc.pdf")
 
 pl.show()
 

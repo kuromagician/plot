@@ -8,29 +8,30 @@ import networkx as nx
 import pylab as pl
 from matplotlib.pyplot import pause
 from matplotlib import animation
+#from tools.functions import *
+from tools import command
+import sys
+from tools.constant import *
+from tools import calprop
 
-pl.ion()
+result = command.main(sys.argv[1:])
+FileDict, props = command.getfile(result)
+cal_prop_orw = calprop.prop_orw(FileDict, result)
+cal_prop_ctp = calprop.prop_ctp(FileDict, result)
+SINK_ID = props['SINK_ID']
+OrwDebugMsgs = FileDict['OrwDebug']
+CtpDebugMsgs = FileDict['CtpDebug']
 
-path = '/home/nagatoyuki/Desktop/Thesis/Indriya/data-47398'
-fileNames = ('23739.dat',)
-
-SINK_ID = 1
-#type constant
-NET_C_FE_SENT_MSG = 0x20        #:app. send       :msg uid, origin, next_hop
-NET_C_FE_RCV_MSG =  0x21        #:next hop receive:msg uid, origin, last_hop
-NET_C_FE_FWD_MSG =  0x22        #:fwd msg         :msg uid, origin, next_hop
-NET_C_FE_DST_MSG =  0x23        #:base app. recv  :msg_uid, origin, last_hop 
-NET_C_DIE		= 0x71
-
-debugMsgs = reader.loadDebug(path, fileNames)
 
 fig = pl.figure(figsize=[10,10])
 G = nx.Graph()
 node_w = {}
 die_orw = {}
-direct_nb_orw = set()
+DN_orw = cal_prop_orw['Dir_Neig']
+RL_orw = cal_prop_orw['Relay']
+LF_orw = cal_prop_orw['Leaf']
 
-for msg in debugMsgs:
+for msg in OrwDebugMsgs:
 	G.add_node(msg.node)
 	#if type is receive, record every edge that appears
 	if msg.type == NET_C_FE_RCV_MSG:
@@ -39,13 +40,11 @@ for msg in debugMsgs:
 			G[msg.dbg__c][msg.node]['weight'] += 1
 		else:
 			G.add_edge(msg.dbg__c, msg.node, weight = 1)
-		if(msg.node == SINK_ID):
-			direct_nb_orw.add(msg.dbg__c)
 	elif msg.type == NET_C_DIE:
 		die_orw[msg.node] = msg.dbg__b
 		
 sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
-#print sorted_die_orw
+sorted_die_node = [k for (k,v) in sorted_die_orw]
 
 pos = nx.graphviz_layout(G)
 nodelist = G.nodes()
@@ -53,30 +52,30 @@ init_func = nx.draw_networkx_nodes(G, pos, node_size = 150)
 
 
 limit = pl.gca().axis()
-print limit
+#print limit
 #nx.draw_networkx_nodes(G, pos, node_size = 150, node_color='b')
 #nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='r')
-#nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=direct_nb_orw, node_color='y')
+#nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=DN_orw, node_color='y')
 #pl.savefig('test.png')
 
-def update_fig(i):
+def update_fig(i, args, G):
 	pl.clf()
 	ax = pl.gca()
-	nx.draw_networkx_nodes(G, pos, init_func=init_func, nodelist=nodelist[i:len(nodelist)], node_size = 150, node_color='b')
-	nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='r')
-	nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=set(direct_nb_orw) & set(nodelist[i:len(nodelist)]), node_color='y')
+	livenodes = set(nodelist) - set(sorted_die_node[0:i])
+	nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k')
+	nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[0] & livenodes, node_color='b')
+	nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[1] & livenodes, node_color='r')
+	nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[2] & livenodes, node_color='g')
 	ax.set_xlim([limit[0], limit[1]])
 	ax.set_ylim([limit[2], limit[3]])
 	ax.set_autoscale_on(False)
-	
+	return ax
 
 #for (x,y) in sorted_die_orw:
 #	update_fig(x)
 #	pause(0.1)
-anim = animation.FuncAnimation(fig, update_fig, frames=len(sorted_die_orw), interval=20, blit=True)
+sets = (DN_orw, RL_orw, LF_orw)
+anim = animation.FuncAnimation(fig, update_fig, frames=len(sorted_die_orw), fargs=[sets, G], blit=True)
+anim.save('orw.mp4', fps=2)
 
-anim.save('a.mp4', fps=5)
-pl.show()
-#pl.draw()
-#pl.savefig('test.png')
-#pause(5)
+#pl.show()

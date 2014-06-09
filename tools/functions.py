@@ -8,6 +8,8 @@ import itertools
 import math
 import scipy.misc as misc
 import numpy as np
+
+
 #return dictionary that contains the same keys as provided
 #@paras: dict1, dict2's keys, common or unique
 def filter_dict(d, keys, invert=False):
@@ -17,11 +19,13 @@ def filter_dict(d, keys, invert=False):
         key_set = set(keys) & set(d.keys())
     return { k: d[k] for k in key_set }
 
-#return dictionaries that contains the same keys
+
+    #return dictionaries that contains the same keys
 def common_dict (d1, d2):
 	d1 = filter_dict(d1, d2.keys())
 	d2 = filter_dict(d2, d1.keys())
 	return d1, d2
+
 
 #return data into 3 classes by set1,2,3
 def Seperate_Avg(data, set1, set2, set3):
@@ -76,12 +80,20 @@ def Seperate_maxmin(data, set1, set2, set3):
 #represent original number of spaces
 def mysplit(s, delim=None):
     return [x for x in s.split(delim) if x]
+
     
 #generate constant values
 def constant_factory(value):
 	return itertools.repeat(value).next
 	
 	
+#return (x,y) for ecdf plotting
+def calc_ecdf (data):
+	sorted = np.sort( data )
+	#need bias or not?
+	yvals = np.arange(len(sorted))/float(len(sorted)) + 0.5/float(len(sorted))
+	return sorted, yvals
+
 ########################################################
 ##################IMPORTANT MODEL!!!!!!#################
 #cca check time if nothing happens

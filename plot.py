@@ -11,6 +11,7 @@ import os
 from collections import defaultdict
 from mpl_toolkits.mplot3d import Axes3D
 from tools.constant import *
+from tools.functions import *
 import tools.command as command
 import sys, getopt
 
@@ -18,6 +19,7 @@ resultc = command.main(sys.argv[1:])
 FileDict, props = command.getfile(resultc)
 ELIMIT = resultc['lim']
 folder='./graphs/twist/'
+time_TH = 60*props['timeratio']*10
 
 if not resultc['twist']:
 	node_range = range(0, 140)
@@ -46,19 +48,6 @@ def calc_ecdf (data):
 	yvals = np.arange(len(sorted))/float(len(sorted)) + 0.5/float(len(sorted))
 	return sorted, yvals
 	
-def filter_dict(d, keys, invert=False):
-    """ Filters a dict by only permitting certain keys. """
-    if invert:
-        key_set = set(d.keys()) - set(keys)
-    else:
-        key_set = set(keys) & set(d.keys())
-    return { k: d[k] for k in key_set }
-    
-def common_dict (d1, d2):
-	d1 = filter_dict(d1, d2.keys())
-	d2 = filter_dict(d2, d1.keys())
-	return d1, d2
-
 def exclu_dict (d1, d2, ed):
 	d1 = filter_dict(d1, ed.keys(), invert=True)
 	dd1, dd2 = common_dict (d1, d2)
@@ -94,31 +83,29 @@ unstable_orw = set()
 lower_life_orw = 2.455*ELIMIT - 30.5
 
 for msg in debugMsgs:
-	#if msg.node == 20 or msg.node==75 :
-	#	print "node:", msg.node, hex(msg.type), msg.dbg__a, msg.dbg__b, msg.dbg__c 
-	#if type is receive, record every edge that appears
-	if msg.type == NET_C_FE_RCV_MSG:
-		#record the route history to sink according to (Src, SeqNum)
-		add_route(msg.node, (msg.dbg__b, msg.dbg__a), route_hist)
-		add_link((msg.dbg__c, msg.node), msg.dbg__b, discovered_link)
-		#init_orw[msg.dbg__b] = max(0, msg.dbg__a)
-		if(msg.node == SINK_ID):
-			direct_nb_orw.add(msg.dbg__c)
-		if msg.dbg__b != msg.dbg__c and msg.dbg__c < 300:
-			fwd_orw[msg.dbg__c] += 1
-		neighbour_orw[msg.node].add(msg.dbg__c)
-		neighbour_orw[msg.dbg__c].add(msg.node)
-	elif msg.type == NET_DC_REPORT and msg.node != SINK_ID:
-		dutyCycle_data_orw[msg.node] += (msg.dbg__a + msg.dbg__c)
-		counter_orw[msg.node] += 1
-		#dutyCycle_idle_orw[msg.node] = msg.dbg__c
-	elif msg.type == NET_C_DIE:
-		die_orw[msg.node] = (msg.dbg__a, msg.dbg__b)
-		if msg.dbg__b < lower_life_orw / 7:
-			print "die too early:", msg.node
-			unstable_orw.add(msg.node)
-	elif msg.type == NET_APP_SENT:
-		init_orw[msg.node] += 1
+	if msg.timestamp >= time_TH:
+		if msg.type == NET_C_FE_RCV_MSG:
+			#record the route history to sink according to (Src, SeqNum)
+			add_route(msg.node, (msg.dbg__b, msg.dbg__a), route_hist)
+			add_link((msg.dbg__c, msg.node), msg.dbg__b, discovered_link)
+			#init_orw[msg.dbg__b] = max(0, msg.dbg__a)
+			if(msg.node == SINK_ID):
+				direct_nb_orw.add(msg.dbg__c)
+			if msg.dbg__b != msg.dbg__c and msg.dbg__c < 300:
+				fwd_orw[msg.dbg__c] += 1
+			neighbour_orw[msg.node].add(msg.dbg__c)
+			neighbour_orw[msg.dbg__c].add(msg.node)
+		elif msg.type == NET_DC_REPORT and msg.node != SINK_ID:
+			dutyCycle_data_orw[msg.node] += (msg.dbg__a + msg.dbg__c)
+			counter_orw[msg.node] += 1
+			#dutyCycle_idle_orw[msg.node] = msg.dbg__c
+		elif msg.type == NET_C_DIE:
+			die_orw[msg.node] = (msg.dbg__a, msg.dbg__b)
+			if msg.dbg__b < lower_life_orw / 7:
+				print "die too early:", msg.node
+				unstable_orw.add(msg.node)
+		elif msg.type == NET_APP_SENT:
+			init_orw[msg.node] += 1
 		
 num_neighbour_orw = {k : len(neighbour_orw[k]) for k in neighbour_orw}
 #print "fwd_orw:\n", fwd_orw

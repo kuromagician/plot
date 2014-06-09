@@ -11,7 +11,6 @@ from numpy import mean
 import tools.command as command
 from tools.constant import *
 import sys
-import prettytable
 
 
 #############################################################
@@ -77,19 +76,23 @@ result = command.main(sys.argv[1:])
 FileDict, props = command.getfile(result)
 CtpDebugMsgs = FileDict['CtpDebug']
 OrwDebugMsgs = FileDict['OrwDebug']
+time_ratio = props['timeratio']
 #open a file for logging 
 fo = open("logging.txt", "a+")
 
 ###################################   ORW   ######################################
 ax3 = pl.subplot2grid((2,5), (1,0), colspan=4)#, sharex=ax1, sharey=ax1)
 G_orw = nx.Graph()
+#10 minutes later we start collect data
+time_TH = 10*time_ratio*60
 
 load_counter = defaultdict(int)
 for msg in OrwDebugMsgs:
-	G_orw.add_node(msg.node)
-	if msg.type == NET_C_FE_RCV_MSG:
-		G_orw.add_edge(msg.dbg__c, msg.node)
-		load_counter[(msg.dbg__c, msg.node)] += 1
+	if msg.timestamp >= time_TH: 
+		G_orw.add_node(msg.node)
+		if msg.type == NET_C_FE_RCV_MSG:
+			G_orw.add_edge(msg.dbg__c, msg.node)
+			load_counter[(msg.dbg__c, msg.node)] += 1
 
 edgewidth=[]
 VIP_edges = []
@@ -136,7 +139,7 @@ print "Length of pos:", len(pos)
 print "Number of nodes:", len(G_orw.nodes())
 for node in pos.keys():
 	labels[node] = node
-
+#nx.draw_networkx_edges(G_orw, pos)
 nx.draw_networkx_edges(G_orw, pos, alpha=0.3, width=edgewidth, edge_color='m', edgelist=VIP_edges)
 #nx.draw_networkx_edges(G_orw, pos, width=0.3, edge_color='k', edgelist=VIP_edges)
 nx.draw_networkx_nodes(G_orw, pos , nodelist=pos.keys(), node_size=75)
@@ -152,9 +155,6 @@ ax4.annotate("Average:{:.2f}".format(mean_load), textcoords = 'offset points', s
 ax4.annotate("MAX:{}".format(max_value), textcoords = 'offset points', size=10, color='r',
 								xy = (1, max_value), xytext = (0, 0), ha='center')
 								
-								
-								
-								
 
 ###################################   CTP   ######################################
 ax1 = pl.subplot2grid((2,5), (0,0), colspan=4, sharex=ax3, sharey=ax3)
@@ -164,16 +164,14 @@ VIP_edges = []
 RealLink_ctp = defaultdict(list)
 
 for msg in CtpDebugMsgs:
-	G_ctp.add_node(msg.node)
-	if msg.type == NET_C_FE_SENT_MSG:
-		G_ctp.add_edge(msg.node, msg.dbg__c)
-		load_counter[(msg.node, msg.dbg__c)] += 1
-	elif msg.type == NET_C_FE_FWD_MSG:
-		G_ctp.add_edge(msg.node, msg.dbg__c)
-		load_counter[(msg.node, msg.dbg__c)] += 1
-		
-	#elif msg.type == NET_C_FE_RCV_MSG:
-	#	pass
+	if msg.timestamp >= time_TH: 
+		G_ctp.add_node(msg.node)
+		if msg.type == NET_C_FE_SENT_MSG:
+			G_ctp.add_edge(msg.node, msg.dbg__c)
+			load_counter[(msg.node, msg.dbg__c)] += 1
+		elif msg.type == NET_C_FE_FWD_MSG:
+			G_ctp.add_edge(msg.node, msg.dbg__c)
+			load_counter[(msg.node, msg.dbg__c)] += 1
 
 edgewidth=[]
 labels={}
@@ -220,9 +218,10 @@ for (u,v) in G_ctp.edges():
 		edgewidth.append(edge_weight*10.0/max_value)
 		VIP_edges.append((u, v))
 
-
+#pos = nx.graphviz_layout(G_ctp, root=props['SINK_ID'])
 for node in G_ctp.nodes():
 	labels[node] = node
+#nx.draw_networkx_edges(G_ctp, pos)
 nx.draw_networkx_edges(G_ctp, pos, width=0.3, edge_color='k', edgelist=VIP_edges)
 nx.draw_networkx_edges(G_ctp, pos, alpha=0.3, width=edgewidth, edge_color='m', edgelist=VIP_edges)
 
@@ -237,7 +236,9 @@ ax2.annotate("Average:{:.2f}".format(mean_load), textcoords = 'offset points', s
 ax2.annotate("MAX:{}".format(max_value), textcoords = 'offset points', size=10, color='r',
 								xy = (1, max_value), xytext = (0, 0), ha='center')
 
-								
+limits = ax1.axis()
+ax1.set_ylim([0, limits[3]])
+ax1.set_xlim([0, limits[1]])
 
 fig.savefig("networkbond.pdf", bbox_inches='tight')
 
@@ -249,7 +250,7 @@ JI_ctp = sum(y)**2*1.0/length/sum(k**2 for k in y)
 
 ax1.fill_between(xrange(0, len(y)), 0, y, alpha=0.5)
 ax1.annotate("CTP:{}".format(length), xy=(length, 0), xytext=(length, 200),
-            arrowprops=dict(width=0.5, headwidth=1.2), ha='center'
+            arrowprops=dict(width=0.5, headwidth=1.5), ha='center'
             )
 y = sortedload_orw
 
@@ -259,12 +260,10 @@ JI_orw = sum(y)**2*1.0/length/sum(k**2 for k in y)
 ax1.fill_between(xrange(0, len(y)), 0, y, alpha=0.5, color='r')
 ax1.set_ylabel('Link Load')
 ax1.set_xlabel('Link Index')
-limits = ax1.axis()
-ax1.set_ylim([0, limits[3]])
 #ax1.annotate("ORW:{}".format(length), textcoords = 'offset points', size=10,
 #								xy = (length, -2), xytext = (0, 0), ha='center')
 ax1.annotate("ORW:{}".format(length), xy=(length, 0), xytext=(length, 200),
-            arrowprops=dict(width=0.5, headwidth=1.2), ha='center'
+            arrowprops=dict(width=0.5, headwidth=1.5), ha='center'
             )
             
 print "JI CTP:", JI_ctp
