@@ -8,6 +8,7 @@ import itertools
 import math
 import scipy.misc as misc
 import numpy as np
+import sys
 
 
 #return dictionary that contains the same keys as provided
@@ -93,6 +94,12 @@ def calc_ecdf (data):
 	#need bias or not?
 	yvals = np.arange(len(sorted))/float(len(sorted)) + 0.5/float(len(sorted))
 	return sorted, yvals
+
+#show the progress
+def update_progress(text, progress):
+	#show something like "progress: ####### 99% "
+    sys.stdout.write("\r%-s%-26s%-d%%" %(text, '[ '+ '#'*(progress/5) + ' ]', progress))
+    sys.stdout.flush()
 
 ########################################################
 ##################IMPORTANT MODEL!!!!!!#################
