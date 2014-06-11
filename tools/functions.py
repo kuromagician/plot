@@ -126,7 +126,7 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 	prob = ((1.5)*Tw)/_Tipi
 	newF = 0
 	total_prob = 0
-	temp = max(Tao, int(math.ceil(F)))
+	temp = max(int(Tao), int(math.ceil(F)))
 	for i in xrange(1, 13):
 		if i <= temp:
 			p = misc.comb(temp, i, 1)*prob**i*(1-prob)**(temp-i)
@@ -140,6 +140,10 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 	
 def DC_Model_ctp_SN(F, Tao, N, L, Fail, Tw):
 	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N + _Ttx/_Tipi*F + (_Trx)/_Tipi*(L) + Fail*Tw/_Tipi
+	return dc*100
+
+def DC_Model_ctp_old(F, Tao, N, L, Fail, Tw):
+	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N  + Tw/2/_Tipi*F + (_Trx)/_Tipi*L + Fail*Tw/_Tipi
 	return dc*100
 
 ###########################ORW##########################

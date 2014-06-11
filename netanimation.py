@@ -31,8 +31,8 @@ LF_orw = cal_prop_orw['Leaf']
 SN_ctp = cal_prop_ctp['Dir_Neig']
 RL_ctp = cal_prop_ctp['Relay']
 LF_ctp = cal_prop_ctp['Leaf']
-end_time = 400
-fps=50
+end_time = 9000
+fps=60
 
 def update_fig(i, args, G, pos, lineset):
 	global counter
@@ -57,11 +57,13 @@ def update_fig(i, args, G, pos, lineset):
 		
 		counter += 1
 		#remove the dead nodes
-		G.remove_node(curr_node)
+		if curr_node in G.nodes():
+			G.remove_node(curr_node)
 		nodelist.discard(curr_node)
 		
 		ax1.set_xlim([limit[0], limit[1]])
 		ax1.set_ylim([limit[2], limit[3]])
+		ax1.set_axis_off()
 		nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k', ax=ax1)
 		nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[0] & nodelist, node_color='b', ax=ax1)
 		nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[1] & nodelist, node_color='r', ax=ax1)
@@ -127,14 +129,19 @@ nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=RL_orw & nodelist, node
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=LF_orw & nodelist, node_color='g')
 nx.draw_networkx_edges(G, pos, nodelist=nodelist, width=0.5, alpha=0.5)
 
-#nx.draw(G_orw, pos_orw)
-limit = pl.gca().axis()
+limit = ax1.axis()
+ax1.set_axis_off()
+
+
+#ax2 for die percentage
 sets = (SN_orw, RL_orw, LF_orw)
 ax2 = pl.subplot2grid((5,4), (4,0), colspan=4, xlim=(0, end_time), ylim=(-2, 100))
 timeline, = ax2.plot((0,0), (0, 100), 'k-')
 line_SN, = ax2.plot([0], [0], 'b-')
 line_RL, = ax2.plot([0], [0], 'r-')
 line_LF, = ax2.plot([0], [0], 'g-')
+ax2.set_xlabel('Time (s)')
+ax2.set_ylabel('%')
 y1=[0]
 y2=[0]
 y3=[0]
@@ -148,7 +155,7 @@ lineset = [timeline, line_SN, line_RL, line_LF]
 counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw, lineset], blit=True)
-anim.save('orw.mp4', fps=fps)
+anim.save('orw.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
 
 '''
 ###########################################################
@@ -193,9 +200,11 @@ pos_ctp = nx.graphviz_layout(G_ctp, root=SINK_ID)
 nodelist = set(G_ctp.nodes())
 print "CTP:", len(SN_ctp)+len(RL_ctp)+len(LF_ctp), len(nodelist)
 unknown = nodelist - SN_ctp - RL_ctp - LF_ctp
+
 for node in unknown:
 	if node != SINK_ID:
 		G_ctp.remove_node(node)
+
 
 G = G_ctp
 pos = pos_ctp
@@ -206,6 +215,7 @@ nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=RL_ctp & nodelist, node
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=LF_ctp & nodelist, node_color='g')
 nx.draw_networkx_edges(G, pos, nodelist=nodelist, width=0.5, alpha=0.5)
 limit = ax1.axis()
+ax1.set_axis_off()
 
 ax2 = pl.subplot2grid((5,4), (4,0), colspan=4, xlim=(0, end_time), ylim=(-2, 100))
 timeline, = ax2.plot((0,0), (0, 100), 'k-')
@@ -225,7 +235,7 @@ lineset = [timeline, line_SN, line_RL, line_LF]
 counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
-anim.save('ctp.mp4', fps=fps, bitrate=1000)
+anim.save('ctp.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
 '''
 #nx.draw(G_ctp, pos_ctp)
 
