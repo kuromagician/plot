@@ -79,12 +79,16 @@ OrwDebugMsgs = FileDict['OrwDebug']
 time_ratio = props['timeratio']
 #open a file for logging 
 fo = open("logging.txt", "a+")
+if result['postpone']:
+	time_TH = 10*time_ratio*60
+else:
+	time_TH = -1
 
 ###################################   ORW   ######################################
 ax3 = pl.subplot2grid((2,5), (1,0), colspan=4)#, sharex=ax1, sharey=ax1)
 G_orw = nx.Graph()
 #10 minutes later we start collect data
-time_TH = 10*time_ratio*60
+
 
 load_counter = defaultdict(int)
 for msg in OrwDebugMsgs:
@@ -96,7 +100,7 @@ for msg in OrwDebugMsgs:
 
 edgewidth=[]
 VIP_edges = []
-
+nodelist_orw = G.nodes()
 
 #print sorted(pos.keys())
 real_load = {}

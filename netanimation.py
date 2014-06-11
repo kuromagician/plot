@@ -25,46 +25,67 @@ OrwDebugMsgs = FileDict['OrwDebug']
 CtpDebugMsgs = FileDict['CtpDebug']
 time_ratio = props['timeratio']
 #set of 3 classes
-DN_orw = cal_prop_orw['Dir_Neig']
+SN_orw = cal_prop_orw['Dir_Neig']
 RL_orw = cal_prop_orw['Relay']
 LF_orw = cal_prop_orw['Leaf']
-DN_ctp = cal_prop_ctp['Dir_Neig']
+SN_ctp = cal_prop_ctp['Dir_Neig']
 RL_ctp = cal_prop_ctp['Relay']
 LF_ctp = cal_prop_ctp['Leaf']
-end_time = 200
-fps=30
+end_time = 400
+fps=50
 
-def update_fig(i, args, G, pos, line):
+def update_fig(i, args, G, pos, lineset):
 	global counter
 	progress = i*100/(end_time-1)
 	text = 'Creating animation: '
 	update_progress(text, progress)
 	#ax2.cla()
+	ly1 = y1[-1]
+	ly2 = y2[-1]
+	ly3 = y3[-1]
 	if i in sorted_die_time:
 		#clear figure
 		ax1.cla()
-		#ax1 = pl.gca()[0]
+		
 		curr_node = sorted_die_node[counter]
+		if curr_node in args[0]:
+			ly1 += step1
+		elif curr_node in args[1]:
+			ly2 += step2
+		elif curr_node in args[2]:
+			ly3 += step3
+		
 		counter += 1
 		#remove the dead nodes
 		G.remove_node(curr_node)
 		nodelist.discard(curr_node)
 		
+		ax1.set_xlim([limit[0], limit[1]])
+		ax1.set_ylim([limit[2], limit[3]])
 		nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k', ax=ax1)
 		nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[0] & nodelist, node_color='b', ax=ax1)
 		nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[1] & nodelist, node_color='r', ax=ax1)
-		nodes = nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[2] & nodelist, node_color='g', ax=ax1)
-		nx.draw_networkx_edges(G, pos, nodelist=nodelist, width=0.5, alpha=0.5, ax=ax1)
-		ax1.set_xlim([limit[0], limit[1]])
-		ax1.set_ylim([limit[2], limit[3]])
-	line.set_data([i, i], [0, 100])
-	return ax1, line
+		nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[2] & nodelist, node_color='g', ax=ax1)
+		nx.draw_networkx_edges(G, pos, width=0.5, alpha=0.5, ax=ax1)
+		
+		
+	lineset[0].set_data([i, i], [0, 100])
+	if i > 0:
+		x=xrange(0, i+1)
+		y1.append(ly1)
+		y2.append(ly2)
+		y3.append(ly3)
+		lineset[1].set_data(x, y1)
+		lineset[2].set_data(x, y2)
+		lineset[3].set_data(x, y3)
+	return ax1, lineset
 		
 
 ###########################################################
 ######################      ORW      ######################
-'''
+
 fig = pl.figure(figsize=[10,10])
+ax1 = pl.subplot2grid((5,4), (0,0), colspan=4, rowspan=4)
 G_orw = nx.Graph()
 node_w = {}
 die_orw = {}
@@ -92,26 +113,44 @@ print sorted_die_time
 
 pos_orw = nx.graphviz_layout(G_orw, root=SINK_ID)
 nodelist = set(G_orw.nodes())
-print "ORW:", len(DN_orw)+len(RL_orw)+len(RL_orw), len(nodelist)
+print "ORW:", len(SN_orw)+len(RL_orw)+len(RL_orw), len(nodelist)
+unknown = nodelist - SN_orw - RL_orw - LF_orw
+for node in unknown:
+	if node != SINK_ID:
+		G_orw.remove_node(node)
 
 G = G_orw
 pos = pos_orw
 nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k')
-nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=DN_orw & nodelist, node_color='b')
+nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=SN_orw & nodelist, node_color='b')
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=RL_orw & nodelist, node_color='r')
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=LF_orw & nodelist, node_color='g')
 nx.draw_networkx_edges(G, pos, nodelist=nodelist, width=0.5, alpha=0.5)
 
 #nx.draw(G_orw, pos_orw)
 limit = pl.gca().axis()
-sets = (DN_orw, RL_orw, LF_orw)
+sets = (SN_orw, RL_orw, LF_orw)
+ax2 = pl.subplot2grid((5,4), (4,0), colspan=4, xlim=(0, end_time), ylim=(-2, 100))
+timeline, = ax2.plot((0,0), (0, 100), 'k-')
+line_SN, = ax2.plot([0], [0], 'b-')
+line_RL, = ax2.plot([0], [0], 'r-')
+line_LF, = ax2.plot([0], [0], 'g-')
+y1=[0]
+y2=[0]
+y3=[0]
+step1=100.0/len(SN_orw)
+step2=100.0/len(RL_orw)
+step3=100.0/len(LF_orw)
+
+
+lineset = [timeline, line_SN, line_RL, line_LF]
 
 counter=0
 #end_time = sorted_die_time[-1]+30
-anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw], blit=True)
+anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw, lineset], blit=True)
 anim.save('orw.mp4', fps=fps)
-'''
 
+'''
 ###########################################################
 ######################      CTP      ######################
 
@@ -152,27 +191,42 @@ print sorted_die_time
 
 pos_ctp = nx.graphviz_layout(G_ctp, root=SINK_ID)
 nodelist = set(G_ctp.nodes())
-print "CTP:", len(DN_ctp)+len(RL_ctp)+len(RL_ctp), len(nodelist)
-
+print "CTP:", len(SN_ctp)+len(RL_ctp)+len(LF_ctp), len(nodelist)
+unknown = nodelist - SN_ctp - RL_ctp - LF_ctp
+for node in unknown:
+	if node != SINK_ID:
+		G_ctp.remove_node(node)
 
 G = G_ctp
 pos = pos_ctp
-sets = (DN_ctp, RL_ctp, LF_ctp)
+sets = (SN_ctp, RL_ctp, LF_ctp)
 nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k')
-nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=DN_ctp & nodelist, node_color='b')
+nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=SN_ctp & nodelist, node_color='b')
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=RL_ctp & nodelist, node_color='r')
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=LF_ctp & nodelist, node_color='g')
 nx.draw_networkx_edges(G, pos, nodelist=nodelist, width=0.5, alpha=0.5)
 limit = ax1.axis()
 
-ax2 = pl.subplot2grid((5,4), (4,0), colspan=4, xlim=(0, 300), ylim=(-2, 100))
+ax2 = pl.subplot2grid((5,4), (4,0), colspan=4, xlim=(0, end_time), ylim=(-2, 100))
 timeline, = ax2.plot((0,0), (0, 100), 'k-')
+line_SN, = ax2.plot([0], [0], 'b-')
+line_RL, = ax2.plot([0], [0], 'r-')
+line_LF, = ax2.plot([0], [0], 'g-')
+y1=[0]
+y2=[0]
+y3=[0]
+step1=100.0/len(SN_ctp)
+step2=100.0/len(RL_ctp)
+step3=100.0/len(LF_ctp)
 
+
+lineset = [timeline, line_SN, line_RL, line_LF]
+#nodeset = [node_SN, node_RL, node_LF]
 counter=0
 #end_time = sorted_die_time[-1]+30
-anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, timeline], blit=True)
-anim.save('ctp.mp4', fps=fps)
-
+anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
+anim.save('ctp.mp4', fps=fps, bitrate=1000)
+'''
 #nx.draw(G_ctp, pos_ctp)
 
 #pl.show()
