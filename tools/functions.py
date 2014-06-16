@@ -151,32 +151,35 @@ def DC_Model_ctp_old(F, Tao, N, L, Fail, Tw):
 #Tao: number of children
 #Fs: number of parents
 #L: number of overhearing
-#FWD: FWD
+#Fail: Fail
 #Tw: wakeup interval
-def DC_Model_orw(F, Tao, Fs, L, FWD, Tw):
+def DC_Model_orw(F, Tao, Fs, L, Fail, Tw):
 	prob = 2*Tw/(Fs+1)/_Tipi
 	newF = 0
 	total_prob = 0
 	#temp = max(Tao, int(F))
-	temp = int(math.ceil(F))
+	temp = int(round(F))
 	for i in xrange(1, 12):
 		if i <= temp:
 			p = misc.comb(temp, i, 1)*prob**i*(1-prob)**(temp-i)
 			newF += i*p
 			total_prob += p
-	if temp >= 12:
-		newF += 12*(1-total_prob)
+	if temp > 12:
+		print newF, total_prob
+	'''if temp >= 12:
+		newF += 12*(1-total_prob)'''
 	F = F*1.0/(newF + 1)
 	dc1 = _Tc/Tw
-	dc2 = 1.0/(Fs+1)*F*Tw/_Tipi
+	dc2 = 1.0/(Fs+1)*F*Tw/_Tipi# + Fail*Tw/_Tipi
 	dc3 = L*(_Trx)/_Tipi
 	return dc1*100, dc2*100, dc3*100
 	
-def DC_Model_orw_SN(F, Tao, Fs, L, FWD, Tw):
-	print F, Tao, Fs, L, FWD 
-	dc2 = _Ttx*(F)/_Tipi
-	dc3 = L*_Trx/_Tipi
+def DC_Model_orw_SN(F, Tao, Fs, L, Fail, Tw):
+	#print F, Tao, Fs, L, FWD 
 	dc1 = _Tc/Tw
+	dc2 = _Ttx*(F)/_Tipi# + Fail*Tw/_Tipi
+	dc3 = L*_Trx/_Tipi
+	
 	return dc1*100, dc2*100, dc3*100
 	
 

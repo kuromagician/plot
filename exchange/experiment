@@ -137,8 +137,9 @@ note: model.py can use file above 48556
 49103 orw tw=4s
 49104 orw tw=2s
 //49115 orw tw=1s --------> wrong!
+49175 orw tw=1s
 49137 orw tw=0.5s
-49167 orw tw=0.5s
+49167 orw tw=0.25s
 
 
 

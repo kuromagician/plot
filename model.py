@@ -13,13 +13,19 @@ from numpy import absolute
 import numpy
 from tools.functions import *
 import scipy.misc as misc
+from tools import calprop
 
 resultc = command.main(sys.argv[1:])
 FileDict, props = command.getfile(resultc)
 CtpDebugMsgs = FileDict['CtpDebug']
 OrwDebugMsgs = FileDict['OrwDebug']
 OrwNtMsgs = FileDict['OrwNt']
+props_orw = calprop.prop_orw(FileDict, resultc)
+props_ctp = calprop.prop_ctp(FileDict, resultc)
+for node in props_orw['Avg_Hops']:
+	print "Node {} Hops {}".format(node, props_orw['Avg_Hops'][node])
 TWIST = resultc['twist']
+
 if resultc['twist'] == True:
 	base_path = '/media/Data/ThesisData/Twist/'
 	FileCollection_orw = ['trace_20140515_132005.1.txt', 'trace_20140515_160513.3.txt', 
@@ -65,16 +71,15 @@ ratio_ibi = Tibi/T_test
 
 SINK_ID = props['SINK_ID']
 
-DutyCycle_orw = defaultdict(list)
+#DutyCycle_orw = defaultdict(list)
 F_orw = defaultdict(int)
-FWD_orw = defaultdict(int)
 Tao_orw = defaultdict(set)
 L_orw = defaultdict(int)
 rcv_hist_orw = set()
 nodelist = set()
 relay_orw = set()
 leaf_orw = set()
-fail_orw = defaultdict(int)
+Fail_orw = defaultdict(int)
 counter1=0
 counter2=0
 sink_neighbour_orw = set()
@@ -88,45 +93,27 @@ for msg in OrwDebugMsgs:
 		elif msg.type == NET_C_FE_SENT_MSG:
 			t = (msg.dbg__c >> 8)/10.0
 			F_orw[msg.node] += 1
-			#print t, (msg.dbg__c & 0x00ff)/10.0
-			#if t > 25:
-			#	print "Node{} has Big Tao{:.2f}".format(msg.node, t)
-			#else:
-			#Tao_orw[msg.node].append(t)
 		elif msg.type == NET_C_FE_RCV_MSG:
 			if (msg.msg__origin, msg.dbg__a) not in rcv_hist_orw:
 				rcv_hist_orw.add((msg.msg__origin, msg.dbg__a))
-				if msg.node == SINK_ID:
-					sink_neighbour_orw.add(msg.dbg__c)
 				counter2 += 1
 				Tao_orw[msg.node].add(msg.dbg__c)
-		elif msg.type == NET_DC_REPORT:
-			if msg.dbg__a + msg.dbg__c < 10000:
-				DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
-			else:
-				print msg.node, msg.dbg__a, msg.dbg__b, msg.dbg__c
-				DutyCycle_orw[msg.node].append((10000, msg.dbg__b, 0))
 		elif msg.type == NET_C_FE_SENDDONE_WAITACK or msg.type == NET_C_FE_SENDDONE_FAIL:
-			fail_orw[msg.node] += 1
-		#NOTE: Here is TEMPERORY, need change!!!!!!
-		elif msg.node == SINK_ID:
-			FWD_orw[msg.node] += 1
-print counter1, counter2
-#print fail_orw
-
+			Fail_orw[msg.node] += 1
+#print "ORW Fail: ", Fail_orw
+#print sink_neighbour_orw
 
 Avg_F_orw = {k:F_orw[k]*ratio_ipi for k in F_orw}
 Avg_L_orw = {k:L_orw[k]*ratio_ipi for k in L_orw}
 Avg_Tao_orw = {k: len(Tao_orw[k]) for k in Tao_orw}
+Avg_Fail_orw = {k:Fail_orw[k]*ratio_ipi for k in Fail_orw}
 
-for node in nodelist:
-	if node not in sink_neighbour_orw:
-		if node in Avg_F_orw:
-			if Avg_F_orw[node] < 2:
-				leaf_orw.add(node)
-			else:
-				relay_orw.add(node)
 
+#get division set
+sink_neighbour_orw = props_orw['Dir_Neig']
+relay_orw = props_orw['Relay']
+leaf_orw = props_orw['Leaf']
+#print sorted(sink_neighbour_orw)
 
 ForwardSet = defaultdict(list)
 for msg in OrwNtMsgs:
@@ -139,6 +126,12 @@ part2 = {}
 part3 = {}
 #print sorted(Avg_Tao_orw.keys())
 #print sorted(sink_neighbour_orw)
+
+Avg_Data_dc_orw = props_orw['Avg_Data_dc']
+Avg_Idle_dc_orw = props_orw['Avg_Idle_dc'] 
+Avg_Total_dc_orw = props_orw['Avg_Total_dc']
+
+
 for node in nodelist:
 	if node in Avg_F_orw:
 		F = Avg_F_orw[node]
@@ -157,13 +150,18 @@ for node in nodelist:
 	else:
 		Tao = 0
 	if node in sink_neighbour_orw:
-		FWD = FWD_orw[msg.node] * ratio_ipi
-		modeled_dc_orw[node] = sum(DC_Model_orw_SN(F, Tao, Fs, L, FWD, Tw))
-		part1[node], part2[node], part3[node] = DC_Model_orw_SN(F, Tao, Fs, L, FWD, Tw)
+		Fail = Avg_Fail_orw[msg.node]
+		modeled_dc_orw[node] = sum(DC_Model_orw_SN(F, Tao, Fs, L, Fail, Tw))
+		part1[node], part2[node], part3[node] = DC_Model_orw_SN(F, Tao, Fs, L, Fail, Tw)
 	else:
-		FWD = FWD_orw[msg.node] * ratio_ipi
-		modeled_dc_orw[node] = sum(DC_Model_orw(F, Tao, Fs, L, FWD, Tw))
-		part1[node], part2[node], part3[node] = DC_Model_orw(F, Tao, Fs, L, FWD, Tw)
+		Fail = Avg_Fail_orw[msg.node]
+		modeled_dc_orw[node] = sum(DC_Model_orw(F, Tao, Fs, L, Fail, Tw))
+		part1[node], part2[node], part3[node] = DC_Model_orw(F, Tao, Fs, L, Fail, Tw)
+	if node == 78:
+		print "Node!!!", node, F, Tao, Fs, L, Fail, "\n", \
+			             modeled_dc_orw[node], "%", Avg_Total_dc_orw[node], "%"
+		
+		
 fig = pl.figure()
 ax1 = fig.add_subplot(2,1,1)
 ax1.bar(part1.keys(), part1.values())
@@ -172,16 +170,8 @@ temp1 = numpy.array(part1.values())
 temp2 = numpy.array(part2.values())
 temp1 += temp2
 ax1.bar(part1.keys(), part3.values(), bottom = temp1, color='y')
-	
-Avg_DC_orw = {k: mean(DutyCycle_orw[k], axis=0) for k in DutyCycle_orw}
-Avg_Data_dc_orw = {}
-Avg_Idle_dc_orw = {}
-Avg_Total_dc_orw = {}
 
-for node in Avg_DC_orw:
-	Avg_Data_dc_orw[node] = Avg_DC_orw[node][0]*0.01
-	Avg_Idle_dc_orw[node] = Avg_DC_orw[node][2]*0.01
-	Avg_Total_dc_orw[node] = Avg_Data_dc_orw[node] + Avg_Idle_dc_orw[node]
+
 #print mean(Avg_Total_dc_orw.values())
 ax2 = fig.add_subplot(2,1,2)
 ax2.bar(Avg_Data_dc_orw.keys(), Avg_Idle_dc_orw.values())
@@ -196,6 +186,8 @@ values = [modeled_dc_orw[k] for k in sink_neighbour_orw]
 #ax1.bar(sink_neighbour_orw, Avg_Total_dc_orw.values(), alpha=0.5)
 ax1.bar(modeled_dc_orw.keys(), modeled_dc_orw.values(), color='r', alpha=0.5)
 #ax1.bar(sink_neighbour_orw ,values, color='r', alpha=0.5)
+
+#calculate difference
 ax2 = fig.add_subplot(2,1,2)
 diff_value = {}
 diff_ratio = {}
@@ -233,7 +225,7 @@ for msg in CtpDebugMsgs:
 		elif msg.type == NET_C_TREE_RCV_BEACON:
 			counter2 += 1
 			N_ctp[msg.node] += 1
-			neighbour_ctp[msg.node].add(msg.route_info__hopcount)
+			neighbour_ctp[msg.node].add(msg.route_info__parent)
 		elif msg.type == NET_DC_REPORT:
 			if msg.dbg__a + msg.dbg__c < 10000:
 				DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
@@ -246,11 +238,9 @@ for msg in CtpDebugMsgs:
 			'''elif msg.type == 0x73:
 			Tao_ctp[msg.node].append(route_info__parent/10.0)'''
 		elif msg.type == NET_C_FE_SENT_MSG or msg.type == NET_C_FE_FWD_MSG:
-			if msg.node == 4:
-				print "4 send to {}".format(msg.dbg__c)
 			F_ctp[msg.node] += 1
-			if msg.dbg__c == SINK_ID:
-				sink_neighbour_ctp.add(msg.node)
+			'''if msg.dbg__c == SINK_ID:
+				sink_neighbour_ctp.add(msg.node)'''
 			Tao_ctp[msg.dbg__c].add(msg.node)
 		#elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND or\
 		#     msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
@@ -263,10 +253,6 @@ for msg in CtpDebugMsgs:
 haha={k:mean(petx[k]) for k in petx}
 #for k in haha:
 #	print "PETX: ", k, haha[k]
-'''print "Tao_ctp", len(Tao_ctp)
-print "N_ctp", len(N_ctp)
-print "L_ctp", len(L_ctp)
-print "F_ctp", len(L_ctp)'''
 
 
 ############################# real DC ##########################
@@ -287,8 +273,8 @@ print mean(Avg_Total_dc_ctp.values())
 
 Avg_F_ctp = {k:F_ctp[k]*ratio_ipi for k in F_ctp}
 Avg_L_ctp = {k:L_ctp[k]*ratio_ipi for k in L_ctp}
-Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
-#Avg_N_ctp = {k:len(neighbour_ctp[k]) for k in neighbour_ctp}
+#Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
+Avg_N_ctp = {k:len(neighbour_ctp[k]) for k in neighbour_ctp}
 Avg_Tao_ctp = defaultdict(int)
 for k in Tao_ctp:
 	Avg_Tao_ctp[k] = len(Tao_ctp[k])
@@ -296,13 +282,11 @@ for k in Tao_ctp:
 Avg_Fail_ctp = {k:fail_ctp[k]*ratio_ipi for k in fail_ctp}
 #print Avg_Fail_ctp
 
-for node in nodelist:
-	if node not in sink_neighbour_ctp:
-		if node in Avg_F_ctp:
-			if Avg_F_ctp[node] < 2:
-				leaf_ctp.add(node)
-			else:
-				relay_ctp.add(node)
+#get sinkN, relay and leaf set
+sink_neighbour_ctp = props_ctp['Dir_Neig']
+relay_ctp = props_ctp['Relay']
+leaf_ctp = props_ctp['Leaf']
+				
 modeled_dc_ctp = {}
 for node in F_ctp.keys():
 	F = Avg_F_ctp[node]
@@ -317,7 +301,7 @@ for node in F_ctp.keys():
 		modeled_dc_ctp[node] = DC_Model_ctp_SN(F, Tao, N, L, Fail, Tw)
 	else:
 		modeled_dc_ctp[node] = DC_Model_ctp(F, Tao, N, L, Fail, Tw)
-	if node == 4 or node == 74:
+	if node == 10:
 		print "Node!!!", node, F, N, L, Tao, Fail, "\n", \
 			             modeled_dc_ctp[node], "%", Avg_Total_dc_ctp[node], "%"
 
@@ -461,8 +445,7 @@ Fs_SN, Fs_leaf, Fs_relay = Seperate_Avg(Avg_Fs_orw, sink_neighbour_orw, leaf_orw
 
 L_SN, L_leaf, L_relay = Seperate_Avg(Avg_L_orw, sink_neighbour_orw, leaf_orw, relay_orw)
 
-Avg_FWD_orw = {k:FWD_orw[k]*ratio_ipi for k in FWD_orw}
-FWD_SN, FWD_leaf, FWD_relay = Seperate_Avg(Avg_FWD_orw, sink_neighbour_orw, leaf_orw, relay_orw)
+Fail_SN, Fail_leaf, Fail_relay = Seperate_Avg(Avg_Fail_orw, sink_neighbour_orw, leaf_orw, relay_orw)
 
 '''
 y = [sum(DC_Model_orw_SN(F_SN, L_SN, FWD_SN,  k*1000)) for k in realrange]
@@ -538,11 +521,11 @@ if not TWIST:
 	fo = open("ORW_Paras.txt", "a+")
 else:
 	fo = open("ORW_Paras_twist.txt", "a+")
-line = "{:<8.2f}{:<8s}{:<8s}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}\n".format(resultc['wakeup'],"SN", "ORW", F_SN, Tao_SN, Fs_SN, L_SN, FWD_SN)
+line = "{:<8.2f}{:<8s}{:<8s}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}\n".format(resultc['wakeup'],"SN", "ORW", F_SN, Tao_SN, Fs_SN, L_SN, Fail_SN)
 fo.write(line)
-line = "{:<8.2f}{:<8s}{:<8s}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}\n".format(resultc['wakeup'],"RL", "ORW", F_relay, Tao_relay, Fs_relay, L_relay, FWD_relay)
+line = "{:<8.2f}{:<8s}{:<8s}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}\n".format(resultc['wakeup'],"RL", "ORW", F_relay, Tao_relay, Fs_relay, L_relay, Fail_relay)
 fo.write(line)
-line = "{:<8.2f}{:<8s}{:<8s}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}\n".format(resultc['wakeup'],"LF", "ORW", F_leaf, Tao_leaf, Fs_leaf, L_leaf, FWD_leaf)
+line = "{:<8.2f}{:<8s}{:<8s}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}\n".format(resultc['wakeup'],"LF", "ORW", F_leaf, Tao_leaf, Fs_leaf, L_leaf, Fail_leaf)
 fo.write(line)
 fo.close()
 
