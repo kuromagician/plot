@@ -43,13 +43,14 @@ def prop_orw(FileDict, args):
 						# (origin, SeqNo) += lasthop
 						rcv_hist_orw.add((msg.msg__origin, msg.dbg__a))
 						#if node is SINK, add node to direct neighbour
-						dir_neig_orw.add(msg.dbg__c)
+						#dir_neig_orw.add(msg.dbg__c)
 						total_receive_orw += 1
+					else:
+						route_hist_orw[(msg.msg__origin, msg.dbg__a)].discard(msg.dbg__c)
 			elif msg.type == NET_DC_REPORT:
 				if msg.dbg__a + msg.dbg__c < 10000:
 					DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
 				else:
-					#print msg.node, msg.dbg__a, msg.dbg__c, msg.dbg__b
 					DutyCycle_orw[msg.node].append((10000, msg.dbg__b, 0))
 			elif msg.type == NET_APP_SENT:
 				num_init_orw[msg.node] += 1
@@ -88,13 +89,15 @@ def prop_orw(FileDict, args):
 	#Calculate sets for relay and leaves
 	leaf_orw = set()
 	relay_orw = set()
-	for k in load_orw:
-		load = load_orw[k]
-		if k not in dir_neig_orw:
-			if load < 2:
-				leaf_orw.add(k)
+	for (node, hops) in avg_hops_orw.iteritems():
+		#print node, hops
+		if hops < 0.5:
+			dir_neig_orw.add(node)
+		if node not in dir_neig_orw:
+			if load_orw[node] < 1.5:
+				leaf_orw.add(node)
 			else:
-				relay_orw.add(k)
+				relay_orw.add(node)
 	props = {}
 	props['Avg_Data_dc'] = Avg_Data_dc_orw
 	props['Avg_Idle_dc'] = Avg_Idle_dc_orw
@@ -145,8 +148,8 @@ def prop_ctp(FileDict, args):
 		if msg.timestamp >= time_TH:
 			if msg.type == NET_C_FE_SENT_MSG:
 				num_init_ctp[msg.node] += 1
-				if msg.dbg__c == SINK_ID:
-					dir_neig_ctp.add(msg.node)
+				'''if msg.dbg__c == SINK_ID:
+					dir_neig_ctp.add(msg.node)'''
 			#record beacon
 			elif msg.type == 0x33:
 				pass
@@ -158,14 +161,13 @@ def prop_ctp(FileDict, args):
 					DutyCycle_ctp[msg.node].append((10000, msg.dbg__b, 0))
 			elif msg.type == NET_C_FE_FWD_MSG:
 				num_fwd_ctp[msg.node] += 1
-				if msg.dbg__c == SINK_ID:
-					dir_neig_ctp.add(msg.node)
+				'''if msg.dbg__c == SINK_ID:
+					dir_neig_ctp.add(msg.node)'''
 			elif msg.type == NET_C_FE_RCV_MSG:
 				if msg.node == SINK_ID:
 					if (msg.dbg__b, msg.dbg__a) not in rcv_hist_ctp:
 						rcv_hist_ctp.add((msg.dbg__b, msg.dbg__a))
 						total_receive_ctp += 1
-					#dir_neig_ctp.add(msg.msg__other_node)
 			elif msg.type == NET_C_FE_SEND_QUEUE_FULL:
 				send_Qfull_ctp[msg.node] += 1
 			elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND:
@@ -220,13 +222,18 @@ def prop_ctp(FileDict, args):
 	#Calculate set of relays and leaves
 	relay_ctp = set()
 	leaf_ctp = set()
-	for i in num_init_ctp:
-		load = num_fwd_ctp[i] * 1.0 / num_init_ctp[i] + 1
-		if i not in dir_neig_ctp:
-			if load < 2:
-				leaf_ctp.add(i)
+	
+	tempdict = defaultdict(set)
+	#print sorted(avg_hops_ctp.keys())
+	for (node, hops) in avg_hops_ctp.iteritems():
+		if hops < 0.5:
+			dir_neig_ctp.add(node)
+		else:
+			if load_ctp[node] < 1.5:
+				leaf_ctp.add(node)
 			else:
-				relay_ctp.add(i)
+				relay_ctp.add(node)
+			
 	
 	props = {}
 	props['Avg_Data_dc'] = Avg_Data_dc_ctp
