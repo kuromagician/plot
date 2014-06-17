@@ -118,6 +118,11 @@ def getfile(args):
 		elif ELIMIT == 0x1400:
 			limited_ctp = 'data-47566'
 			limited_orw = 'None'
+		elif ELIMIT == 0x2000:
+			FileNames['CtpDebug'] = ('26102.dat',)
+			FileNames['CtpData'] = ('26103.dat',)
+			limited_ctp = 'data-49261'
+			limited_orw = 'data-47581'
 		else:
 			print "Energy limit", hex(ELIMIT), "is not available, exit"
 			sys.exit()
@@ -125,6 +130,7 @@ def getfile(args):
 		FileDict['CtpDebug'] = reader.loadDebug(base_path+limited_ctp, FileNames['CtpDebug']) 
 		FileDict['CtpData'] = reader.loadDataMsg(base_path+limited_ctp, FileNames['CtpData']) 
 		FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
+		FileDict['OrwNt'] = reader.loadNtDebug(base_path+limited_orw, FileNames['OrwDebug']) 
 	#
 	#files are from TWIST
 	#
