@@ -128,8 +128,10 @@ def getfile(args):
 		elif ELIMIT == 0x2000:
 			FileNames['CtpDebug'] = ('26102.dat',)
 			FileNames['CtpData'] = ('26103.dat',)
+			FileNames['OrwDebug'] = ('26108.dat',)
+			FileNames['OrwNt'] = ('2610711.dat',)
 			limited_ctp = 'data-49261'
-			limited_orw = 'data-47581'
+			limited_orw = 'data-49264'
 		else:
 			print "Energy limit", hex(ELIMIT), "is not available, exit"
 			sys.exit()

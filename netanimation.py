@@ -82,7 +82,7 @@ def update_fig(i, args, G, pos, lineset):
 		lineset[3].set_data(x, y3)
 	return ax1, lineset
 		
-
+'''
 ###########################################################
 ######################      ORW      ######################
 
@@ -236,7 +236,7 @@ counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
 anim.save('ctp.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
-'''
+
 #nx.draw(G_ctp, pos_ctp)
 
 #pl.show()

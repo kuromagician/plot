@@ -386,6 +386,11 @@ for k in load_orw:
 			relay_orw.add(k)
 
 print "========================================================="
+
+
+############# Start plot ################
+#############Figure 1 fwd load and dc among SN, RL, lF#############
+
 fig = pl.figure()
 #plot the barplot of dutycycle among leaf, relay and direct neighbour
 ax1 = fig.add_subplot(2,1,1)
@@ -435,7 +440,8 @@ ax2.plot([], c='r', label='ORW')
 ax2.legend(loc=2)
 fig.savefig("./graphs/" + prefix + "L_D.pdf")
 
-############# Start plot ################
+
+#############Figure 2 PDR and send / beacons#############
 fig = pl.figure()
 ax1 = pl.subplot2grid((3,3), (0,0), colspan=3)
 ax2 = pl.subplot2grid((3,3), (1,0), colspan=3, sharex=ax1)
@@ -496,6 +502,7 @@ if ELIMIT:
 	die_relay_ctp = []
 	die_dir_neig_ctp = []
 	#I have to put it here as it would be memory efficient to plot when it's neccesary
+	#############Figure 3 CTP DIE#############
 	fig = pl.figure()
 	ontime = ELIMIT*1024/32768
 	fig.suptitle('Radio on Time:' + str(ontime) + 's, CTP', fontsize=14, fontweight='bold')
@@ -579,12 +586,8 @@ if ELIMIT:
 		ax4.plot(Ttimeline, throughput)
 		ax4.set_ylabel("Throughput\npackets/min", fontsize=10)
 		
-	
-	if not TWIST:
-		ax1.set_xlim([0,60])
-	else:
-		ax1.set_xlim([0,180])
-		ax1.set_xticks(range(0,180,20))
+	ax1.set_xlim([0,180])
+	ax1.set_xticks(range(0,180,20))
 	limits = ax1.axis()
 	ax1.set_ylim([0, limits[3]])
 	limits = ax4.axis()
@@ -595,6 +598,7 @@ if ELIMIT:
 	
 		
 	#This combines hops, load and die time
+	#############Figure 4 CTP DIE#############
 	figx = pl.figure()
 	ax1 = figx.add_subplot(2,1,1)
 	_, x = common_dict(die_time, avg_hops_ctp)
@@ -617,7 +621,7 @@ if ELIMIT:
 	
 if ELIMIT:
 ####################################     ORW     #################################
-	
+	#############Figure 5 ORW DIE#############
 	fig = pl.figure()
 	ontime = ELIMIT*1024/32768
 	fig.suptitle('Radio on Time:' + str(ontime) + 's, ORW', fontsize=14, fontweight='bold')
@@ -704,11 +708,9 @@ if ELIMIT:
 	else:
 		ax4.plot(Ttimeline, throughput)
 	
-	if not TWIST:
-		ax1.set_xlim([0,60])
-	else:
-		ax1.set_xlim([0,180])
-		ax1.set_xticks(range(0,180,20))
+	
+	ax1.set_xlim([0,180])
+	ax1.set_xticks(range(0,180,20))
 	limits = ax1.axis()
 	ax1.set_ylim([0,limits[3]])
 	#ax3.set_ylim([0,100])
@@ -723,12 +725,12 @@ if ELIMIT:
 	fig.savefig("./graphs/" + prefix + "Analysis_orw_" + hex(ELIMIT) + ".pdf")
 	
 	ax2 = figx.add_subplot(2,1,2)
-	_, x = common_dict(die_time, avg_hops_orw)
-	_, y = common_dict(die_time, load_orw)
+	_, x = common_dict(die_time_orw, avg_hops_orw)
+	_, y = common_dict(die_time_orw, load_orw)
 	x, y = common_dict(x, y)
-	z, _ = common_dict(die_time, y)
+	z, _ = common_dict(die_time_orw, y)
 	#print die_time.values()
-	print "COLOR:", len(load_orw), len(avg_hops_orw), len(die_time)
+	print "COLOR:", len(load_orw), len(avg_hops_orw), len(die_time_orw)
 	#cm = matplotlib.cm.get_cmap('RdYlBu')
 	sc = ax2.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=35)
 	figx.colorbar(sc)
