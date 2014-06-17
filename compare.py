@@ -175,20 +175,20 @@ for msg in CtpdebugMsgs:
 			total_receive_ctp = 0'''
 	#record beacon
 	elif msg.type == 0x33:
-		time_beacon.append((msg.timestamp/time_ratio + dt)/60.0)
+		time_beacon.append((msg.timestamp/time_ratio)/60.0)
 		node_beacon.append(msg.node)
 	elif msg.type == NET_DC_REPORT and msg.node != SINK_ID:
 		if msg.dbg__a + msg.dbg__c < 10000:
 			DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
 	elif msg.type == NET_C_FE_FWD_MSG:
-		children_ctp[msg.msg__other_node].add(msg.node)
+		children_ctp[msg.dbg__c].add(msg.node)
 		num_fwd_ctp[msg.node] += 1
 	elif msg.type == NET_C_FE_RCV_MSG:
 		if msg.node == SINK_ID:
 			#record origin, seq
 			if (msg.dbg__b, msg.dbg__a) not in packet_hist:
 				packet_hist.add((msg.dbg__b, msg.dbg__a)) 
-				temp = msg.timestamp/time_ratio + dt
+				temp = msg.timestamp/time_ratio
 				total_receive_ctp += 1
 				Tcounter += 1
 				counter += 1
@@ -293,17 +293,17 @@ for msg in OrwdebugMsgs:
 		#last hop is current node's child
 		children_orw[msg.node].add(msg.dbg__c)
 		# (origin, SeqNo) += lasthop
-		route_hist_orw[(msg.msg__origin, msg.dbg__a)].add(msg.dbg__c)
+		route_hist_orw[(msg.dbg__b, msg.dbg__a)].add(msg.dbg__c)
 		#if node is SINK, add node to direct neighbour
 		if msg.node == SINK_ID:
 			dir_neig_orw.add(msg.dbg__c)
-			connected.add(msg.msg__origin)
+			connected.add(msg.dbg__b)
 			if (msg.dbg__b, msg.dbg__a) not in packet_hist:
 				total_receive_orw += 1
 				Tcounter += 1
 				counter += 1
 				packet_hist.add((msg.dbg__b, msg.dbg__a))
-				temp = msg.timestamp/time_ratio + dt
+				temp = msg.timestamp/time_ratio
 				total_rcv_orw.append(counter)
 				total_rcv_orw_timeline.append(temp/60.0)
 				if Told == 0:
@@ -329,7 +329,7 @@ for msg in OrwdebugMsgs:
 			total_receive_orw = 0'''
 	#note: the parameter msg.dbg__c here is not correct, dont use, only record time
 	elif msg.type == NET_C_FE_SENT_MSG:
-		timeline_transmit_orw[msg.node].append((msg.timestamp/time_ratio + dt)/60)
+		timeline_transmit_orw[msg.node].append((msg.timestamp/time_ratio)/60)
 		node_transmit_orw[msg.node].append(msg.node)
 print "!!!!!!", len(connected)
 load_orw = {}
@@ -751,7 +751,7 @@ x = np.arange(lb, ub, 0.1)
 ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='red', where=f_ctp(x)>=f_orw(x))
 ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='green', where=f_ctp(x)<=f_orw(x))
 
-xp = np.arange(lb+1, ub-1, 0.1)
+xp = np.arange(lb+1.1, ub-1.1, 0.1)
 first_ctp = derivative(f_ctp,xp,dx=1,n=1)
 first_orw = derivative(f_orw,xp,dx=1,n=1) 
 ax2 = fig.add_subplot(2,1,2)

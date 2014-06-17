@@ -43,7 +43,7 @@ def prop_orw(FileDict, args):
 						# (origin, SeqNo) += lasthop
 						rcv_hist_orw.add((msg.msg__origin, msg.dbg__a))
 						#if node is SINK, add node to direct neighbour
-						#dir_neig_orw.add(msg.dbg__c)
+						dir_neig_orw.add(msg.dbg__c)
 						total_receive_orw += 1
 					else:
 						route_hist_orw[(msg.msg__origin, msg.dbg__a)].discard(msg.dbg__c)
@@ -91,8 +91,8 @@ def prop_orw(FileDict, args):
 	relay_orw = set()
 	for (node, hops) in avg_hops_orw.iteritems():
 		#print node, hops
-		if hops < 0.5:
-			dir_neig_orw.add(node)
+		'''if hops < 0.5:
+			dir_neig_orw.add(node)'''
 		if node not in dir_neig_orw:
 			if load_orw[node] < 1.5:
 				leaf_orw.add(node)

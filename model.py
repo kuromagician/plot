@@ -94,8 +94,8 @@ for msg in OrwDebugMsgs:
 			t = (msg.dbg__c >> 8)/10.0
 			F_orw[msg.node] += 1
 		elif msg.type == NET_C_FE_RCV_MSG:
-			if (msg.msg__origin, msg.dbg__a) not in rcv_hist_orw:
-				rcv_hist_orw.add((msg.msg__origin, msg.dbg__a))
+			if (msg.dbg__b, msg.dbg__a) not in rcv_hist_orw:
+				rcv_hist_orw.add((msg.dbg__b, msg.dbg__a))
 				counter2 += 1
 				Tao_orw[msg.node].add(msg.dbg__c)
 		elif msg.type == NET_C_FE_SENDDONE_WAITACK or msg.type == NET_C_FE_SENDDONE_FAIL:
