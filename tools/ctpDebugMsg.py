@@ -92,6 +92,15 @@ class CtpDebugMsg:
         self.dbg__b = dbg__b
         self.dbg__c = dbg__c
         self.seqno = seqno
+
+class SimDebugMsg:
+    def __init__(self, node, timestamp, type, dbg__a, dbg__b, dbg__c):
+        self.node = node
+        self.timestamp = timestamp
+        self.type = type
+        self.dbg__a = dbg__a
+        self.dbg__b = dbg__b
+        self.dbg__c = dbg__c
         
 class CtpDataMsg:
     def __init__(self, node, timestamp, thl, origin, originSeqNo, parent):
@@ -100,6 +109,14 @@ class CtpDataMsg:
         self.origin = origin
         self.seqno = originSeqNo
         self.parent = parent
+        self.timestamp = timestamp
+        
+class SimDataMsg:
+    def __init__(self, node, timestamp, originSeqNo, origin, thl):
+        self.node = node
+        self.thl = thl
+        self.origin = origin
+        self.seqno = originSeqNo
         self.timestamp = timestamp
 
 class RawMsg:

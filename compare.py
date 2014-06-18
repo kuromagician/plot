@@ -13,6 +13,7 @@ from collections import defaultdict
 from numpy import mean
 from mpl_toolkits.mplot3d import Axes3D
 import tools.command as command
+import tools.calprop as calprop
 from tools.constant import *
 from tools.functions import *
 from scipy.interpolate import interp1d
@@ -94,16 +95,16 @@ TWIST = resultc['twist']
 
 CtpdataMsgs = FileDict['CtpData']
 CtpdebugMsgs = FileDict['CtpDebug']
-
+props_ctp = calprop.prop_ctp(FileDict, resultc)
 
 thl = defaultdict(int)
-
+'''
 #calibrate the clock (there's delay between real start time and first record)
 for msg in CtpdebugMsgs:
 	if msg.type == NET_DC_REPORT:
 		dt = msg.dbg__b - msg.timestamp/time_ratio
 		break
-print "Dt is :", dt
+print "Dt is :", dt'''
 dir_neig_ctp = set()
 #calculate average hops
 for msg in CtpdataMsgs:
@@ -111,9 +112,7 @@ for msg in CtpdataMsgs:
 		thl[(msg.origin, msg.seqno)] = min(msg.thl, thl[(msg.origin, msg.seqno)])
 	else:
 		thl[(msg.origin, msg.seqno)] = msg.thl
-	if msg.parent == SINK_ID:
-		dir_neig_ctp.add(msg.origin)
-
+dir_neig_ctp = props_ctp['Dir_Neig']
 t_thl = defaultdict(int)
 counter = defaultdict(int)
 for (k, v) in thl:

@@ -119,6 +119,9 @@ def prop_ctp(FileDict, args):
 	if args['twist'] == True:
 		SINK_ID = 153
 		time_ratio = 1000000.0
+	elif args['simulation']:
+		SINK_ID = 1
+		time_ratio = 1.0
 	else:
 		SINK_ID = 1
 		time_ratio = 1000.0
@@ -183,7 +186,7 @@ def prop_ctp(FileDict, args):
 	
 	#Calculate load  
 	load_ctp = {k: num_fwd_ctp[k] * 1.0 / num_init_ctp[k] + 1 for k in num_init_ctp}
-	
+	print load_ctp
 	
 	#get the average dutycycle of each node
 	Avg_DC_ctp = {k: mean(DutyCycle_ctp[k], axis=0) for k in DutyCycle_ctp}

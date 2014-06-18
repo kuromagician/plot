@@ -2,14 +2,15 @@ import getopt
 import sys
 import reader
 import twistReader as Treader
+import simReader as Sreader
 
 def main(argv):
 	result = {'kill':False, 'simple':False, 'lim':0, 'twist':False, \
 			  'connected':False, 'experiment':False, 'model':False,\
 			  'wakeup':float(1.5), 'check':False, 'desktop':False,\
-			  'postpone':False}
+			  'postpone':False, 'simulation': False}
 	try:
-		opts, args = getopt.getopt(argv,"ehdl:m:kstcap",["limit","twist","experiment","cca"])
+		opts, args = getopt.getopt(argv,"ehdl:m:kstcapi",["limit","twist","experiment","cca"])
 	except getopt.GetoptError:
 		print 'plot.py -l <energy limit>\
              \n        -k \tkill some nodes\
@@ -43,6 +44,8 @@ def main(argv):
 			result['check'] = True
 		elif opt in ("-p",):
 			result['postpone'] = True
+		elif opt in ("-i",):
+			result['simulation'] = True
 	return result
 
 	
@@ -61,11 +64,95 @@ def getfile(args):
 	lookup_dic = {}
 	props = {'SINK_ID':1, 'prefix':'Indriya_', 'timeratio':1000.0}
 	props['energy'] = hex(ELIMIT)
-	
+	#
+	#files are from TWIST
+	#
+	if args['twist']:
+		props['SINK_ID'] = 153
+		props['timeratio'] = 1000000.0
+		
+		if args['desktop']:
+			base_path = '/home/nagatoyuki/Thesis/Traces/Twist/'
+		else:
+			base_path = '/media/Data/ThesisData/Twist/'
+		props['prefix']='Twist_'
+		#
+		# use wakeup time as parameters, Indriya
+		#
+		if args['model']:
+			if not args['check']:
+				if args['wakeup'] == 0.25:
+					limited_ctp = 'trace_20140515_120916.0.txt'
+					limited_orw = 'trace_20140515_132005.1.txt'
+				elif args['wakeup'] == 0.5:
+					limited_ctp = 'trace_20140515_145530.2.txt'
+					limited_orw = 'trace_20140515_160513.3.txt'
+				elif args['wakeup'] == 1:
+					limited_ctp = 'trace_20140515_174113.4.txt'
+					limited_orw = 'trace_20140515_185012.5.txt'
+				elif args['wakeup'] == 2:
+					limited_ctp = 'trace_20140515_200012.6.txt'
+					limited_orw = 'trace_20140515_210915.7.txt'
+				elif args['wakeup'] == 4:
+					limited_ctp = 'trace_20140515_221814.8.txt'
+					limited_orw = 'trace_20140515_232715.9.txt'
+				elif args['wakeup'] == 8:
+					limited_ctp = 'trace_20140516_020516.10.txt'
+					limited_orw = 'trace_20140516_031415.11.txt'
+			else:
+				if args['wakeup'] == 0.25:
+					limited_ctp = 'trace_20140516_171413.18.txt'
+					limited_orw = 'trace_20140516_182314.19.txt'
+				elif args['wakeup'] == 0.5:
+					limited_ctp = 'trace_20140516_115018.14.txt'
+					limited_orw = 'trace_20140516_125914.15.txt'
+				elif args['wakeup'] == 1:
+					limited_ctp = 'trace_20140517_004915.24.txt'
+					limited_orw = 'trace_20140516_160435.17.txt'
+				elif args['wakeup'] == 2:
+					limited_ctp = 'trace_20140516_043214.12.txt'
+					limited_orw = 'trace_20140516_054116.13.txt'
+				elif args['wakeup'] == 4:
+					limited_ctp = 'trace_20140516_193515.20.txt'
+					limited_orw = 'trace_20140516_204414.21.txt'
+				elif args['wakeup'] == 8.7:
+					limited_ctp = 'trace_20140516_215516.22.txt'
+					limited_orw = 'trace_20140516_230416.23.txt'
+			FileDict['CtpDebug'], _, _, FileDict['CtpData'] = Treader.load(base_path+limited_ctp) 
+			FileDict['OrwDebug'], FileDict['OrwNt'], _, _ = Treader.load(base_path+limited_orw)
+			return FileDict, props
+		
+		if ELIMIT == 0x1000:
+			#limited_ctp = 'trace_20140420_234914.3.txt'
+			#limited_orw = 'trace_20140420_212823.2.txt'
+			limited_ctp = 'trace_20140517_133316.27.txt'
+			#limited_ctp = 'trace_20140517_195115.29.txt'
+			limited_orw = 'trace_20140517_164214.28.txt'
+		elif ELIMIT == 0x2000:
+			limited_ctp = 'trace_20140518_002516.30.txt'
+			limited_orw = 'trace_20140518_033416.31.txt'
+		elif ELIMIT == 0x4000:
+			limited_ctp = 'trace_20140518_101919.33.txt'
+			limited_orw = 'trace_20140518_132824.34.txt'
+		elif ELIMIT == 0:
+			limited_ctp = 'trace_20140420_182200.0.txt'
+			limited_orw = 'trace_20140420_194245.1.txt' 
+		#load files
+		FileDict['CtpDebug'], _, _, FileDict['CtpData'] = Treader.load(base_path+limited_ctp) 
+		FileDict['OrwDebug'], FileDict['OrwNt'], _, _ = Treader.load(base_path+limited_orw) 
+	#
+	#files are from Simulation
+	#
+	elif args['simulation']:
+		limited_ctp = "../Simulation/loglistener.txt"
+		limited_orw = "data-49102"
+		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
+		FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
+		FileDict['OrwNt'] = reader.loadNtDebug(base_path+limited_orw, FileNames['OrwDebug']) 
 	#
 	#files are from Indriya
 	#
-	if not args['twist']:
+	else:
 		#
 		# use wakeup time as parameters
 		#
@@ -140,80 +227,4 @@ def getfile(args):
 		FileDict['CtpData'] = reader.loadDataMsg(base_path+limited_ctp, FileNames['CtpData']) 
 		FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
 		FileDict['OrwNt'] = reader.loadNtDebug(base_path+limited_orw, FileNames['OrwDebug']) 
-	#
-	#files are from TWIST
-	#
-	else:
-		props['SINK_ID'] = 153
-		props['timeratio'] = 1000000.0
-		
-		if args['desktop']:
-			base_path = '/home/nagatoyuki/Thesis/Traces/Twist/'
-		else:
-			base_path = '/media/Data/ThesisData/Twist/'
-		props['prefix']='Twist_'
-		#
-		# use wakeup time as parameters, Indriya
-		#
-		if args['model']:
-			if not args['check']:
-				if args['wakeup'] == 0.25:
-					limited_ctp = 'trace_20140515_120916.0.txt'
-					limited_orw = 'trace_20140515_132005.1.txt'
-				elif args['wakeup'] == 0.5:
-					limited_ctp = 'trace_20140515_145530.2.txt'
-					limited_orw = 'trace_20140515_160513.3.txt'
-				elif args['wakeup'] == 1:
-					limited_ctp = 'trace_20140515_174113.4.txt'
-					limited_orw = 'trace_20140515_185012.5.txt'
-				elif args['wakeup'] == 2:
-					limited_ctp = 'trace_20140515_200012.6.txt'
-					limited_orw = 'trace_20140515_210915.7.txt'
-				elif args['wakeup'] == 4:
-					limited_ctp = 'trace_20140515_221814.8.txt'
-					limited_orw = 'trace_20140515_232715.9.txt'
-				elif args['wakeup'] == 8:
-					limited_ctp = 'trace_20140516_020516.10.txt'
-					limited_orw = 'trace_20140516_031415.11.txt'
-			else:
-				if args['wakeup'] == 0.25:
-					limited_ctp = 'trace_20140516_171413.18.txt'
-					limited_orw = 'trace_20140516_182314.19.txt'
-				elif args['wakeup'] == 0.5:
-					limited_ctp = 'trace_20140516_115018.14.txt'
-					limited_orw = 'trace_20140516_125914.15.txt'
-				elif args['wakeup'] == 1:
-					limited_ctp = 'trace_20140517_004915.24.txt'
-					limited_orw = 'trace_20140516_160435.17.txt'
-				elif args['wakeup'] == 2:
-					limited_ctp = 'trace_20140516_043214.12.txt'
-					limited_orw = 'trace_20140516_054116.13.txt'
-				elif args['wakeup'] == 4:
-					limited_ctp = 'trace_20140516_193515.20.txt'
-					limited_orw = 'trace_20140516_204414.21.txt'
-				elif args['wakeup'] == 8.7:
-					limited_ctp = 'trace_20140516_215516.22.txt'
-					limited_orw = 'trace_20140516_230416.23.txt'
-			FileDict['CtpDebug'], _, _, FileDict['CtpData'] = Treader.load(base_path+limited_ctp) 
-			FileDict['OrwDebug'], FileDict['OrwNt'], _, _ = Treader.load(base_path+limited_orw)
-			return FileDict, props
-		
-		if ELIMIT == 0x1000:
-			#limited_ctp = 'trace_20140420_234914.3.txt'
-			#limited_orw = 'trace_20140420_212823.2.txt'
-			limited_ctp = 'trace_20140517_133316.27.txt'
-			#limited_ctp = 'trace_20140517_195115.29.txt'
-			limited_orw = 'trace_20140517_164214.28.txt'
-		elif ELIMIT == 0x2000:
-			limited_ctp = 'trace_20140518_002516.30.txt'
-			limited_orw = 'trace_20140518_033416.31.txt'
-		elif ELIMIT == 0x4000:
-			limited_ctp = 'trace_20140518_101919.33.txt'
-			limited_orw = 'trace_20140518_132824.34.txt'
-		elif ELIMIT == 0:
-			limited_ctp = 'trace_20140420_182200.0.txt'
-			limited_orw = 'trace_20140420_194245.1.txt' 
-		#load files
-		FileDict['CtpDebug'], _, _, FileDict['CtpData'] = Treader.load(base_path+limited_ctp) 
-		FileDict['OrwDebug'], FileDict['OrwNt'], _, _ = Treader.load(base_path+limited_orw) 
 	return FileDict, props

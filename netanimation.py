@@ -31,7 +31,7 @@ LF_orw = cal_prop_orw['Leaf']
 SN_ctp = cal_prop_ctp['Dir_Neig']
 RL_ctp = cal_prop_ctp['Relay']
 LF_ctp = cal_prop_ctp['Leaf']
-end_time = 9000
+end_time = 10800
 fps=60
 
 def update_fig(i, args, G, pos, lineset):
@@ -82,7 +82,7 @@ def update_fig(i, args, G, pos, lineset):
 		lineset[3].set_data(x, y3)
 	return ax1, lineset
 		
-'''
+
 ###########################################################
 ######################      ORW      ######################
 
@@ -105,8 +105,9 @@ for msg in OrwDebugMsgs:
 				else:
 					G_orw.add_edge(msg.dbg__c, msg.node, weight = 1)
 		elif msg.type == NET_C_DIE:
-			G_orw.add_node(msg.node)
-			die_orw[msg.node] = int(round(msg.timestamp/time_ratio))
+			if msg.node not in die_orw:
+				G_orw.add_node(msg.node)
+				die_orw[msg.node] = int(round(msg.timestamp/time_ratio))
 		
 sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
 sorted_die_node = [k for (k,v) in sorted_die_orw]
@@ -148,6 +149,8 @@ y3=[0]
 step1=100.0/len(SN_orw)
 step2=100.0/len(RL_orw)
 step3=100.0/len(LF_orw)
+ax2.set_xticks(xrange(0, 10801, 1200))
+ax2.set_xticklabels(xrange(0, 181, 20))
 
 
 lineset = [timeline, line_SN, line_RL, line_LF]
@@ -185,8 +188,9 @@ for msg in CtpDebugMsgs:
 			else:
 				G_ctp.add_edge(msg.node, msg.dbg__c, weight = 1)
 		elif msg.type == NET_C_DIE:
-			G_ctp.add_node(msg.node)
-			die_ctp[msg.node] = int(round(msg.timestamp/time_ratio))
+			if msg.node not in die_ctp:
+				G_ctp.add_node(msg.node)
+				die_ctp[msg.node] = int(round(msg.timestamp/time_ratio))
 		
 sorted_die_ctp = sorted(die_ctp.iteritems(), key=lambda (k,v): v)
 sorted_die_node = []
@@ -228,6 +232,8 @@ y3=[0]
 step1=100.0/len(SN_ctp)
 step2=100.0/len(RL_ctp)
 step3=100.0/len(LF_ctp)
+ax2.set_xticks(xrange(0, 10801, 1200))
+ax2.set_xticklabels(xrange(0, 181, 20))
 
 
 lineset = [timeline, line_SN, line_RL, line_LF]
@@ -236,7 +242,7 @@ counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
 anim.save('ctp.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
-
+'''
 #nx.draw(G_ctp, pos_ctp)
 
 #pl.show()

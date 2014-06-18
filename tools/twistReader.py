@@ -55,7 +55,6 @@ def load(file):
         for line in f:
             if not line.startswith('#'):
                 startTime = buildFromTwistDump(line, ctpDebugMsgs, ntDebugMsgs, ntDumpMsgs, ctpDataMsgs, startTime)
-        f.close()
     return ctpDebugMsgs, ntDebugMsgs, ntDumpMsgs, ctpDataMsgs
 
 def createPath(file):
