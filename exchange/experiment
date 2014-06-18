@@ -140,10 +140,18 @@ note: model.py can use file above 48556
 49175 orw tw=1s
 49137 orw tw=0.5s
 49167 orw tw=0.25s
+#######dc solved #######
+49271 orw tw=16s
 
 
+#######################
+######using faisal's account##########
+49261 ctp tw=1s limit=0x2000
+49264 orw tw=1s limit=0x2000
+49270 ctp power=11 tw=1s limit=0x2000
 
-
+49272 ctp power=11 tw=1s limit=0x2000 dc good but multiple dying logging
+49273 orw power=11 tw=1s limit=0x2000 dc good but multiple dying logging
 
 
 
@@ -178,6 +186,13 @@ same as 5
 cca = 900
 orw_debug_fix0:
 same as more7, but now change to (uint64_t)10000*...
+orw_debug_fix1:
+same as fix0, but solves the dc record problem
+################
+for faisal's exp:
+Si_..._fix1 are stable version with no bug
+
+################
 
 WARNING: now we only take things happens 10 minutes later. 
 So if there should be any experiment that related to node dying,

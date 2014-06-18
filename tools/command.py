@@ -86,7 +86,7 @@ def getfile(args):
 							'data-48923', 'data-48922', 'data-48949']
 				'''
 				FileCollection_orw = ['data-49167', 'data-49137', 'data-49175', 'data-49104', 
-							'data-49103', 'data-49102', 'data-49088']
+							'data-49103', 'data-49102', 'data-49271']
 				FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
 							'data-49054', 'data-49059', 'data-49079']
 			if args['wakeup'] not in wakeup_i:
@@ -129,9 +129,9 @@ def getfile(args):
 			FileNames['CtpDebug'] = ('26102.dat',)
 			FileNames['CtpData'] = ('26103.dat',)
 			FileNames['OrwDebug'] = ('26108.dat',)
-			FileNames['OrwNt'] = ('2610711.dat',)
-			limited_ctp = 'data-49261'
-			limited_orw = 'data-49264'
+			FileNames['OrwNt'] = ('26107.dat',)
+			limited_ctp = 'data-49272'
+			limited_orw = 'data-49273'
 		else:
 			print "Energy limit", hex(ELIMIT), "is not available, exit"
 			sys.exit()

@@ -501,6 +501,7 @@ if ELIMIT:
 	die_leaf_ctp = []
 	die_relay_ctp = []
 	die_dir_neig_ctp = []
+	die_set=set()
 	#I have to put it here as it would be memory efficient to plot when it's neccesary
 	#############Figure 3 CTP DIE#############
 	fig = pl.figure()
@@ -510,29 +511,31 @@ if ELIMIT:
 	ax1.grid(True, which='both')
 	for msg in CtpdebugMsgs:
 		if msg.type == NET_C_DIE:
-			die_minute = msg.dbg__b / 60.0
-			die_time[msg.node] = die_minute
-			if counter % 2 >= 0:
-				for id in num_init_ctp:
-					curr_load_ctp[id] = num_fwd_ctp[id] / num_init_ctp[id] + 1
-				bp = ax1.boxplot(curr_load_ctp.values(), positions=[die_minute,], widths=0.4, sym='.')
-				setbp(bp, alpha=0.7, linewidth=0.4, ms=3)
-				ax1.scatter(die_minute, curr_load_ctp[msg.node], s=4, c='y', marker='D', linewidths=(0.1,))
-				ax1.annotate(msg.node, textcoords = 'offset points', size=3, color='k',
-								xy = (die_minute, curr_load_ctp[msg.node]), xytext = (0, 0), ha='center')
-			num_init_ctp.pop(msg.node, None)
-			curr_load_ctp.pop(msg.node, None)
-			counter += 1
-			#record the ratio of the died nodes
-			if msg.node in leaf_ctp:
-				counter1 += 1
-			elif msg.node in relay_ctp:
-				counter2 += 1
-			elif msg.node in dir_neig_ctp:
-				counter3 += 1
-			die_leaf_ctp.append(counter1*100.0/len(leaf_ctp))
-			die_relay_ctp.append(counter2*100.0/len(relay_ctp))
-			die_dir_neig_ctp.append(counter3*100.0/len(dir_neig_ctp))
+			if msg.node not in die_set:
+				die_set.add(msg.node)
+				die_minute = msg.timestamp / 60.0 / time_ratio
+				die_time[msg.node] = die_minute
+				if counter % 2 >= 0:
+					for id in num_init_ctp:
+						curr_load_ctp[id] = num_fwd_ctp[id] / num_init_ctp[id] + 1
+					bp = ax1.boxplot(curr_load_ctp.values(), positions=[die_minute,], widths=0.4, sym='.')
+					setbp(bp, alpha=0.7, linewidth=0.4, ms=3)
+					ax1.scatter(die_minute, curr_load_ctp[msg.node], s=4, c='y', marker='D', linewidths=(0.1,))
+					ax1.annotate(msg.node, textcoords = 'offset points', size=3, color='k',
+									xy = (die_minute, curr_load_ctp[msg.node]), xytext = (0, 0), ha='center')
+				num_init_ctp.pop(msg.node, None)
+				curr_load_ctp.pop(msg.node, None)
+				counter += 1
+				#record the ratio of the died nodes
+				if msg.node in leaf_ctp:
+					counter1 += 1
+				elif msg.node in relay_ctp:
+					counter2 += 1
+				elif msg.node in dir_neig_ctp:
+					counter3 += 1
+				die_leaf_ctp.append(counter1*100.0/len(leaf_ctp))
+				die_relay_ctp.append(counter2*100.0/len(relay_ctp))
+				die_dir_neig_ctp.append(counter3*100.0/len(dir_neig_ctp))
 				
 		elif msg.type == NET_C_FE_FWD_MSG:
 			num_fwd_ctp[msg.node] += 1
@@ -570,6 +573,7 @@ if ELIMIT:
 	
 	ax3 = pl.subplot(4,1,3, sharex=ax1)
 	time_list = sorted(die_time.values())
+	print time_list
 	#print time_list[-2:-1]
 	ax3.plot(time_list, die_leaf_ctp, linestyle='-', label="leaf")
 	ax3.plot(time_list, die_relay_ctp, linestyle='--', label="relay")
@@ -647,32 +651,36 @@ if ELIMIT:
 	Tinterval=0
 	Tnew = 0
 	packet_hist = set()
+	die_set = set()
 	
 	for msg in OrwdebugMsgs:
 		if msg.type == NET_C_DIE:
-			die_minute = msg.dbg__b / 60.0
-			die_time_orw[msg.node] = die_minute
-			#plot the load when a node die, now disabled
-			'''for id in num_init_orw:
-				curr_load_orw[id] = num_fwd_orw[id]*1.0 / num_init_orw[id] + 1
-			bp = ax1.boxplot(curr_load_orw.values(), positions=[die_minute,], widths=0.8, sym=',')
-			setbp(bp, 0.7, 0.5, ms=3)
-			ax1.scatter(die_minute, curr_load_orw[msg.node], s=14, c='y', marker='*', linewidths=(0.1,))
-			ax1.annotate(msg.node, textcoords = 'offset points', size=3, color='k',
-							xy = (die_minute, curr_load_orw[msg.node]), xytext = (0, 0), ha='center')'''
-			#num_init_orw.pop(msg.node, None)
-			#curr_load_orw.pop(msg.node, None)
-			die_set_orw.add(msg.node)
-			#record the ratio of the died nodes
-			if msg.node in leaf_orw:
-				counter1 += 1
-			elif msg.node in relay_orw:
-				counter2 += 1
-			elif msg.node in dir_neig_orw:
-				counter3 += 1
-			die_leaf_orw.append(counter1*100.0/len(leaf_orw))
-			die_relay_orw.append(counter2*100.0/len(relay_orw))
-			die_dir_neig_orw.append(counter3*100.0/len(dir_neig_orw))
+			if msg.node not in die_set:
+				die_set.add(msg.node)
+			
+				die_minute = msg.timestamp / time_ratio / 60.0
+				die_time_orw[msg.node] = die_minute
+				#plot the load when a node die, now disabled
+				'''for id in num_init_orw:
+					curr_load_orw[id] = num_fwd_orw[id]*1.0 / num_init_orw[id] + 1
+				bp = ax1.boxplot(curr_load_orw.values(), positions=[die_minute,], widths=0.8, sym=',')
+				setbp(bp, 0.7, 0.5, ms=3)
+				ax1.scatter(die_minute, curr_load_orw[msg.node], s=14, c='y', marker='*', linewidths=(0.1,))
+				ax1.annotate(msg.node, textcoords = 'offset points', size=3, color='k',
+								xy = (die_minute, curr_load_orw[msg.node]), xytext = (0, 0), ha='center')'''
+				#num_init_orw.pop(msg.node, None)
+				#curr_load_orw.pop(msg.node, None)
+				die_set_orw.add(msg.node)
+				#record the ratio of the died nodes
+				if msg.node in leaf_orw:
+					counter1 += 1
+				elif msg.node in relay_orw:
+					counter2 += 1
+				elif msg.node in dir_neig_orw:
+					counter3 += 1
+				die_leaf_orw.append(counter1*100.0/len(leaf_orw))
+				die_relay_orw.append(counter2*100.0/len(relay_orw))
+				die_dir_neig_orw.append(counter3*100.0/len(dir_neig_orw))
 		elif msg.type == NET_C_FE_RCV_MSG:
 			#if origin != last_hop, then last hop is forwarder
 			if msg.dbg__b != msg.dbg__c:
@@ -683,7 +691,7 @@ if ELIMIT:
 	
 	#die_time_orw.pop(20)
 	#die_time_orw.pop(75)
-	
+	print len(die_leaf_orw), len(time_list)
 	ax2 = fig.add_subplot(4,1,2, sharex=ax1)
 	x, y = common_dict(die_time_orw, avg_hops_orw)
 	ax2.scatter(x.values(), y.values())
@@ -693,6 +701,7 @@ if ELIMIT:
 				xy = (x[node], y[node]), xytext = (0, 0))
 	
 	ax3 = pl.subplot(4,1,3, sharex=ax1)
+	
 	time_list = sorted(die_time_orw.values())
 	ax3.plot(time_list, die_leaf_orw, linestyle='-', label="leaf")
 	ax3.plot(time_list, die_relay_orw, linestyle='--', label="relay")

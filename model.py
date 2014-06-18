@@ -22,8 +22,8 @@ OrwDebugMsgs = FileDict['OrwDebug']
 OrwNtMsgs = FileDict['OrwNt']
 props_orw = calprop.prop_orw(FileDict, resultc)
 props_ctp = calprop.prop_ctp(FileDict, resultc)
-for node in props_orw['Avg_Hops']:
-	print "Node {} Hops {}".format(node, props_orw['Avg_Hops'][node])
+'''for node in props_orw['Fwd_Load']:
+	print "Node {} Fwd_Load {}".format(node, props_orw['Fwd_Load'][node])'''
 TWIST = resultc['twist']
 
 if resultc['twist'] == True:
@@ -157,7 +157,7 @@ for node in nodelist:
 		Fail = Avg_Fail_orw[msg.node]
 		modeled_dc_orw[node] = sum(DC_Model_orw(F, Tao, Fs, L, Fail, Tw))
 		part1[node], part2[node], part3[node] = DC_Model_orw(F, Tao, Fs, L, Fail, Tw)
-	if node == 78:
+	if node in (54,66,83):
 		print "Node!!!", node, F, Tao, Fs, L, Fail, "\n", \
 			             modeled_dc_orw[node], "%", Avg_Total_dc_orw[node], "%"
 		
