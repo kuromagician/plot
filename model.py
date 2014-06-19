@@ -26,6 +26,8 @@ props_ctp = calprop.prop_ctp(FileDict, resultc)
 	print "Node {} Fwd_Load {}".format(node, props_orw['Fwd_Load'][node])'''
 TWIST = resultc['twist']
 
+
+
 if resultc['twist'] == True:
 	base_path = '/media/Data/ThesisData/Twist/'
 	FileCollection_orw = ['trace_20140515_132005.1.txt', 'trace_20140515_160513.3.txt', 
@@ -36,7 +38,8 @@ if resultc['twist'] == True:
 	FileCollection_ctp = ['trace_20140515_120916.0.txt', 'trace_20140515_145530.2.txt', 
 						'trace_20140515_174113.4.txt', 'trace_20140515_200012.6.txt', 
 						'trace_20140515_221814.8.txt', 'trace_20140516_020516.10.txt']
-	time_ratio = 1000000.0
+elif resultc['simulation']:
+	time_ratio = 1.0
 else:
 	base_path = '/media/Data/ThesisData/Indriya/'
 	FileCollection_orw = ['data-48680', 'data-48564', 'data-48640', 'data-48627', 
@@ -45,8 +48,12 @@ else:
 	FileCollection_ctp = ['data-48672', 'data-48556', 'data-48639', 'data-48641', 
 							'data-48637', 'data-48642', 'data-48651', 'data-48710',
 							'data-48774']
-	time_ratio = 1000.0
 
+time_ratio = props['timeratio']
+if resultc['postpone']:
+	time_TH = 60*time_ratio*10
+else:
+	time_TH = -1
 
 FileNames = {'OrwDebug':('23739.dat',), 'CtpDebug':('24460.dat',), 
 				'CtpData':('24463.dat',), 'ConnectDebug':('25593.dat',),
@@ -65,7 +72,7 @@ Tmin = 6.0
 Tpost=20.0
 Tipi = 1000*60.0
 Tibi = 8*1000*60.0
-T_test = 46.5*1000*60.0
+T_test = 50*1000*60.0
 ratio_ipi = Tipi/T_test
 ratio_ibi = Tibi/T_test
 
@@ -83,6 +90,8 @@ Fail_orw = defaultdict(int)
 counter1=0
 counter2=0
 sink_neighbour_orw = set()
+ForwardSet = defaultdict(set)
+
 for msg in OrwDebugMsgs:
 	if msg.timestamp / time_ratio / 60>= 10:
 		if msg.node != SINK_ID:
@@ -98,15 +107,20 @@ for msg in OrwDebugMsgs:
 				rcv_hist_orw.add((msg.dbg__b, msg.dbg__a))
 				counter2 += 1
 				Tao_orw[msg.node].add(msg.dbg__c)
+				ForwardSet[msg.dbg__c].add(msg.node)
 		elif msg.type == NET_C_FE_SENDDONE_WAITACK or msg.type == NET_C_FE_SENDDONE_FAIL:
 			Fail_orw[msg.node] += 1
 #print "ORW Fail: ", Fail_orw
 #print sink_neighbour_orw
 
+
+
 Avg_F_orw = {k:F_orw[k]*ratio_ipi for k in F_orw}
 Avg_L_orw = {k:L_orw[k]*ratio_ipi for k in L_orw}
 Avg_Tao_orw = {k: len(Tao_orw[k]) for k in Tao_orw}
-Avg_Fail_orw = {k:Fail_orw[k]*ratio_ipi for k in Fail_orw}
+Avg_Fail_orw = defaultdict(int)
+for k, v in Fail_orw.iteritems():
+	Avg_Fail_orw[k] = v*ratio_ipi
 
 
 #get division set
@@ -115,11 +129,18 @@ relay_orw = props_orw['Relay']
 leaf_orw = props_orw['Leaf']
 #print sorted(sink_neighbour_orw)
 
-ForwardSet = defaultdict(list)
-for msg in OrwNtMsgs:
-	ForwardSet[msg.node].append(msg.indexesInUse)
+
+'''for msg in OrwNtMsgs:
+	if resultc['simulation']:
+		ForwardSet[msg.node].append(msg.dbg__a)
+	else:
+		ForwardSet[msg.node].append(msg.indexesInUse)
 	
-Avg_Fs_orw = {k:mean(ForwardSet[k]) for k in ForwardSet}
+Avg_Fs_orw = {k:mean(ForwardSet[k]) for k in ForwardSet}'''
+
+Avg_Fs_orw = {k:len(ForwardSet[k]) for k in ForwardSet}
+print Avg_Fs_orw
+print Avg_F_orw
 modeled_dc_orw = {}
 part1 = {}
 part2 = {}
@@ -218,14 +239,17 @@ fail_ctp = defaultdict(int)
 counter1=0
 counter2=0
 for msg in CtpDebugMsgs:
-	if msg.timestamp / time_ratio / 60 >= 10:
+	if msg.timestamp >= time_TH:
 		if msg.type == NET_SNOOP_RCV:
 			counter1 += 1
 			L_ctp[msg.node] += 1
 		elif msg.type == NET_C_TREE_RCV_BEACON:
 			counter2 += 1
 			N_ctp[msg.node] += 1
-			neighbour_ctp[msg.node].add(msg.route_info__parent)
+			if resultc['simulation']:
+				neighbour_ctp[msg.node].add(msg.dbg__a)
+			else:
+				neighbour_ctp[msg.node].add(msg.route_info__parent)
 		elif msg.type == NET_DC_REPORT:
 			if msg.dbg__a + msg.dbg__c < 10000:
 				DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
@@ -247,10 +271,10 @@ for msg in CtpDebugMsgs:
 		elif msg.type == NET_C_FE_SENDDONE_WAITACK: 
 			pass
 			fail_ctp[msg.node] += 1
-		elif msg.type == 0x73:
-			petx[msg.node].append(msg.route_info__parent/10.0)
+		'''elif msg.type == 0x73:
+			petx[msg.node].append(msg.route_info__parent/10.0)'''
 			
-haha={k:mean(petx[k]) for k in petx}
+#haha={k:mean(petx[k]) for k in petx}
 #for k in haha:
 #	print "PETX: ", k, haha[k]
 
@@ -269,7 +293,7 @@ for node in Avg_DC_ctp:
 print mean(Avg_Total_dc_ctp.values())
 ############################# real DC ##########################
 
-
+#F_ctp = prop_ctp['load']
 
 Avg_F_ctp = {k:F_ctp[k]*ratio_ipi for k in F_ctp}
 Avg_L_ctp = {k:L_ctp[k]*ratio_ipi for k in L_ctp}
@@ -288,6 +312,9 @@ relay_ctp = props_ctp['Relay']
 leaf_ctp = props_ctp['Leaf']
 				
 modeled_dc_ctp = {}
+
+print F_ctp.keys()
+
 for node in F_ctp.keys():
 	F = Avg_F_ctp[node]
 	N = Avg_N_ctp[node]

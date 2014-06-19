@@ -152,6 +152,8 @@ note: model.py can use file above 48556
 
 49272 ctp power=11 tw=1s limit=0x2000 dc good but multiple dying logging
 49273 orw power=11 tw=1s limit=0x2000 dc good but multiple dying logging
+49278 orw power=11 tw=1s limit=0x1000 everything good
+49283 ctp power=11 tw=1s limit=0x1000 everything good
 
 
 

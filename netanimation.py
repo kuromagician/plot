@@ -34,6 +34,11 @@ LF_ctp = cal_prop_ctp['Leaf']
 end_time = 10800
 fps=60
 
+time_ratio = props['timeratio']
+if result['postpone']:
+	time_TH = 60*time_ratio*10
+else:
+	time_TH = -1
 def update_fig(i, args, G, pos, lineset):
 	global counter
 	progress = i*100/(end_time-1)
@@ -94,7 +99,7 @@ die_orw = {}
 
 #create orw network graph
 for msg in OrwDebugMsgs:
-	if msg.node <=300:
+	if msg.node <=300 and msg.timestamp >= time_TH:
 		#if type is receive, record every edge that appears
 		if msg.type == NET_C_FE_RCV_MSG:
 			G_orw.add_node(msg.node)
@@ -151,16 +156,15 @@ step2=100.0/len(RL_orw)
 step3=100.0/len(LF_orw)
 ax2.set_xticks(xrange(0, 10801, 1200))
 ax2.set_xticklabels(xrange(0, 181, 20))
-
-
+'''
 lineset = [timeline, line_SN, line_RL, line_LF]
 
 counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw, lineset], blit=True)
-anim.save('orw.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
+anim.save('orw.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])'''
 
-'''
+
 ###########################################################
 ######################      CTP      ######################
 
@@ -171,7 +175,7 @@ node_w = {}
 die_ctp = {}
 #create ctp network graph
 for msg in CtpDebugMsgs:
-	if msg.node <=300:
+	if msg.node <=300 and msg.timestamp >= time_TH:
 		#if type is receive, record every edge that appears
 		if msg.type == NET_C_FE_SENT_MSG:
 			G_ctp.add_node(msg.node)
@@ -234,7 +238,7 @@ step2=100.0/len(RL_ctp)
 step3=100.0/len(LF_ctp)
 ax2.set_xticks(xrange(0, 10801, 1200))
 ax2.set_xticklabels(xrange(0, 181, 20))
-
+pl.show()
 
 lineset = [timeline, line_SN, line_RL, line_LF]
 #nodeset = [node_SN, node_RL, node_LF]
@@ -242,7 +246,7 @@ counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
 anim.save('ctp.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
-'''
+
 #nx.draw(G_ctp, pos_ctp)
 
-#pl.show()
+

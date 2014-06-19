@@ -9,7 +9,7 @@ import sys
 import os
 import ctpDebugMsg
 
-filepath = "/home/nagatoyuki/Thesis/loglistener.txt"
+filepath = "/home/nagatoyuki/Thesis/CTP_1s.txt"
 
 FILE_TYPE_CTPDEBUG = 0
 FILE_TYPE_CTPDATA = 1
@@ -18,7 +18,7 @@ FILE_TYPE_ORWNT = 3
 
 def loadDebug(filepath):
 	if not os.path.isfile(filepath):
-		sys.exit("File does not exit!")
+		sys.exit("File does not exist!")
 	CtpDebugMsgs = []
 	CtpDataMsgs = []
 	OrwDebugMsgs = []

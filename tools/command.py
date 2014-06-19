@@ -78,7 +78,6 @@ def getfile(args):
 		props['prefix']='Twist_'
 		#
 		# use wakeup time as parameters, Indriya
-		#
 		if args['model']:
 			if not args['check']:
 				if args['wakeup'] == 0.25:
@@ -144,18 +143,17 @@ def getfile(args):
 	#files are from Simulation
 	#
 	elif args['simulation']:
-		limited_ctp = "../Simulation/loglistener.txt"
-		limited_orw = "data-49102"
+		props['timeratio'] = 1.0
+		limited_ctp = "../Simulation/CTP_1s.txt"
+		limited_orw = "../Simulation/ORW_1s.txt"
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
-		FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
-		FileDict['OrwNt'] = reader.loadNtDebug(base_path+limited_orw, FileNames['OrwDebug']) 
+		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#
 	#files are from Indriya
 	#
 	else:
 		#
 		# use wakeup time as parameters
-		#
 		if args['model']:
 			if not args['check']:
 				wakeup_i = [0.25, 0.5, 1, 1.5, 2, 2.5, 4, 6, 16]

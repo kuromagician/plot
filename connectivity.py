@@ -100,7 +100,7 @@ for msg in OrwDebugMsgs:
 
 edgewidth=[]
 VIP_edges = []
-nodelist_orw = G.nodes()
+nodelist_orw = G_orw.nodes()
 
 #print sorted(pos.keys())
 real_load = {}
