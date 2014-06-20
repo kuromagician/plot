@@ -144,8 +144,12 @@ def getfile(args):
 	#
 	elif args['simulation']:
 		props['timeratio'] = 1.0
-		limited_ctp = "../Simulation/CTP_1s.txt"
-		limited_orw = "../Simulation/ORW_1s.txt"
+		if ELIMIT == 0x1000:
+			limited_ctp = "../Simulation/ORW_el1000_2h.txt"
+			limited_orw = "../Simulation/ORW_el1000_2h.txt"
+		else:
+			limited_ctp = "../Simulation/CTP_1s.txt"
+			limited_orw = "../Simulation/ORW_1s.txt"
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
 		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#
@@ -163,7 +167,7 @@ def getfile(args):
 							'data-48637', 'data-48642', 'data-48651', 'data-48710', 'data-48774']
 			else:
 				wakeup_i = [0.25, 0.5, 1, 2, 4, 8, 16]
-				'''
+				
 				#This is wrong log of neighbour
 				FileCollection_orw = ['data-48936', 'data-48934', 'data-48933', 'data-48932', 
 							'data-48931', 'data-48930', 'data-48952']
@@ -173,7 +177,7 @@ def getfile(args):
 				FileCollection_orw = ['data-49167', 'data-49137', 'data-49175', 'data-49104', 
 							'data-49103', 'data-49102', 'data-49271']
 				FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
-							'data-49054', 'data-49059', 'data-49079']
+							'data-49054', 'data-49059', 'data-49079']'''
 			if args['wakeup'] not in wakeup_i:
 				print "No traces available for this setting, exit"
 				sys.exit(0)

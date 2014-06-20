@@ -74,7 +74,6 @@ def prop_orw(FileDict, args):
 
 	avg_hops_orw = {k:total_hops_orw[k] / 1.0 / counter[k] for k in total_hops_orw}	
 	
-	
 	#get the average dutycycle of each node
 	Avg_DC_orw = {k: mean(DutyCycle_orw[k], axis=0) for k in DutyCycle_orw}
 
@@ -91,8 +90,7 @@ def prop_orw(FileDict, args):
 	#Calculate sets for relay and leaves
 	leaf_orw = set()
 	relay_orw = set()
-	for (node, hops) in avg_hops_orw.iteritems():
-		#print node, hops
+	for node, hops in avg_hops_orw.iteritems():
 		'''if hops < 0.5:
 			dir_neig_orw.add(node)'''
 		if node not in dir_neig_orw:
@@ -112,8 +110,6 @@ def prop_orw(FileDict, args):
 	props['Leaf'] = leaf_orw
 	props['Num_Rcv'] = total_receive_orw
 	props['Fwd_Load'] = load_orw
-	print dir_neig_orw
-	print load_orw
 	return props
 	
 def prop_ctp(FileDict, args):

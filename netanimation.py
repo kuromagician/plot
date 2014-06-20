@@ -31,7 +31,10 @@ LF_orw = cal_prop_orw['Leaf']
 SN_ctp = cal_prop_ctp['Dir_Neig']
 RL_ctp = cal_prop_ctp['Relay']
 LF_ctp = cal_prop_ctp['Leaf']
-end_time = 10800
+if result['simulation']:
+	end_time = 6000
+else:
+	end_time = 10800
 fps=60
 
 time_ratio = props['timeratio']
@@ -117,7 +120,6 @@ for msg in OrwDebugMsgs:
 sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
 sorted_die_node = [k for (k,v) in sorted_die_orw]
 sorted_die_time = [v for (k,v) in sorted_die_orw]
-print sorted_die_time
 
 pos_orw = nx.graphviz_layout(G_orw, root=SINK_ID)
 nodelist = set(G_orw.nodes())
@@ -156,15 +158,16 @@ step2=100.0/len(RL_orw)
 step3=100.0/len(LF_orw)
 ax2.set_xticks(xrange(0, 10801, 1200))
 ax2.set_xticklabels(xrange(0, 181, 20))
+
 '''
 lineset = [timeline, line_SN, line_RL, line_LF]
 
 counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw, lineset], blit=True)
-anim.save('orw.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])'''
+anim.save('orw.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
 
-
+'''
 ###########################################################
 ######################      CTP      ######################
 
@@ -203,8 +206,8 @@ for (k,v) in sorted_die_ctp:
 	sorted_die_node.append(k)
 	sorted_die_time.append(v)
 print sorted_die_time
-
-pos_ctp = nx.graphviz_layout(G_ctp, root=SINK_ID)
+pos_ctp = pos_orw
+#pos_ctp = nx.graphviz_layout(G_ctp, root=SINK_ID)
 nodelist = set(G_ctp.nodes())
 print "CTP:", len(SN_ctp)+len(RL_ctp)+len(LF_ctp), len(nodelist)
 unknown = nodelist - SN_ctp - RL_ctp - LF_ctp
@@ -246,7 +249,7 @@ counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
 anim.save('ctp.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
-
+#'''
 #nx.draw(G_ctp, pos_ctp)
 
 

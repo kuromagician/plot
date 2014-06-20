@@ -118,6 +118,15 @@ class SimDataMsg:
         self.origin = origin
         self.seqno = originSeqNo
         self.timestamp = timestamp
+        
+class SimNtMsg:
+    def __init__(self, node, timestamp, type, indexesInUse, edc, nextHopEdc):
+        self.node = node
+        self.timestamp = timestamp
+        self.type = type
+        self.indexesInUse = indexesInUse
+        self.edc = edc
+        self.nextHopEdc = nextHopEdc
 
 class RawMsg:
     def __init__(self, type, dbg__a, dbg__b, dbg__c):

@@ -224,9 +224,9 @@ Tao_LF = []
 Fs_LF = []
 L_LF = [] 
 FWD_LF = []
-SN_Paras = [F_SN, Tao_SN, Fs_SN, L_SN, FWD_SN]
-RL_Paras = [F_RL, Tao_RL, Fs_RL, L_RL, FWD_RL]
-LF_Paras = [F_LF, Tao_LF, Fs_LF, L_LF, FWD_LF]
+SN_Paras = [F_SN, Tao_SN, Fs_SN, L_SN, Fail_SN]
+RL_Paras = [F_RL, Tao_RL, Fs_RL, L_RL, Fail_RL]
+LF_Paras = [F_LF, Tao_LF, Fs_LF, L_LF, Fail_LF]
 #for wake in wakeup:
 
 if result['twist']:

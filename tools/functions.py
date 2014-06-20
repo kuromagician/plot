@@ -122,11 +122,10 @@ _T_test = 56.5*1000*60.0
 #Tw: wakeup interval
 
 def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
-	#print F, Tao, N, L, Fail
 	prob = ((1.5)*Tw)/_Tipi
 	newF = 0
 	total_prob = 0
-	temp = max(int(Tao), int(math.ceil(F)))
+	temp = int(round(F))
 	for i in xrange(1, 13):
 		if i <= temp:
 			p = misc.comb(temp, i, 1)*prob**i*(1-prob)**(temp-i)
@@ -169,6 +168,7 @@ def DC_Model_orw(F, Tao, Fs, L, Fail, Tw):
 	'''if temp >= 12:
 		newF += 12*(1-total_prob)'''
 	F = F*1.0/(newF + 1)
+	
 	dc1 = _Tc/Tw
 	dc2 = 1.0/(Fs+1)*F*Tw/_Tipi# + Fail*Tw/_Tipi
 	dc3 = L*(_Trx)/_Tipi

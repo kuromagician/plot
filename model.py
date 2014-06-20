@@ -90,7 +90,7 @@ Fail_orw = defaultdict(int)
 counter1=0
 counter2=0
 sink_neighbour_orw = set()
-ForwardSet = defaultdict(set)
+#ForwardSet = defaultdict(set)
 
 for msg in OrwDebugMsgs:
 	if msg.timestamp / time_ratio / 60>= 10:
@@ -107,7 +107,7 @@ for msg in OrwDebugMsgs:
 				rcv_hist_orw.add((msg.dbg__b, msg.dbg__a))
 				counter2 += 1
 				Tao_orw[msg.node].add(msg.dbg__c)
-				ForwardSet[msg.dbg__c].add(msg.node)
+				#ForwardSet[msg.dbg__c].add(msg.node)
 		elif msg.type == NET_C_FE_SENDDONE_WAITACK or msg.type == NET_C_FE_SENDDONE_FAIL:
 			Fail_orw[msg.node] += 1
 #print "ORW Fail: ", Fail_orw
@@ -129,18 +129,17 @@ relay_orw = props_orw['Relay']
 leaf_orw = props_orw['Leaf']
 #print sorted(sink_neighbour_orw)
 
-
-'''for msg in OrwNtMsgs:
+ForwardSet = defaultdict(list)
+for msg in OrwNtMsgs:
 	if resultc['simulation']:
 		ForwardSet[msg.node].append(msg.dbg__a)
 	else:
 		ForwardSet[msg.node].append(msg.indexesInUse)
 	
-Avg_Fs_orw = {k:mean(ForwardSet[k]) for k in ForwardSet}'''
+Avg_Fs_orw = {k:mean(ForwardSet[k]) for k in ForwardSet}
 
-Avg_Fs_orw = {k:len(ForwardSet[k]) for k in ForwardSet}
-print Avg_Fs_orw
-print Avg_F_orw
+#Avg_Fs_orw = {k:len(ForwardSet[k]) for k in ForwardSet}
+
 modeled_dc_orw = {}
 part1 = {}
 part2 = {}
@@ -313,8 +312,6 @@ leaf_ctp = props_ctp['Leaf']
 				
 modeled_dc_ctp = {}
 
-print F_ctp.keys()
-
 for node in F_ctp.keys():
 	F = Avg_F_ctp[node]
 	N = Avg_N_ctp[node]
@@ -332,7 +329,6 @@ for node in F_ctp.keys():
 		print "Node!!!", node, F, N, L, Tao, Fail, "\n", \
 			             modeled_dc_ctp[node], "%", Avg_Total_dc_ctp[node], "%"
 
-print counter1, counter2
 
 fig = pl.figure()
 ax = fig.add_subplot(2,1,1)
