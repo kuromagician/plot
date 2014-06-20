@@ -159,6 +159,9 @@ def getfile(args):
 			elif ELIMIT == 0x2000:
 				limited_ctp = "../Simulation/CTP_el2000_2h45m.txt"
 				limited_orw = "../Simulation/ORW_el2000_2h45m.txt"
+			elif ELIMIT == 0x4000:
+				limited_ctp = "../Simulation/CTP_el4000_5h.txt"
+				limited_orw = "../Simulation/ORW_el4000_5h.txt"
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
 		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#

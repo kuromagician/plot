@@ -37,18 +37,19 @@ def prop_orw(FileDict, args):
 		#can be set to -1 to record all
 		if msg.timestamp >= time_TH:
 			if msg.type == NET_C_FE_RCV_MSG:
-				route_hist_orw[(msg.dbg__b, msg.dbg__a)].add(msg.dbg__c)
-				if msg.node == SINK_ID:
-					#make sure we don't count duplicate
-					if (msg.dbg__b, msg.dbg__a) not in rcv_hist_orw:
-						#add to path and total receive history
-						# add (origin, SeqNo) into history
-						rcv_hist_orw.add((msg.dbg__b, msg.dbg__a))
-						#if node is SINK, add node to direct neighbour
-						dir_neig_orw.add(msg.dbg__c)
-						total_receive_orw += 1
-					else:
-						route_hist_orw[(msg.dbg__b, msg.dbg__a)].discard(msg.dbg__c)
+				if msg.dbg__b < 500:
+					route_hist_orw[(msg.dbg__b, msg.dbg__a)].add(msg.dbg__c)
+					if msg.node == SINK_ID:
+						#make sure we don't count duplicate
+						if (msg.dbg__b, msg.dbg__a) not in rcv_hist_orw:
+							#add to path and total receive history
+							# add (origin, SeqNo) into history
+							rcv_hist_orw.add((msg.dbg__b, msg.dbg__a))
+							#if node is SINK, add node to direct neighbour
+							dir_neig_orw.add(msg.dbg__c)
+							total_receive_orw += 1
+						else:
+							route_hist_orw[(msg.dbg__b, msg.dbg__a)].discard(msg.dbg__c)
 			elif msg.type == NET_DC_REPORT:
 				if msg.dbg__a + msg.dbg__c < 10000:
 					DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))

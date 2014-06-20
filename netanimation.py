@@ -32,7 +32,7 @@ SN_ctp = cal_prop_ctp['Dir_Neig']
 RL_ctp = cal_prop_ctp['Relay']
 LF_ctp = cal_prop_ctp['Leaf']
 if result['simulation']:
-	end_time = 9000
+	end_time = 15000
 else:
 	end_time = 10800
 fps=60
@@ -125,7 +125,7 @@ sorted_die_node = [k for (k,v) in sorted_die_orw]
 sorted_die_time = [v for (k,v) in sorted_die_orw]
 
 pos_orw = nx.graphviz_layout(G_orw, root=SINK_ID)
-
+'''
 nodelist = set(G_orw.nodes())
 print "ORW:", len(SN_orw)+len(RL_orw)+len(LF_orw), len(nodelist)
 unknown = nodelist - SN_orw - RL_orw - LF_orw
@@ -253,7 +253,7 @@ counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
 anim.save('ctp.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
-'''
+
 #nx.draw(G_ctp, pos_ctp)
 
 
