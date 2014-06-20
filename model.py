@@ -131,10 +131,7 @@ leaf_orw = props_orw['Leaf']
 
 ForwardSet = defaultdict(list)
 for msg in OrwNtMsgs:
-	if resultc['simulation']:
-		ForwardSet[msg.node].append(msg.dbg__a)
-	else:
-		ForwardSet[msg.node].append(msg.indexesInUse)
+	ForwardSet[msg.node].append(msg.indexesInUse)
 	
 Avg_Fs_orw = {k:mean(ForwardSet[k]) for k in ForwardSet}
 
@@ -219,7 +216,8 @@ for k in set(modeled_dc_orw.keys()) & set(Avg_Total_dc_orw.keys()) :
 	diff_ratio[k] = ratio
 ax2.bar(diff_value.keys(), diff_value.values(), color='r')
 print "diff ratio orw:", mean(absolute(diff_ratio.values())), "%"
-
+for node in [3,9,15,14,13]:
+	print "LOAD ORW: ", node, Avg_F_orw[node]
 ##################################  CTP ################################
 ###############################  Data Process ##########################
 
@@ -354,6 +352,8 @@ fig = pl.figure()
 ax = fig.add_subplot(1,1,1)
 ax.boxplot([Avg_F_ctp.values(),Avg_F_orw.values()] , positions=[1,2])
 #ax.boxplot(Avg_F_orw.values())
+for node in [3,9,15,14,13]:
+	print "LOAD CTP: ", node, Avg_F_ctp[node]
 pl.show()
 
 

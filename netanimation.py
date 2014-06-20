@@ -32,7 +32,7 @@ SN_ctp = cal_prop_ctp['Dir_Neig']
 RL_ctp = cal_prop_ctp['Relay']
 LF_ctp = cal_prop_ctp['Leaf']
 if result['simulation']:
-	end_time = 6000
+	end_time = 9000
 else:
 	end_time = 10800
 fps=60
@@ -54,20 +54,22 @@ def update_fig(i, args, G, pos, lineset):
 	if i in sorted_die_time:
 		#clear figure
 		ax1.cla()
+		die_list=[]
 		
-		curr_node = sorted_die_node[counter]
-		if curr_node in args[0]:
-			ly1 += step1
-		elif curr_node in args[1]:
-			ly2 += step2
-		elif curr_node in args[2]:
-			ly3 += step3
-		
-		counter += 1
-		#remove the dead nodes
-		if curr_node in G.nodes():
-			G.remove_node(curr_node)
-		nodelist.discard(curr_node)
+		while sorted_die_time[counter] == i:
+			die_list.append(sorted_die_node[counter])
+			counter += 1
+		for curr_node in die_list:
+			if curr_node in args[0]:
+				ly1 += step1
+			elif curr_node in args[1]:
+				ly2 += step2
+			elif curr_node in args[2]:
+				ly3 += step3
+			#remove the dead nodes
+			if curr_node in G.nodes():
+				G.remove_node(curr_node)
+			nodelist.discard(curr_node)
 		
 		ax1.set_xlim([limit[0], limit[1]])
 		ax1.set_ylim([limit[2], limit[3]])
@@ -116,14 +118,16 @@ for msg in OrwDebugMsgs:
 			if msg.node not in die_orw:
 				G_orw.add_node(msg.node)
 				die_orw[msg.node] = int(round(msg.timestamp/time_ratio))
-		
+
+
 sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
 sorted_die_node = [k for (k,v) in sorted_die_orw]
 sorted_die_time = [v for (k,v) in sorted_die_orw]
 
 pos_orw = nx.graphviz_layout(G_orw, root=SINK_ID)
+
 nodelist = set(G_orw.nodes())
-print "ORW:", len(SN_orw)+len(RL_orw)+len(RL_orw), len(nodelist)
+print "ORW:", len(SN_orw)+len(RL_orw)+len(LF_orw), len(nodelist)
 unknown = nodelist - SN_orw - RL_orw - LF_orw
 for node in unknown:
 	if node != SINK_ID:
@@ -159,15 +163,15 @@ step3=100.0/len(LF_orw)
 ax2.set_xticks(xrange(0, 10801, 1200))
 ax2.set_xticklabels(xrange(0, 181, 20))
 
-'''
+
 lineset = [timeline, line_SN, line_RL, line_LF]
 
 counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw, lineset], blit=True)
 anim.save('orw.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
-
 '''
+
 ###########################################################
 ######################      CTP      ######################
 
@@ -241,7 +245,7 @@ step2=100.0/len(RL_ctp)
 step3=100.0/len(LF_ctp)
 ax2.set_xticks(xrange(0, 10801, 1200))
 ax2.set_xticklabels(xrange(0, 181, 20))
-pl.show()
+
 
 lineset = [timeline, line_SN, line_RL, line_LF]
 #nodeset = [node_SN, node_RL, node_LF]
@@ -249,7 +253,7 @@ counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
 anim.save('ctp.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
-#'''
+'''
 #nx.draw(G_ctp, pos_ctp)
 
 

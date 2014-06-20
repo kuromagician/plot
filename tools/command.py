@@ -70,7 +70,7 @@ def getfile(args):
 	if args['twist']:
 		props['SINK_ID'] = 153
 		props['timeratio'] = 1000000.0
-		
+		props['time_TH'] = props['timeratio']*60*10
 		if args['desktop']:
 			base_path = '/home/nagatoyuki/Thesis/Traces/Twist/'
 		else:
@@ -144,12 +144,21 @@ def getfile(args):
 	#
 	elif args['simulation']:
 		props['timeratio'] = 1.0
-		if ELIMIT == 0x1000:
-			limited_ctp = "../Simulation/ORW_el1000_2h.txt"
-			limited_orw = "../Simulation/ORW_el1000_2h.txt"
-		else:
-			limited_ctp = "../Simulation/CTP_1s.txt"
-			limited_orw = "../Simulation/ORW_1s.txt"
+		props['time_TH'] = props['timeratio']*60*10
+		if args['model']:
+			if args['wakeup'] == 1:
+				limited_ctp = "../Simulation/CTP_1s.txt"
+				limited_orw = "../Simulation/ORW_1s.txt"
+			else:
+				limited_ctp = "../Simulation/CTP_1s.txt"
+				limited_orw = "../Simulation/ORW_1s.txt"
+		elif args['lim']:
+			if ELIMIT == 0x1000:
+				limited_ctp = "../Simulation/CTP_el1000_2h.txt"
+				limited_orw = "../Simulation/ORW_el1000_2h.txt"
+			elif ELIMIT == 0x2000:
+				limited_ctp = "../Simulation/CTP_el2000_2h45m.txt"
+				limited_orw = "../Simulation/ORW_el2000_2h45m.txt"
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
 		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#
@@ -158,6 +167,7 @@ def getfile(args):
 	else:
 		#
 		# use wakeup time as parameters
+		props['time_TH'] = props['timeratio']*60*10
 		if args['model']:
 			if not args['check']:
 				wakeup_i = [0.25, 0.5, 1, 1.5, 2, 2.5, 4, 6, 16]
