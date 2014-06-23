@@ -125,7 +125,7 @@ sorted_die_node = [k for (k,v) in sorted_die_orw]
 sorted_die_time = [v for (k,v) in sorted_die_orw]
 
 pos_orw = nx.graphviz_layout(G_orw, root=SINK_ID)
-'''
+
 nodelist = set(G_orw.nodes())
 print "ORW:", len(SN_orw)+len(RL_orw)+len(LF_orw), len(nodelist)
 unknown = nodelist - SN_orw - RL_orw - LF_orw
@@ -159,7 +159,10 @@ y2=[0]
 y3=[0]
 step1=100.0/len(SN_orw)
 step2=100.0/len(RL_orw)
-step3=100.0/len(LF_orw)
+if len(LF_orw) == 0:
+	step3=0
+else:
+	step3=100.0/len(LF_orw)
 ax2.set_xticks(xrange(0, 10801, 1200))
 ax2.set_xticklabels(xrange(0, 181, 20))
 
@@ -253,7 +256,7 @@ counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_ctp, pos_ctp, lineset], blit=True)
 anim.save('ctp.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
-
+'''
 #nx.draw(G_ctp, pos_ctp)
 
 

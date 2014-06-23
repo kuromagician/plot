@@ -30,6 +30,7 @@ result = command.main(sys.argv[1:])
 FileDict, props = command.getfile(result)
 time_ratio = props['timeratio']
 SINK_ID = props['SINK_ID']
+time_TH = props['time_TH']
 
 
 ################################section of CTP#########################
@@ -74,7 +75,7 @@ c = len(leaf_set)
 print "CTP:", a, b, c
 
 for msg in CtpDebugMsgs:
-	if msg.timestamp / time_ratio /60 >= 10:
+	if msg.timestamp >= time_TH:
 		temp = msg.timestamp/time_ratio
 		if msg.type == NET_C_FE_RCV_MSG:
 			if msg.node == SINK_ID:
@@ -84,13 +85,12 @@ for msg in CtpDebugMsgs:
 					counter_r += 1
 					rcv_time_ctp.append(temp/60.0)
 					rcv_num_ctp.append(counter_r)
-		if msg.type == NET_C_FE_SENT_MSG:
-			if (msg.dbg__b, msg.dbg__a) not in hist_ctp:
-				send_hist_ctp.add((msg.dbg__b, msg.dbg__a))
-				counter_s += 1
-				send_num_ctp.append(counter_s)
-				send_time_ctp.append(temp/60.0)
-		if msg.type == NET_C_DIE:
+		elif msg.type == NET_C_FE_SENT_MSG:
+			send_hist_ctp.add((msg.dbg__b, msg.dbg__a))
+			counter_s += 1
+			send_num_ctp.append(counter_s)
+			send_time_ctp.append(temp/60.0)
+		elif msg.type == NET_C_DIE:
 			if msg.node in relay_set:
 				counter_d_RL += 1
 			elif msg.node in leaf_set:
@@ -141,7 +141,7 @@ c = len(leaf_set)
 print "ORW:", a, b, c
 
 for msg in OrwDebugMsgs:
-	if msg.timestamp / time_ratio /60 >= 10:
+	if msg.timestamp >= time_TH:
 		temp = msg.timestamp/time_ratio
 		if msg.type == NET_C_FE_RCV_MSG:
 			if msg.node == SINK_ID:
@@ -151,11 +151,10 @@ for msg in OrwDebugMsgs:
 					rcv_time_orw.append(temp/60.0)
 					rcv_num_orw.append(counter_r)
 		if msg.type == NET_APP_SENT:
-			if (msg.dbg__b, msg.dbg__a) not in hist_orw:
-				send_hist_orw.add((msg.dbg__b, msg.dbg__a))
-				counter_s += 1
-				send_num_orw.append(counter_s)
-				send_time_orw.append(temp/60.0)
+			send_hist_orw.add((msg.dbg__b, msg.dbg__a))
+			counter_s += 1
+			send_num_orw.append(counter_s)
+			send_time_orw.append(temp/60.0)
 		if msg.type == NET_C_DIE:
 			if msg.node in relay_set:
 				counter_d_RL += 1
@@ -192,7 +191,7 @@ f_ctp = interp1d(rcv_time_ctp, rcv_num_ctp)
 f_orw = interp1d(rcv_time_orw, rcv_num_orw)
 
 #calculate derivative using interpolated result get from above
-xp = np.arange(lb+2, ub-2, 1)
+xp = np.arange(lb+1.1, ub-1.1, 1)
 drcv_ctp = derivative(f_ctp,xp,dx=1,n=1)
 drcv_orw = derivative(f_orw,xp,dx=1,n=1)
 ax2 = fig.add_subplot(3,1,2)

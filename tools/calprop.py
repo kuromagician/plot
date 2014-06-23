@@ -49,6 +49,7 @@ def prop_orw(FileDict, args):
 							dir_neig_orw.add(msg.dbg__c)
 							total_receive_orw += 1
 						else:
+							print msg.dbg__b, msg.dbg__a
 							route_hist_orw[(msg.dbg__b, msg.dbg__a)].discard(msg.dbg__c)
 			elif msg.type == NET_DC_REPORT:
 				if msg.dbg__a + msg.dbg__c < 10000:
@@ -95,10 +96,11 @@ def prop_orw(FileDict, args):
 		'''if hops < 0.5:
 			dir_neig_orw.add(node)'''
 		if node not in dir_neig_orw:
-			if load_orw[node] < 1.5:
-				leaf_orw.add(node)
-			else:
-				relay_orw.add(node)
+			if node in load_orw:
+				if load_orw[node] < 1.5:
+					leaf_orw.add(node)
+				else:
+					relay_orw.add(node)
 	props = {}
 	props['Avg_Data_dc'] = Avg_Data_dc_orw
 	props['Avg_Idle_dc'] = Avg_Idle_dc_orw
