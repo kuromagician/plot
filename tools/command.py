@@ -167,6 +167,9 @@ def getfile(args):
 			elif ELIMIT == 0x4000:
 				limited_ctp = "../Simulation/CTP_el4000_5h.txt"
 				limited_orw = "../Simulation/ORW_el4000_5h_144.txt"
+			elif ELIMIT == 0x8000:
+				limited_ctp = "../Simulation/CTP_el8000_7h50.txt"
+				limited_orw = "../Simulation/ORW_el8000_9h.txt"
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
 		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#
@@ -238,8 +241,11 @@ def getfile(args):
 			FileNames['CtpData'] = ('26103.dat',)
 			FileNames['OrwDebug'] = ('26108.dat',)
 			FileNames['OrwNt'] = ('26107.dat',)
-			limited_ctp = 'data-49272'
-			limited_orw = 'data-49273'
+			#limited_ctp = 'data-49272'
+			#limited_orw = 'data-49273'
+			#actually these are 1000
+			limited_ctp = 'data-49283'
+			limited_orw = 'data-49278'
 		else:
 			print "Energy limit", hex(ELIMIT), "is not available, exit"
 			sys.exit()

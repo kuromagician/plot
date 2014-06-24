@@ -2,6 +2,7 @@
 from tools.constant import *
 import tools.command as command
 from collections import defaultdict
+from collections import deque
 import numpy
 from numpy import mean
 
@@ -27,7 +28,7 @@ def prop_orw(FileDict, args):
 	num_fwd_orw = defaultdict(int)
 	num_init_orw = defaultdict(int)
 	route_hist_orw = defaultdict(set)
-	rcv_hist_orw = set()
+	rcv_hist_orw = deque(maxlen=12000)
 	DutyCycle_orw = defaultdict(list)
 	dir_neig_orw = set()
 	total_receive_orw = 0
@@ -44,12 +45,11 @@ def prop_orw(FileDict, args):
 						if (msg.dbg__b, msg.dbg__a) not in rcv_hist_orw:
 							#add to path and total receive history
 							# add (origin, SeqNo) into history
-							rcv_hist_orw.add((msg.dbg__b, msg.dbg__a))
+							rcv_hist_orw.append((msg.dbg__b, msg.dbg__a))
 							#if node is SINK, add node to direct neighbour
 							dir_neig_orw.add(msg.dbg__c)
 							total_receive_orw += 1
 						else:
-							print msg.dbg__b, msg.dbg__a
 							route_hist_orw[(msg.dbg__b, msg.dbg__a)].discard(msg.dbg__c)
 			elif msg.type == NET_DC_REPORT:
 				if msg.dbg__a + msg.dbg__c < 10000:

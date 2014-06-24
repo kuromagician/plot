@@ -32,7 +32,7 @@ SN_ctp = cal_prop_ctp['Dir_Neig']
 RL_ctp = cal_prop_ctp['Relay']
 LF_ctp = cal_prop_ctp['Leaf']
 if result['simulation']:
-	end_time = 15000
+	end_time = 252000
 else:
 	end_time = 10800
 fps=60
@@ -42,43 +42,46 @@ if result['postpone']:
 	time_TH = 60*time_ratio*10
 else:
 	time_TH = -1
-def update_fig(i, args, G, pos, lineset):
+def update_fig(i, args, G, pos, lineset, start_time):
 	global counter
 	progress = i*100/(end_time-1)
 	text = 'Creating animation: '
 	update_progress(text, progress)
-	#ax2.cla()
 	ly1 = y1[-1]
 	ly2 = y2[-1]
 	ly3 = y3[-1]
-	if i in sorted_die_time:
-		#clear figure
-		ax1.cla()
-		die_list=[]
+	#only reserve 5 secs
+	if i > start_time:
+		#ax2.cla()
 		
-		while sorted_die_time[counter] == i:
-			die_list.append(sorted_die_node[counter])
-			counter += 1
-		for curr_node in die_list:
-			if curr_node in args[0]:
-				ly1 += step1
-			elif curr_node in args[1]:
-				ly2 += step2
-			elif curr_node in args[2]:
-				ly3 += step3
-			#remove the dead nodes
-			if curr_node in G.nodes():
-				G.remove_node(curr_node)
-			nodelist.discard(curr_node)
-		
-		ax1.set_xlim([limit[0], limit[1]])
-		ax1.set_ylim([limit[2], limit[3]])
-		ax1.set_axis_off()
-		nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k', ax=ax1)
-		nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[0] & nodelist, node_color='b', ax=ax1)
-		nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[1] & nodelist, node_color='r', ax=ax1)
-		nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[2] & nodelist, node_color='g', ax=ax1)
-		nx.draw_networkx_edges(G, pos, width=0.5, alpha=0.5, ax=ax1)
+		if i in sorted_die_time:
+			#clear figure
+			ax1.cla()
+			die_list=[]
+			
+			while sorted_die_time[counter] == i:
+				die_list.append(sorted_die_node[counter])
+				counter += 1
+			for curr_node in die_list:
+				if curr_node in args[0]:
+					ly1 += step1
+				elif curr_node in args[1]:
+					ly2 += step2
+				elif curr_node in args[2]:
+					ly3 += step3
+				#remove the dead nodes
+				if curr_node in G.nodes():
+					G.remove_node(curr_node)
+				nodelist.discard(curr_node)
+			
+			ax1.set_xlim([limit[0], limit[1]])
+			ax1.set_ylim([limit[2], limit[3]])
+			ax1.set_axis_off()
+			nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k', ax=ax1)
+			nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[0] & nodelist, node_color='b', ax=ax1)
+			nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[1] & nodelist, node_color='r', ax=ax1)
+			nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=args[2] & nodelist, node_color='g', ax=ax1)
+			nx.draw_networkx_edges(G, pos, width=0.5, alpha=0.5, ax=ax1)
 		
 		
 	lineset[0].set_data([i, i], [0, 100])
@@ -123,6 +126,8 @@ for msg in OrwDebugMsgs:
 sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
 sorted_die_node = [k for (k,v) in sorted_die_orw]
 sorted_die_time = [v for (k,v) in sorted_die_orw]
+
+start_time = sorted_die_time[0] - 300
 
 pos_orw = nx.graphviz_layout(G_orw, root=SINK_ID)
 
@@ -171,7 +176,7 @@ lineset = [timeline, line_SN, line_RL, line_LF]
 
 counter=0
 #end_time = sorted_die_time[-1]+30
-anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw, lineset], blit=True)
+anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw, lineset, start_time], blit=True)
 anim.save('orw.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
 '''
 

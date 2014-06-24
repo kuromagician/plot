@@ -12,6 +12,8 @@ import tools.twistReader as Treader
 import tools.calprop as calprop
 from tools.functions import *
 from tools.constant import *
+from collections import deque
+import sys
 
 '''
 props['Avg_Data_dc'] = Avg_Data_dc_ctp
@@ -42,6 +44,7 @@ CtpDebugMsgs = FileDict['CtpDebug']
 		break'''
 
 #store the packet as (src, seqNo)
+#hist_ctp = deque(maxlen=12000)
 hist_ctp = set()
 send_hist_ctp = set()
 #two lists that record number and correspoding
@@ -58,14 +61,18 @@ die_num_SN_ctp = [0]
 die_num_RL_ctp = [0]
 die_num_LF_ctp = [0]
 die_time_ctp = [0]
+die_ctp = set()
 #support counter 
 counter_r = 0
 counter_s = 0
 counter_d_SN = 0
 counter_d_RL = 0
 counter_d_LF = 0
+#duplicates
+counter_d = 0
 
 cal_prop_ctp = calprop.prop_ctp(FileDict, result)
+cal_prop_orw = calprop.prop_orw(FileDict, result)
 leaf_set = cal_prop_ctp['Leaf']
 relay_set = cal_prop_ctp['Relay']
 dirn_set = cal_prop_ctp['Dir_Neig']
@@ -85,29 +92,35 @@ for msg in CtpDebugMsgs:
 					counter_r += 1
 					rcv_time_ctp.append(temp/60.0)
 					rcv_num_ctp.append(counter_r)
+				else:
+					counter_d += 1
 		elif msg.type == NET_C_FE_SENT_MSG:
 			send_hist_ctp.add((msg.dbg__b, msg.dbg__a))
 			counter_s += 1
 			send_num_ctp.append(counter_s)
 			send_time_ctp.append(temp/60.0)
 		elif msg.type == NET_C_DIE:
-			if msg.node in relay_set:
-				counter_d_RL += 1
-			elif msg.node in leaf_set:
-				counter_d_LF += 1
-			elif msg.node in dirn_set:
-				counter_d_SN += 1
-			die_num_SN_ctp.append(counter_d_SN*100.0/a)
-			die_num_RL_ctp.append(counter_d_RL*100.0/b)
-			die_num_LF_ctp.append(counter_d_LF*100.0/c)
-			die_time_ctp.append(temp/60.0)
+			if msg.node not in die_ctp:
+				die_ctp.add(msg.node)
+				if msg.node in relay_set:
+					counter_d_RL += 1
+				elif msg.node in leaf_set:
+					counter_d_LF += 1
+				elif msg.node in dirn_set:
+					counter_d_SN += 1
+				die_num_SN_ctp.append(counter_d_SN*100.0/a)
+				die_num_RL_ctp.append(counter_d_RL*100.0/b)
+				die_num_LF_ctp.append(counter_d_LF*100.0/c)
+				die_time_ctp.append(temp/60.0)
 
-
+print "CTP Total Receive:{:6d}, Total Send:{:6d}, Duplicates:{:6d}, Deliver Rate:{:.2f}%".format(
+	                            counter_r, counter_s, counter_d, counter_r*100.0/counter_s)
 
 		
 ##############################section of CTP#########################
 OrwDebugMsgs = FileDict['OrwDebug']
 #store the packet as (src, seqNo)
+#hist_orw = deque(maxlen=12000)
 hist_orw = set()
 send_hist_orw = set()
 #two lists that record number and correspoding
@@ -130,8 +143,11 @@ counter_s = 0
 counter_d_SN = 0
 counter_d_RL = 0
 counter_d_LF = 0
+counter_d = 0
+counter_cd = 0
+die_orw = set()
 
-cal_prop_orw = calprop.prop_orw(FileDict, result)
+
 leaf_set = cal_prop_orw['Leaf']
 relay_set = cal_prop_orw['Relay']
 dirn_set = cal_prop_orw['Dir_Neig']
@@ -139,6 +155,16 @@ a = len(dirn_set)
 b = len(relay_set)
 c = len(leaf_set)
 print "ORW:", a, b, c
+
+step_SN = 100.0/a
+if b == 0:
+	step_RL = 0
+else:
+	step_RL = 100.0/b
+if c == 0:
+	step_LF = 0
+else:
+	step_LF = 100.0/c
 
 for msg in OrwDebugMsgs:
 	if msg.timestamp >= time_TH:
@@ -150,25 +176,42 @@ for msg in OrwDebugMsgs:
 					counter_r += 1
 					rcv_time_orw.append(temp/60.0)
 					rcv_num_orw.append(counter_r)
-		if msg.type == NET_APP_SENT:
-			send_hist_orw.add((msg.dbg__b, msg.dbg__a))
-			counter_s += 1
-			send_num_orw.append(counter_s)
-			send_time_orw.append(temp/60.0)
-		if msg.type == NET_C_DIE:
-			if msg.node in relay_set:
-				counter_d_RL += 1
-			elif msg.node in leaf_set:
-				counter_d_LF += 1
-			elif msg.node in dirn_set:
-				counter_d_SN += 1
-			die_num_SN_orw.append(counter_d_SN*100.0/a)
-			die_num_RL_orw.append(counter_d_RL*100.0/b)
-			die_num_LF_orw.append(counter_d_LF*100.0/c)
-			die_time_orw.append(temp/60.0)
+				else:
+					counter_d += 1
+		elif msg.type == NET_APP_SENT:
+			if (msg.dbg__b, msg.dbg__a) not in send_hist_orw:
+				send_hist_orw.add((msg.dbg__b, msg.dbg__a))
+				counter_s += 1
+				send_num_orw.append(counter_s)
+				send_time_orw.append(temp/60.0)
+		elif msg.type == NET_C_DIE:
+			if msg.node not in die_orw:
+				die_orw.add(msg.node)
+				if msg.node in relay_set:
+					counter_d_RL += step_RL
+				elif msg.node in leaf_set:
+					counter_d_LF += step_LF
+				elif msg.node in dirn_set:
+					counter_d_SN += step_SN
+				die_num_SN_orw.append(counter_d_SN)
+				die_num_RL_orw.append(counter_d_RL)
+				die_num_LF_orw.append(counter_d_LF)
+				die_time_orw.append(temp/60.0)
+		elif msg.type == NET_C_FE_DUPLICATE_CACHE:
+			counter_cd += 1
+		#elif msg.type == NET_LL_DUPLICATE:
+		#	counter_cd += 1
+print "ORW Total Receive:{:6d}, Total Send:{:6d}, Duplicates:{:6d}, Deliver Rate:{:.2f}%".format(
+	                            counter_r, counter_s, counter_d, counter_r*100.0/counter_s)
 
 
+'''for (k,v) in send_hist_orw:
+	if (k,v) not in hist_orw:
+		print k, v'''
+		
+print counter_cd
 
+#sys.exit()
 ###########################PLOT SECTION##############################
 ###########################  FIGURE 1  ##############################
 #      ax1: send/receive over time for ORW, CTP
