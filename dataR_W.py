@@ -37,10 +37,16 @@ if not TWIST:
 							'data-48637', 'data-48642', 'data-48651', 'data-48710', 'data-48774']
 	else:
 		wakeup = [0.25, 0.5, 1, 2, 4, 8, 16]
+		'''
 		FileCollection_orw = ['data-48936', 'data-48934', 'data-48933', 'data-48932', 
 							'data-48931', 'data-48930', 'data-48952']
 		FileCollection_ctp = ['data-48929', 'data-48928', 'data-48925', 'data-48924', 
 							'data-48923', 'data-48922', 'data-48949']
+		'''
+		FileCollection_orw = ['data-49167', 'data-49137', 'data-49175', 'data-49104', 
+							'data-48931', 'data-48930', 'data-48952']
+		FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
+							'data-49054', 'data-49059', 'data-49079']
 else:
 	base_path = '/media/Data/ThesisData/Twist/'
 	if not CHECK:

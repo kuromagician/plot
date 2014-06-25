@@ -190,16 +190,16 @@ def getfile(args):
 			else:
 				wakeup_i = [0.25, 0.5, 1, 2, 4, 8, 16]
 				
-				#This is wrong log of neighbour
+				'''#This is wrong log of neighbour
 				FileCollection_orw = ['data-48936', 'data-48934', 'data-48933', 'data-48932', 
 							'data-48931', 'data-48930', 'data-48952']
 				FileCollection_ctp = ['data-48929', 'data-48928', 'data-48925', 'data-48924', 
-							'data-48923', 'data-48922', 'data-48949']
-				'''
+							'data-48923', 'data-48922', 'data-48949']'''
+				
 				FileCollection_orw = ['data-49167', 'data-49137', 'data-49175', 'data-49104', 
-							'data-49103', 'data-49102', 'data-49271']
+							'data-48931', 'data-48930', 'data-48952']
 				FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
-							'data-49054', 'data-49059', 'data-49079']'''
+							'data-49054', 'data-49059', 'data-49079']
 			if args['wakeup'] not in wakeup_i:
 				print "No traces available for this setting, exit"
 				sys.exit(0)
@@ -224,12 +224,19 @@ def getfile(args):
 			limited_ctp = 'data-47436'
 			limited_orw = 'data-47438'
 		elif ELIMIT == 0x1000:
-			if not CONNECT:
+			FileNames['CtpDebug'] = ('26102.dat',)
+			FileNames['CtpData'] = ('26103.dat',)
+			FileNames['OrwDebug'] = ('26108.dat',)
+			FileNames['OrwNt'] = ('26107.dat',)
+			limited_ctp = 'data-49283'
+			limited_orw = 'data-49278'
+			'''if not CONNECT:
 				limited_ctp = 'data-47540'
 				limited_orw = 'data-47398'
 			else:
 				limited_ctp = 'data-48017'
 				limited_orw = 'data-48019'
+			'''
 		elif ELIMIT == 0x1200:
 			limited_ctp = 'data-47546'
 			limited_orw = 'data-47581'
@@ -241,11 +248,8 @@ def getfile(args):
 			FileNames['CtpData'] = ('26103.dat',)
 			FileNames['OrwDebug'] = ('26108.dat',)
 			FileNames['OrwNt'] = ('26107.dat',)
-			#limited_ctp = 'data-49272'
-			#limited_orw = 'data-49273'
-			#actually these are 1000
-			limited_ctp = 'data-49283'
-			limited_orw = 'data-49278'
+			limited_ctp = 'data-49272'
+			limited_orw = 'data-49273'
 		else:
 			print "Energy limit", hex(ELIMIT), "is not available, exit"
 			sys.exit()

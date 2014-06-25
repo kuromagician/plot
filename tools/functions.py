@@ -122,7 +122,7 @@ _T_test = 56.5*1000*60.0
 #Tw: wakeup interval
 
 def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
-	N = L = (L+N)/2
+	#N = L = (L+N)/2
 	prob = ((1.5)*Tw)/_Tipi
 	newF = 0
 	total_prob = 0
@@ -135,15 +135,15 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 	if temp >= 13:
 		newF += 12*(1-total_prob)
 	Ff = F*1.0/(newF + 1)
-	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N  + Tw/2/_Tipi*Ff + (_Trx)/_Tipi*L + Fail*Tw/_Tipi
+	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N  + Tw/2/_Tipi*Ff + (_Trx)/_Tipi*L# + Fail*Tw/_Tipi
 	return dc*100
 	
 def DC_Model_ctp_SN(F, Tao, N, L, Fail, Tw):
-	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N + _Ttx/_Tipi*F + (_Trx)/_Tipi*(L) + Fail*Tw/_Tipi
+	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N + _Ttx/_Tipi*F + (_Trx)/_Tipi*(L)# + Fail*Tw/_Tipi
 	return dc*100
 
 def DC_Model_ctp_old(F, Tao, N, L, Fail, Tw):
-	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N  + Tw/2/_Tipi*F + (_Trx)/_Tipi*L + Fail*Tw/_Tipi
+	dc = _Tc/Tw + Tw/_Tibi + _Trx/_Tibi*N  + Tw/2/_Tipi*F + (_Trx)/_Tipi*L# + Fail*Tw/_Tipi
 	return dc*100
 
 ###########################ORW##########################
@@ -154,7 +154,7 @@ def DC_Model_ctp_old(F, Tao, N, L, Fail, Tw):
 #Fail: Fail
 #Tw: wakeup interval
 def DC_Model_orw(F, Tao, Fs, L, Fail, Tw):
-	L=Fs+F
+	#L=Fs+F
 	prob = 2*Tw/(Fs+1)/_Tipi
 	newF = 0
 	total_prob = 0
@@ -165,10 +165,10 @@ def DC_Model_orw(F, Tao, Fs, L, Fail, Tw):
 			p = misc.comb(temp, i, 1)*prob**i*(1-prob)**(temp-i)
 			newF += i*p
 			total_prob += p
-	if temp > 12:
-		print newF, total_prob
-	'''if temp >= 12:
-		newF += 12*(1-total_prob)'''
+	'''if temp > 12:
+		print newF, total_prob'''
+	if temp >= 12:
+		newF += 12*(1-total_prob)
 	F = F*1.0/(newF + 1)
 	
 	dc1 = _Tc/Tw

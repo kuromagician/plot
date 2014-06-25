@@ -108,7 +108,7 @@ for msg in OrwDebugMsgs:
 				counter2 += 1
 				Tao_orw[msg.node].add(msg.dbg__c)
 				#ForwardSet[msg.dbg__c].add(msg.node)
-		elif msg.type == NET_C_FE_SENDDONE_WAITACK or msg.type == NET_C_FE_SENDDONE_FAIL:
+		elif msg.type == NET_C_FE_SENDDONE_WAITACK:
 			Fail_orw[msg.node] += 1
 #print "ORW Fail: ", Fail_orw
 #print sink_neighbour_orw
@@ -174,9 +174,9 @@ for node in nodelist:
 		Fail = Avg_Fail_orw[msg.node]
 		modeled_dc_orw[node] = sum(DC_Model_orw(F, Tao, Fs, L, Fail, Tw))
 		part1[node], part2[node], part3[node] = DC_Model_orw(F, Tao, Fs, L, Fail, Tw)
-	if node in (54,66,83):
-		print "Node!!!", node, F, Tao, Fs, L, Fail, "\n", \
-			             modeled_dc_orw[node], "%", Avg_Total_dc_orw[node], "%"
+	#if node in (54,66,83):
+	#	print "Node!!!", node, F, Tao, Fs, L, Fail, "\n", \
+	#		             modeled_dc_orw[node], "%", Avg_Total_dc_orw[node], "%"
 		
 		
 fig = pl.figure()
@@ -216,8 +216,8 @@ for k in set(modeled_dc_orw.keys()) & set(Avg_Total_dc_orw.keys()) :
 	diff_ratio[k] = ratio
 ax2.bar(diff_value.keys(), diff_value.values(), color='r')
 print "diff ratio orw:", mean(absolute(diff_ratio.values())), "%"
-for node in [3,9,15,14,13]:
-	print "LOAD ORW: ", node, Avg_F_orw[node]
+'''for node in [3,9,15,14,13]:
+	print "LOAD ORW: ", node, Avg_F_orw[node]'''
 ##################################  CTP ################################
 ###############################  Data Process ##########################
 
@@ -251,7 +251,7 @@ for msg in CtpDebugMsgs:
 			if msg.dbg__a + msg.dbg__c < 10000:
 				DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
 			else:
-				print msg.node, msg.dbg__a, msg.dbg__b, msg.dbg__c, msg.timestamp / time_ratio
+				#print "DC ERROR:", msg.node, msg.dbg__a, msg.dbg__b, msg.dbg__c, msg.timestamp / time_ratio
 				DutyCycle_ctp[msg.node].append((10000, msg.dbg__b, 0))
 		elif msg.type == NET_C_TREE_SENT_BEACON:
 			#fail_ctp[msg.node] += 1
@@ -266,7 +266,6 @@ for msg in CtpDebugMsgs:
 		#elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND or\
 		#     msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
 		elif msg.type == NET_C_FE_SENDDONE_WAITACK: 
-			pass
 			fail_ctp[msg.node] += 1
 		'''elif msg.type == 0x73:
 			petx[msg.node].append(msg.route_info__parent/10.0)'''
@@ -323,9 +322,9 @@ for node in F_ctp.keys():
 		modeled_dc_ctp[node] = DC_Model_ctp_SN(F, Tao, N, L, Fail, Tw)
 	else:
 		modeled_dc_ctp[node] = DC_Model_ctp(F, Tao, N, L, Fail, Tw)
-	if node == 10:
-		print "Node!!!", node, F, N, L, Tao, Fail, "\n", \
-			             modeled_dc_ctp[node], "%", Avg_Total_dc_ctp[node], "%"
+	#if node == 10:
+	#	print "Node!!!", node, F, N, L, Tao, Fail, "\n", \
+	#		             modeled_dc_ctp[node], "%", Avg_Total_dc_ctp[node], "%"
 
 
 fig = pl.figure()
@@ -352,9 +351,9 @@ fig = pl.figure()
 ax = fig.add_subplot(1,1,1)
 ax.boxplot([Avg_F_ctp.values(),Avg_F_orw.values()] , positions=[1,2])
 #ax.boxplot(Avg_F_orw.values())
-for node in [3,9,15,14,13]:
-	print "LOAD CTP: ", node, Avg_F_ctp[node]
-pl.show()
+'''for node in [3,9,15,14,13]:
+	print "LOAD CTP: ", node, Avg_F_ctp[node]'''
+#pl.show()
 
 
 ###################### draw model curve ########################

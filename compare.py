@@ -53,7 +53,7 @@ def group_barplot(ax, group, values, positions, text, unit=""):
 		if item in values[0]:
 			temp.append(values[0][item])
 	Avg = mean(temp)
-	print "{0[0][0]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
+	#print "{0[0][0]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
 	ax.boxplot(temp, positions=positions[0:1], widths=0.4)
 	ax.plot(positions[0:1], Avg, marker='*')
 	
@@ -62,7 +62,7 @@ def group_barplot(ax, group, values, positions, text, unit=""):
 		if item in values[1]:
 			temp.append(values[1][item])
 	Avg = mean(temp)
-	print "{0[0][1]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
+	#print "{0[0][1]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
 	bp = ax.boxplot(temp, positions=positions[1:2], widths=0.4)
 	setbp(bp, color='r')
 	ax.plot(positions[1:2], Avg, marker='*') 
@@ -701,10 +701,10 @@ if ELIMIT:
 	
 	ax3 = pl.subplot(4,1,3, sharex=ax1)
 	
-	time_list = sorted(die_time_orw.values())
-	ax3.plot(time_list, die_leaf_orw, linestyle='-', label="leaf")
-	ax3.plot(time_list, die_relay_orw, linestyle='--', label="relay")
-	ax3.plot(time_list, die_dir_neig_orw, linestyle='-.', label="dir_neighbour")
+	time_list_orw = sorted(die_time_orw.values())
+	ax3.plot(time_list_orw, die_leaf_orw, linestyle='-', label="leaf")
+	ax3.plot(time_list_orw, die_relay_orw, linestyle='--', label="relay")
+	ax3.plot(time_list_orw, die_dir_neig_orw, linestyle='-.', label="dir_neighbour")
 	ax3.grid()
 	ax3.legend(loc=2, prop={'size':6}, numpoints=100)
 	
@@ -748,7 +748,9 @@ if ELIMIT:
 ###################################Put Together####################################
 ###################################Total Rcv####################################
 fig = pl.figure()
-ax1 = fig.add_subplot(2,1,1)
+
+#ax1
+ax1 = fig.add_subplot(3,1,1)
 ax1.plot(total_rcv_orw_timeline, total_rcv_orw)
 ax1.plot(total_rcv_ctp_timeline, total_rcv_ctp)
 f_orw = interp1d(total_rcv_orw_timeline, total_rcv_orw)
@@ -758,13 +760,37 @@ ub = min(total_rcv_orw_timeline[-1], total_rcv_ctp_timeline[-1])
 x = np.arange(lb, ub, 0.1)
 ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='red', where=f_ctp(x)>=f_orw(x))
 ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='green', where=f_ctp(x)<=f_orw(x))
+ax1.set_ylabel("# of Received Packets")
+ax1.grid()
 
 xp = np.arange(lb+1.1, ub-1.1, 0.1)
 first_ctp = derivative(f_ctp,xp,dx=1,n=1)
 first_orw = derivative(f_orw,xp,dx=1,n=1) 
-ax2 = fig.add_subplot(2,1,2)
+
+#ax2
+ax2 = fig.add_subplot(3,1,2, sharex=ax1)
 ax2.plot(xp, first_ctp)
 ax2.plot(xp, first_orw)
+ax2.set_ylabel("Throughput (packet/s)")
+ax2.grid()
+
+
+#ax3
+ax3 = fig.add_subplot(3,1,3, sharex=ax1)
+ax3.plot(time_list_orw, die_leaf_orw, color='g',linestyle='--' , label="orw_leaf")
+ax3.plot(time_list_orw, die_relay_orw, color='r', linestyle='--', label="orw_relay")
+ax3.plot(time_list_orw, die_dir_neig_orw, color='b', linestyle='--', label="orw_dir_neighbour")
+ax3.plot(time_list, die_leaf_ctp, color='g', label="ctp_leaf")
+ax3.plot(time_list, die_relay_ctp, color='r', label="ctp_relay")
+ax3.plot(time_list, die_dir_neig_ctp, color='b', label="ctp_dir_neighbour")
+ax3.grid()
+ax3.legend(prop={'size':6}, numpoints=100)
+ax3.set_ylabel("die percentage (%)")
+
+#hide time
+pl.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
+ax1.set_xlim([lb, ub])
+fig.subplots_adjust(hspace=0)
 
 '''
 ###################################COMMON PART####################################

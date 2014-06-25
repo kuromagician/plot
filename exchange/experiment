@@ -142,7 +142,8 @@ note: model.py can use file above 48556
 49167 orw tw=0.25s
 #######dc solved #######
 49271 orw tw=16s -------->power level?
-49272 orw tw=8s
+49304 orw tw=8s
+49413 orw tw=16s
 
 
 #######################
@@ -178,6 +179,8 @@ ctp_debug_fix3:
 log the source of beacon
 ctp_debug_fix4:
 change the beacon source to position 1
+ctp_debug_fix5:
+correct dc record
 #######################
 orw_debug_more5:
 logging within if statement, and delay after receive=20

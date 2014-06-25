@@ -24,9 +24,9 @@ else
 	rm -f DC_measure_indriya.txt
 	#detect which computer it is
 	if [ "$name" == "js41" ]; then
-		arg1="am"
+		arg1="apm"
 	else
-		arg1="dam"
+		arg1="dapm"
 	fi
 fi
 generate_data $arg1

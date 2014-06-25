@@ -120,9 +120,10 @@ print "CTP Total Receive:{:6d}, Total Send:{:6d}, Duplicates:{:6d}, Deliver Rate
 ##############################section of CTP#########################
 OrwDebugMsgs = FileDict['OrwDebug']
 #store the packet as (src, seqNo)
-#hist_orw = deque(maxlen=12000)
-hist_orw = set()
-send_hist_orw = set()
+hist_orw = deque(maxlen=4000)
+send_hist_orw = deque(maxlen=4000)
+#hist_orw = set()
+#send_hist_orw = set()
 #two lists that record number and correspoding
 #timestamp of that receive
 rcv_num_orw = []
@@ -172,7 +173,7 @@ for msg in OrwDebugMsgs:
 		if msg.type == NET_C_FE_RCV_MSG:
 			if msg.node == SINK_ID:
 				if (msg.dbg__b, msg.dbg__a) not in hist_orw:
-					hist_orw.add((msg.dbg__b, msg.dbg__a))
+					hist_orw.append((msg.dbg__b, msg.dbg__a))
 					counter_r += 1
 					rcv_time_orw.append(temp/60.0)
 					rcv_num_orw.append(counter_r)
@@ -180,7 +181,7 @@ for msg in OrwDebugMsgs:
 					counter_d += 1
 		elif msg.type == NET_APP_SENT:
 			if (msg.dbg__b, msg.dbg__a) not in send_hist_orw:
-				send_hist_orw.add((msg.dbg__b, msg.dbg__a))
+				send_hist_orw.append((msg.dbg__b, msg.dbg__a))
 				counter_s += 1
 				send_num_orw.append(counter_s)
 				send_time_orw.append(temp/60.0)

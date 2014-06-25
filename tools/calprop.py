@@ -28,7 +28,7 @@ def prop_orw(FileDict, args):
 	num_fwd_orw = defaultdict(int)
 	num_init_orw = defaultdict(int)
 	route_hist_orw = defaultdict(set)
-	rcv_hist_orw = deque(maxlen=12000)
+	rcv_hist_orw = deque(maxlen=6000)
 	DutyCycle_orw = defaultdict(list)
 	dir_neig_orw = set()
 	total_receive_orw = 0
@@ -55,6 +55,7 @@ def prop_orw(FileDict, args):
 				if msg.dbg__a + msg.dbg__c < 10000:
 					DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
 				else:
+					#print "DC ERROR ORW!"
 					DutyCycle_orw[msg.node].append((10000, msg.dbg__b, 0))
 			elif msg.type == NET_APP_SENT:
 				num_init_orw[msg.node] += 1
@@ -233,10 +234,11 @@ def prop_ctp(FileDict, args):
 		if hops < 0.5:
 			dir_neig_ctp.add(node)
 		else:
-			if load_ctp[node] < 1.5:
-				leaf_ctp.add(node)
-			else:
-				relay_ctp.add(node)
+			if node in load_ctp:
+				if load_ctp[node] < 1.5:
+					leaf_ctp.add(node)
+				else:
+					relay_ctp.add(node)
 			
 	
 	props = {}
