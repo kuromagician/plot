@@ -120,8 +120,8 @@ print "CTP Total Receive:{:6d}, Total Send:{:6d}, Duplicates:{:6d}, Deliver Rate
 ##############################section of CTP#########################
 OrwDebugMsgs = FileDict['OrwDebug']
 #store the packet as (src, seqNo)
-hist_orw = deque(maxlen=4000)
-send_hist_orw = deque(maxlen=4000)
+hist_orw = deque(maxlen=12000)
+send_hist_orw = deque(maxlen=12000)
 #hist_orw = set()
 #send_hist_orw = set()
 #two lists that record number and correspoding

@@ -8,16 +8,21 @@ def main(argv):
 	result = {'kill':False, 'simple':False, 'lim':0, 'twist':False, \
 			  'connected':False, 'experiment':False, 'model':False,\
 			  'wakeup':float(1.5), 'check':False, 'desktop':False,\
-			  'postpone':False, 'simulation': False}
+			  'postpone':False, 'simulation': False, 'numnodes':36}
 	try:
-		opts, args = getopt.getopt(argv,"ehdl:m:kstcapi",["limit","twist","experiment","cca"])
+		opts, args = getopt.getopt(argv,"ehdl:m:kstcapin:",["limit","twist","experiment","cca"])
 	except getopt.GetoptError:
 		print 'plot.py -l <energy limit>\
              \n        -k \tkill some nodes\
              \n        -s \tsimple version\
              \n        -t \tuse files from twist\
              \n        -c \tgood connectivity\
-             \n        -e \ttest files'
+             \n        -e \ttest files\
+             \n        -h \tshow help\
+			 \n        -m <wakeup interval>\t Set wakeup interval\
+			 \n        -p \tignore first 10 minutes\
+			 \n        -i \tuse simulation\
+			 \n        -n \tspecify how many nodes in simulation'
 		sys.exit(2)
 	for opt, arg in opts:
 		if opt == '-h':
@@ -46,6 +51,8 @@ def main(argv):
 			result['postpone'] = True
 		elif opt in ("-i",):
 			result['simulation'] = True
+		elif opt in ("-n",):
+			result['numnodes'] = int(arg)
 	return result
 
 	
@@ -162,14 +169,26 @@ def getfile(args):
 				limited_ctp = "../Simulation/CTP_el1000_2h.txt"
 				limited_orw = "../Simulation/ORW_el1000_2h.txt"
 			elif ELIMIT == 0x2000:
-				limited_ctp = "../Simulation/CTP_el2000_2h45m.txt"
-				limited_orw = "../Simulation/ORW_el2000_2h45m.txt"
+				if args['numnodes'] == 36:
+					limited_ctp = "../Simulation/CTP_el2000_2h45m.txt"
+					limited_orw = "../Simulation/ORW_el2000_2h45m.txt"
+				elif args['numnodes'] == 81:
+					limited_ctp = "../Simulation/CTP_el2000_N81_R35_5h.txt"
+					limited_orw = "../Simulation/ORW_el2000_N81_R35_2h33.txt"
 			elif ELIMIT == 0x4000:
-				limited_ctp = "../Simulation/CTP_el4000_5h.txt"
-				limited_orw = "../Simulation/ORW_el4000_5h_144.txt"
+				if args['numnodes'] == 36:
+					limited_ctp = "../Simulation/CTP_el4000_N81_R35_7h.txt"
+					limited_orw = "../Simulation/ORW_el4000_5h_144.txt"
+				elif args['numnodes'] == 81:
+					limited_ctp = "../Simulation/CTP_el4000_N81_R35_7h.txt"
+					limited_orw = "../Simulation/ORW_el4000_N81_R35_3h15_.txt"
 			elif ELIMIT == 0x8000:
-				limited_ctp = "../Simulation/CTP_el8000_7h50.txt"
-				limited_orw = "../Simulation/ORW_el8000_9h.txt"
+				if args['numnodes'] == 36:
+					limited_ctp = "../Simulation/CTP_el8000_7h50.txt"
+					limited_orw = "../Simulation/ORW_el8000_9h.txt"
+				elif args['numnodes'] == 81:
+					limited_ctp = "../Simulation/CTP_el8000_N81_R35_7h_miss10min.txt"
+					limited_orw = "../Simulation/ORW_el8000_N81_R35_5h50.txt"
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
 		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#

@@ -14,6 +14,7 @@ import sys
 from tools.constant import *
 from tools.functions import update_progress
 from tools import calprop
+import math
 
 result = command.main(sys.argv[1:])
 FileDict, props = command.getfile(result)
@@ -139,7 +140,19 @@ for node in unknown:
 		G_orw.remove_node(node)
 
 G = G_orw
-pos = pos_orw
+if result['simulation']:
+	pos={}
+	size = int(math.sqrt(result['numnodes']))
+	interval=1000.0/(size+2)
+	#row
+	for i in xrange(1, size+1):
+		offset = (i-1)*size
+		#column
+		for j in xrange(1, size+1):
+			pos[offset + j]=(interval*i, interval*j)
+else:
+	pos = pos_orw
+
 nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k')
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=SN_orw & nodelist, node_color='b')
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=RL_orw & nodelist, node_color='r')
@@ -174,10 +187,13 @@ ax2.set_xticklabels(xrange(0, 181, 20))
 
 lineset = [timeline, line_SN, line_RL, line_LF]
 
+'''
 counter=0
 #end_time = sorted_die_time[-1]+30
 anim = animation.FuncAnimation(fig, update_fig, frames=end_time, fargs=[sets, G_orw, pos_orw, lineset, start_time], blit=True)
+
 anim.save('orw.mp4', fps=fps, bitrate=4000, extra_args=['-vcodec', 'libx264'])
+'''
 '''
 
 ###########################################################
