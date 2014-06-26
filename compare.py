@@ -2,7 +2,7 @@
 import tools.reader as reader
 import tools.twistReader as Treader
 import array
-import matplotlib
+import matplotlib 
 import pylab as pl
 import math
 import operator
@@ -96,40 +96,28 @@ TWIST = resultc['twist']
 CtpdataMsgs = FileDict['CtpData']
 CtpdebugMsgs = FileDict['CtpDebug']
 props_ctp = calprop.prop_ctp(FileDict, resultc)
-
-thl = defaultdict(int)
-'''
-#calibrate the clock (there's delay between real start time and first record)
-for msg in CtpdebugMsgs:
-	if msg.type == NET_DC_REPORT:
-		dt = msg.dbg__b - msg.timestamp/time_ratio
-		break
-print "Dt is :", dt'''
-dir_neig_ctp = set()
-#calculate average hops
-for msg in CtpdataMsgs:
-	if thl[(msg.origin, msg.seqno)] != 0:
-		thl[(msg.origin, msg.seqno)] = min(msg.thl, thl[(msg.origin, msg.seqno)])
-	else:
-		thl[(msg.origin, msg.seqno)] = msg.thl
+props_orw = calprop.prop_orw(FileDict, resultc)
+#Average hops
+avg_hops_ctp = props_ctp['Avg_Hops']
 dir_neig_ctp = props_ctp['Dir_Neig']
-t_thl = defaultdict(int)
-counter = defaultdict(int)
-for (k, v) in thl:
-	t_thl[k] += thl[(k,v)]
-	counter[k] += 1
+relay_ctp = props_ctp['Relay']
+leaf_ctp = props_ctp['Leaf']
+print "CTP  D R L:", len(dir_neig_ctp), len(relay_ctp), len(leaf_ctp)
 
-avg_hops_ctp = {k:t_thl[k] / 1.0 / counter[k]-1 for k in t_thl}
+dir_neig_orw = props_orw['Dir_Neig']
+relay_orw = props_orw['Relay']
+leaf_orw = props_orw['Leaf']
+print "ORW  D R L:", len(dir_neig_orw), len(relay_orw), len(leaf_orw)
 
 num_node = len(avg_hops_ctp)
 
 print "Total connected nodes:", num_node
 #print "They're:\n", sorted(avg_hops_ctp.keys())
 
-#normally there should be 86 nodes in the test
+'''#normally there should be 86 nodes in the test
 if num_node < 86 - 10:
 	print "WARNING! THERE ARE ", 86-num_node, "NODES DISCONNECTED FROM SINK!!!!!!!"
-	
+'''
 
 
 ####################################     CTP     #################################
@@ -233,24 +221,7 @@ for node in Avg_DC_ctp:
 	Avg_Data_dc_ctp[node] = Avg_DC_ctp[node][0]*0.01
 	Avg_Idle_dc_ctp[node] = Avg_DC_ctp[node][2]*0.01
 	Avg_Total_dc_ctp[node] = Avg_Data_dc_ctp[node] + Avg_Idle_dc_ctp[node]
-	if Avg_Total_dc_ctp[node] > TH_dc:
-		print "Too High DC(CTP)", node, Avg_Total_dc_ctp[node]#,\
-		#"with load {:.2f}, hops:{:.2f}".format(load_ctp[node], avg_hops_ctp[node])
 		
-relay_ctp = set()
-leaf_ctp = set()
-for i in num_init_ctp:
-	load = num_fwd_ctp[i] * 1.0 / num_init_ctp[i] + 1
-	if load > TH_load:
-		pass
-		#print "Too hihg load(CTP) @node {:3d}:{:4.2f}\tinitial:{:3d}\tforward:{:4d}\tDC:{:5.2f}%\thops:{:4.2f}\ttime:{}".\
-		#format(i, load, num_init_ctp[i], num_fwd_ctp[i], Avg_Total_dc_ctp[i], avg_hops_ctp[i], DutyCycle_ctp[i][-1][1])
-	if i not in dir_neig_ctp:
-		if load < 2:
-			leaf_ctp.add(i)
-		else:
-			relay_ctp.add(i)
-
 
 '''for msg in CtpdebugMsgs:
 	if msg.type == 0x26:
@@ -266,7 +237,6 @@ num_fwd_orw = defaultdict(int)
 num_init_orw = defaultdict(int)
 route_hist_orw = defaultdict(set)
 DutyCycle_orw = defaultdict(list)
-dir_neig_orw = set()	
 # This is the time when packet is generated
 timeline_orw = []
 # this is every transmission
@@ -295,7 +265,7 @@ for msg in OrwdebugMsgs:
 		route_hist_orw[(msg.dbg__b, msg.dbg__a)].add(msg.dbg__c)
 		#if node is SINK, add node to direct neighbour
 		if msg.node == SINK_ID:
-			dir_neig_orw.add(msg.dbg__c)
+			#dir_neig_orw.add(msg.dbg__c)
 			connected.add(msg.dbg__b)
 			if (msg.dbg__b, msg.dbg__a) not in packet_hist:
 				total_receive_orw += 1
@@ -315,9 +285,9 @@ for msg in OrwdebugMsgs:
 						Told=0
 						total_receive_orw = 0
 						total_send_orw = 0
-	elif msg.type == NET_DC_REPORT:
-		if msg.dbg__a + msg.dbg__c < 10000:
-			DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
+	#elif msg.type == NET_DC_REPORT:
+	#	if msg.dbg__a + msg.dbg__c < 10000:
+	#		DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
 	elif msg.type == NET_APP_SENT:
 		num_init_orw[msg.node] += 1
 		total_send_orw += 1
@@ -330,14 +300,15 @@ for msg in OrwdebugMsgs:
 	elif msg.type == NET_C_FE_SENT_MSG:
 		timeline_transmit_orw[msg.node].append((msg.timestamp/time_ratio)/60)
 		node_transmit_orw[msg.node].append(msg.node)
-print "!!!!!!", len(connected)
+print "Total connected nodes:", len(connected)
 load_orw = {}
 for k in num_init_orw:
 	if num_init_orw[k] > 40:
 		load_orw[k] = num_fwd_orw[k] * 1.0 / num_init_orw[k]
 	else:
-		print "too low init:", k, num_init_orw[k], num_fwd_orw[k]
-		load_orw[k] = num_fwd_orw[k] * 1.0 / 55
+		pass
+		#print "too low init:", k, num_init_orw[k], num_fwd_orw[k]
+		#load_orw[k] = num_fwd_orw[k] * 1.0 / 55
 #load_orw = {k: num_fwd_orw[k] * 1.0 / num_init_orw[k] + 1 for k in num_init_orw}
 #print load_orw
 #Calculate the average hops to SINK
@@ -347,42 +318,30 @@ for (k, v) in route_hist_orw:
 	total_hops_orw[k] += max(len(route_hist_orw[(k,v)]) - 1, 0)
 	counter[k] += 1
 
-avg_hops_orw = {k:total_hops_orw[k] / 1.0 / counter[k] for k in total_hops_orw}	
+#avg_hops_orw = {k:total_hops_orw[k] / 1.0 / counter[k] for k in total_hops_orw}	
+avg_hops_orw = props_orw["Avg_Hops"]
 #get the average dutycycle of each node
-Avg_DC_orw = {k: mean(DutyCycle_orw[k], axis=0) for k in DutyCycle_orw}
 
-Avg_Data_dc_orw = {}
-Avg_Idle_dc_orw = {}
-Avg_Total_dc_orw = {}
-
-for node in Avg_DC_orw:
-	Avg_Data_dc_orw[node] = Avg_DC_orw[node][0]*0.01
-	Avg_Idle_dc_orw[node] = Avg_DC_orw[node][2]*0.01
-	Avg_Total_dc_orw[node] = Avg_Data_dc_orw[node] + Avg_Idle_dc_orw[node]
-	if Avg_Total_dc_orw[node] > TH_dc:
-		print "Too High DC(ORW)", node, Avg_Total_dc_orw[node],\
-		"with load {:.2f}, hops:{:.2f}".format(load_orw[node], avg_hops_orw[node])
+Avg_Data_dc_orw = props_orw['Avg_Data_dc']
+Avg_Idle_dc_orw	= props_orw['Avg_Idle_dc'] 
+Avg_Total_dc_orw	= props_orw['Avg_Total_dc'] 
+	
 
 #print len(DutyCycle_ctp), "\n", DutyCycle_ctp.keys()		
 
-
-
-
-
+'''
 leaf_orw = set()
 relay_orw = set()
 for k in load_orw:
-	print k, load_orw[k]
 	load = load_orw[k]
 	if load > TH_load:
 		pass
-		#print "Too high load(ORW) @node{:3d} :{:4.2f}\tinitial:{:3d}\tforward:{:4d}\tDC:{:5.2f}%\thops:{:4.2f}\ttime:{}".\
-		#format(k, load, num_init_orw[k], num_fwd_orw[k], Avg_Total_dc_orw[k], avg_hops_orw[k], DutyCycle_orw[k][-1][1])
 	if k not in dir_neig_orw:
 		if load < 2:
 			leaf_orw.add(k)
 		else:
 			relay_orw.add(k)
+'''
 
 print "========================================================="
 
@@ -572,8 +531,8 @@ if ELIMIT:
 	
 	ax3 = pl.subplot(4,1,3, sharex=ax1)
 	time_list = sorted(die_time.values())
-	print time_list
-	#print time_list[-2:-1]
+	#print time_list
+	
 	ax3.plot(time_list, die_leaf_ctp, linestyle='-', label="leaf")
 	ax3.plot(time_list, die_relay_ctp, linestyle='--', label="relay")
 	ax3.plot(time_list, die_dir_neig_ctp, linestyle='-.', label="dir_neighbour")
@@ -603,7 +562,7 @@ if ELIMIT:
 	#This combines hops, load and die time
 	#############Figure 4 CTP DIE#############
 	figx = pl.figure()
-	ax1 = figx.add_subplot(2,1,1)
+	ax1_x = figx.add_subplot(2,1,1)
 	_, x = common_dict(die_time, avg_hops_ctp)
 	_, y = common_dict(die_time, load_ctp)
 	x, y = common_dict(x, y)
@@ -612,8 +571,10 @@ if ELIMIT:
 	vmax=max(die_time.values())
 	#print die_time.values()
 	print "COLOR:", len(load_ctp), len(avg_hops_ctp), len(die_time)
-	cm = matplotlib.cm.get_cmap('coolwarm')
-	sc = ax1.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=35)
+	cm = matplotlib.cm.get_cmap('Reds')
+	sc = ax1_x.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=35)
+	ax1_x.set_title("CTP")
+	ax1_x.set_ylabel("Hops to sink")
 	figx.colorbar(sc)
 
 
@@ -732,7 +693,7 @@ if ELIMIT:
 	ax4.set_xlabel("Time (min)")
 	fig.savefig("./graphs/" + prefix + "Analysis_orw_" + hex(ELIMIT) + ".pdf")
 	
-	ax2 = figx.add_subplot(2,1,2)
+	ax2_x = figx.add_subplot(2,1,2, sharex=ax1_x, sharey=ax1_x)
 	_, x = common_dict(die_time_orw, avg_hops_orw)
 	_, y = common_dict(die_time_orw, load_orw)
 	x, y = common_dict(x, y)
@@ -740,58 +701,94 @@ if ELIMIT:
 	#print die_time.values()
 	print "COLOR:", len(load_orw), len(avg_hops_orw), len(die_time_orw)
 	#cm = matplotlib.cm.get_cmap('RdYlBu')
-	sc = ax2.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=35)
+	sc = ax2_x.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=35)
 	figx.colorbar(sc)
+	ax1_x.set_xlim([0,180])
+	ax2_x.set_title("ORW")
+	ax2_x.set_ylabel("Hops to sink")
+	ax2_x.set_xlabel("Time (min)")
+	figx.tight_layout()
 
 ##################################################################################
 
 ###################################Put Together####################################
 ###################################Total Rcv####################################
-fig = pl.figure()
+fig = pl.figure(figsize=(12,8))
 
 #ax1
 ax1 = fig.add_subplot(3,1,1)
-ax1.plot(total_rcv_orw_timeline, total_rcv_orw)
-ax1.plot(total_rcv_ctp_timeline, total_rcv_ctp)
+ax1.plot(total_rcv_orw_timeline, total_rcv_orw, 'g--', linewidth=2)
+ax1.plot(total_rcv_ctp_timeline, total_rcv_ctp, 'b', linewidth=2)
 f_orw = interp1d(total_rcv_orw_timeline, total_rcv_orw)
 f_ctp = interp1d(total_rcv_ctp_timeline, total_rcv_ctp)
 lb = max(total_rcv_orw_timeline[0], total_rcv_ctp_timeline[0])
 ub = min(total_rcv_orw_timeline[-1], total_rcv_ctp_timeline[-1])
 x = np.arange(lb, ub, 0.1)
-ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='red', where=f_ctp(x)>=f_orw(x))
-ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='green', where=f_ctp(x)<=f_orw(x))
+ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='y', edgecolor='', hatch='/', where=f_ctp(x)>=f_orw(x))
+ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='r', edgecolor='', hatch='\\', where=f_ctp(x)<=f_orw(x))
+#dummy plot only for legend
+p1 = matplotlib.patches.Rectangle([0,0], 1, 1, fc='y', hatch='/')
+p2 = matplotlib.patches.Rectangle([0,0], 1, 1, fc='r', hatch='\\')
+ax1.legend([p1, p2], ["CTP>ORW", "ORW>CTP"], loc=2)
 ax1.set_ylabel("# of Received Packets")
+#ax1.legend()
 ax1.grid()
 
-xp = np.arange(lb+1.1, ub-1.1, 0.1)
+
+#ax2
+xp = np.arange(lb+1.1, ub-1.1, 1)
 first_ctp = derivative(f_ctp,xp,dx=1,n=1)
 first_orw = derivative(f_orw,xp,dx=1,n=1) 
 
-#ax2
 ax2 = fig.add_subplot(3,1,2, sharex=ax1)
-ax2.plot(xp, first_ctp)
-ax2.plot(xp, first_orw)
+ax2.plot(xp, first_ctp, label='CTP')
+ax2.plot(xp, first_orw, linestyle='--', label='ORW')
 ax2.set_ylabel("Throughput (packet/s)")
 ax2.grid()
+ax2.legend()
 
 
 #ax3
 ax3 = fig.add_subplot(3,1,3, sharex=ax1)
 ax3.plot(time_list_orw, die_leaf_orw, color='g',linestyle='--' , label="orw_leaf")
 ax3.plot(time_list_orw, die_relay_orw, color='r', linestyle='--', label="orw_relay")
-ax3.plot(time_list_orw, die_dir_neig_orw, color='b', linestyle='--', label="orw_dir_neighbour")
+ax3.plot(time_list_orw, die_dir_neig_orw, color='b', linestyle='--', label="orw_sink_neighbour")
 ax3.plot(time_list, die_leaf_ctp, color='g', label="ctp_leaf")
 ax3.plot(time_list, die_relay_ctp, color='r', label="ctp_relay")
-ax3.plot(time_list, die_dir_neig_ctp, color='b', label="ctp_dir_neighbour")
+ax3.plot(time_list, die_dir_neig_ctp, color='b', label="ctp_sink_neighbour")
 ax3.grid()
-ax3.legend(prop={'size':6}, numpoints=100)
+ax3.legend(loc=2, numpoints=200, prop={'size':10})
 ax3.set_ylabel("die percentage (%)")
+ax3.set_xlabel("Time (min)")
 
 #hide time
 pl.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
 ax1.set_xlim([lb, ub])
 fig.subplots_adjust(hspace=0)
+for ax in fig.axes:
+	yticks = ax.yaxis.get_major_ticks()
+	yticks[-1].label1.set_visible(False)
+fig.savefig("el1000Indriya.pdf", bbox_inches='tight')
 
+def find_element(element, list_element, another_list):
+	try:
+		index_element=list_element.index(element)
+		return another_list[index_element]
+	except ValueError:
+		return -1
+            
+die_S = find_element(100, die_dir_neig_ctp, time_list)
+die_R = find_element(100, die_relay_ctp, time_list)
+die_L = find_element(100, die_leaf_ctp, time_list)
+			
+print "CTP: First die:{:.2f} Last S, R, L Die:{:.2f} {:.2f} {:.2f}".format(
+                   time_list[0], die_S, die_R, die_L)
+                   
+die_S = find_element(100, die_dir_neig_orw, time_list_orw)
+die_R = find_element(100, die_relay_orw, time_list_orw)
+die_L = find_element(100, die_leaf_orw, time_list_orw)               
+print "ORW: First die:{:.2f} Last S, R, L Die:{:.2f} {:.2f} {:.2f}".format(
+                   time_list_orw[0], die_S, die_R, die_L)
 '''
 ###################################COMMON PART####################################
 if ELIMIT:
