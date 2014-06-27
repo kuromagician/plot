@@ -33,7 +33,7 @@ def loadDebug(filepath):
 				if len(time) == 2:
 					timestamp = int(time[0])*60 + float(time[1])
 				else:
-					timestamp = int(time[0])*3600 + int(time[1])*60 + float(time[1])
+					timestamp = int(time[0])*3600 + int(time[1])*60 + float(time[2])
 				#get the node ID
 				node = int((row[1].split(':'))[1])
 				filetype = int(row[2])
