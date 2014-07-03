@@ -156,13 +156,31 @@ def getfile(args):
 			props['time_TH'] = props['timeratio']*60*10
 		if args['model']:
 			if args['wakeup'] == 1:
-				limited_ctp = "../Simulation/CTP_1s.txt"
-				limited_orw = "../Simulation/ORW_1s.txt"
+				if args['numnodes'] == 81:
+					limited_ctp = "../Simulation/S_CTP_1s_1h.txt"
+					limited_orw = "../Simulation/S_ORW_1s_1h.txt"
+				else:
+					limited_ctp = "../Simulation/CTP_1s.txt"
+					limited_orw = "../Simulation/ORW_1s.txt"
 			elif args['wakeup'] == 2:
-				limited_ctp = "../Simulation/CTP_2s.txt"
-				limited_orw = "../Simulation/ORW_2s.txt"
+				#limited_ctp = "../Simulation/CTP_2s.txt"
+				#limited_orw = "../Simulation/ORW_2s.txt"
+				limited_ctp = "../Simulation/S_CTP_2s_N36_D10s_1h.txt"
+				limited_orw = "../Simulation/S_ORW_2s_N36_D10s_1h.txt"
+			elif args['wakeup'] == 4:
+				limited_ctp = "../Simulation/S_CTP_4s_N36_D10s_1h.txt"
+				limited_orw = "../Simulation/S_ORW_4s_N36_D10s_1h.txt"
+			elif args['wakeup'] == 8:
+				limited_ctp = "../Simulation/S_CTP_8s_N36_D10s_1h.txt"
+				limited_orw = "../Simulation/S_ORW_8s_N36_D10s_1h.txt"
+			elif args['wakeup'] == 0.5:
+				limited_ctp = "../Simulation/S_CTP_05s_N36_D10s_1h.txt"
+				limited_orw = "../Simulation/S_ORW_05s_N36_D10s_1h.txt"
+			elif args['wakeup'] == 0.25:
+				limited_ctp = "../Simulation/S_CTP_025s_N36_D10s_1h.txt"
+				limited_orw = "../Simulation/S_ORW_025s_N36_D10s_1h.txt"
 			else:
-				limited_ctp = "../Simulation/CTP_test.txt"
+				limited_ctp = "../Simulation/S_CTP_1s_2h.txt"
 				limited_orw = "../Simulation/ORW_test.txt"
 		elif args['lim']:
 			if ELIMIT == 0x1000:
@@ -173,22 +191,26 @@ def getfile(args):
 					limited_ctp = "../Simulation/CTP_el2000_2h45m.txt"
 					limited_orw = "../Simulation/ORW_el2000_2h45m.txt"
 				elif args['numnodes'] == 81:
-					limited_ctp = "../Simulation/CTP_el2000_N81_R35_5h.txt"
+					#limited_ctp = "../Simulation/CTP_el2000_N81_R35_5h.txt"
+					#limited_orw = "../Simulation/ORW_el2000_N81_R35_2h33.txt"
+					limited_ctp = "../Simulation/S_CTP_el2000_R35_N81_7h.txt"
 					limited_orw = "../Simulation/ORW_el2000_N81_R35_2h33.txt"
 			elif ELIMIT == 0x4000:
 				if args['numnodes'] == 36:
 					limited_ctp = "../Simulation/CTP_el4000_N81_R35_7h.txt"
 					limited_orw = "../Simulation/ORW_el4000_5h_144.txt"
 				elif args['numnodes'] == 81:
-					limited_ctp = "../Simulation/CTP_el4000_N81_R35_7h.txt"
+					#limited_ctp = "../Simulation/CTP_el4000_N81_R35_7h.txt"
+					#limited_orw = "../Simulation/ORW_el4000_N81_R35_3h15_.txt"
+					limited_ctp = "../Simulation/S_CTP_el4000_R35_N81_7h.txt"
 					limited_orw = "../Simulation/ORW_el4000_N81_R35_3h15_.txt"
 			elif ELIMIT == 0x8000:
 				if args['numnodes'] == 36:
 					limited_ctp = "../Simulation/CTP_el8000_7h50.txt"
 					limited_orw = "../Simulation/ORW_el8000_9h.txt"
 				elif args['numnodes'] == 81:
-					limited_ctp = "../Simulation/CTP_el8000_N81_R35_7h_miss10min.txt"
-					limited_orw = "../Simulation/ORW_el8000_N81_R35_5h50.txt"
+					limited_ctp = "../Simulation/S_CTP_el8000_R35_N81_7h.txt"
+					limited_orw = "../Simulation/S_ORW_el8000_R35_N81_7h.txt"
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
 		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#

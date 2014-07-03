@@ -115,7 +115,10 @@ for msg in OrwDebugMsgs:
 
 
 
-Avg_F_orw = {k:F_orw[k]*ratio_ipi for k in F_orw}
+#Avg_F_orw = {k:F_orw[k]*ratio_ipi for k in F_orw}
+Avg_F_orw = props_orw['Fwd_Load']
+
+
 Avg_L_orw = {k:L_orw[k]*ratio_ipi for k in L_orw}
 Avg_Tao_orw = {k: len(Tao_orw[k]) for k in Tao_orw}
 Avg_Fail_orw = defaultdict(int)
@@ -151,7 +154,7 @@ Avg_Total_dc_orw = props_orw['Avg_Total_dc']
 
 for node in nodelist:
 	if node in Avg_F_orw:
-		F = Avg_F_orw[node]
+		F = props_orw['Fwd_Load'][node]
 	else:
 		F = 0
 	if node in Avg_L_orw:
@@ -216,6 +219,9 @@ for k in set(modeled_dc_orw.keys()) & set(Avg_Total_dc_orw.keys()) :
 	diff_ratio[k] = ratio
 ax2.bar(diff_value.keys(), diff_value.values(), color='r')
 print "diff ratio orw:", mean(absolute(diff_ratio.values())), "%"
+
+testload = props_orw['Fwd_Load']
+print "SN, LF, RL", Seperate_Avg(testload, sink_neighbour_orw, leaf_orw, relay_orw)
 '''for node in [3,9,15,14,13]:
 	print "LOAD ORW: ", node, Avg_F_orw[node]'''
 ##################################  CTP ################################
@@ -291,7 +297,9 @@ print mean(Avg_Total_dc_ctp.values())
 
 #F_ctp = prop_ctp['load']
 
-Avg_F_ctp = {k:F_ctp[k]*ratio_ipi for k in F_ctp}
+#Avg_F_ctp = {k:F_ctp[k]*ratio_ipi for k in F_ctp}
+Avg_F_ctp = props_ctp['Fwd_Load']
+
 Avg_L_ctp = {k:L_ctp[k]*ratio_ipi for k in L_ctp}
 #Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
 Avg_N_ctp = {k:len(neighbour_ctp[k]) for k in neighbour_ctp}
@@ -310,7 +318,7 @@ leaf_ctp = props_ctp['Leaf']
 modeled_dc_ctp = {}
 
 for node in F_ctp.keys():
-	F = Avg_F_ctp[node]
+	F = props_ctp['Fwd_Load'][node]
 	N = Avg_N_ctp[node]
 	L = Avg_L_ctp[node]
 	Tao = Avg_Tao_ctp[node]
@@ -353,7 +361,7 @@ ax.boxplot([Avg_F_ctp.values(),Avg_F_orw.values()] , positions=[1,2])
 #ax.boxplot(Avg_F_orw.values())
 '''for node in [3,9,15,14,13]:
 	print "LOAD CTP: ", node, Avg_F_ctp[node]'''
-#pl.show()
+pl.show()
 
 
 ###################### draw model curve ########################

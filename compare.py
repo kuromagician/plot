@@ -52,20 +52,23 @@ def group_barplot(ax, group, values, positions, text, unit=""):
 	for item in group[0]:
 		if item in values[0]:
 			temp.append(values[0][item])
-	Avg = mean(temp)
-	#print "{0[0][0]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
-	ax.boxplot(temp, positions=positions[0:1], widths=0.4)
-	ax.plot(positions[0:1], Avg, marker='*')
+	if len(temp) != 0:
+		Avg = mean(temp)
+		#print "{0[0][0]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
+		
+		ax.boxplot(temp, positions=positions[0:1], widths=0.4)
+		ax.plot(positions[0:1], Avg, marker='*')
 	
 	temp=[]
 	for item in group[1]:
 		if item in values[1]:
 			temp.append(values[1][item])
-	Avg = mean(temp)
-	#print "{0[0][1]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
-	bp = ax.boxplot(temp, positions=positions[1:2], widths=0.4)
-	setbp(bp, color='r')
-	ax.plot(positions[1:2], Avg, marker='*') 
+	if len(temp) != 0:
+		Avg = mean(temp)
+		#print "{0[0][1]}'s {0[1]} average {0[2]}: {1:.2f}{2:s}".format(text, Avg, unit)
+		bp = ax.boxplot(temp, positions=positions[1:2], widths=0.4)
+		setbp(bp, color='r')
+		ax.plot(positions[1:2], Avg, marker='*') 
 
 #################################################################
 
@@ -108,6 +111,7 @@ dir_neig_orw = props_orw['Dir_Neig']
 relay_orw = props_orw['Relay']
 leaf_orw = props_orw['Leaf']
 print "ORW  D R L:", len(dir_neig_orw), len(relay_orw), len(leaf_orw)
+
 
 num_node = len(avg_hops_ctp)
 
@@ -491,7 +495,10 @@ if ELIMIT:
 					counter2 += 1
 				elif msg.node in dir_neig_ctp:
 					counter3 += 1
-				die_leaf_ctp.append(counter1*100.0/len(leaf_ctp))
+				if len(leaf_ctp) == 0:
+					die_leaf_ctp.append(0)
+				else:
+					die_leaf_ctp.append(counter1*100.0/len(leaf_ctp))
 				die_relay_ctp.append(counter2*100.0/len(relay_ctp))
 				die_dir_neig_ctp.append(counter3*100.0/len(dir_neig_ctp))
 				
@@ -524,7 +531,7 @@ if ELIMIT:
 			"Die time:", x[msg.node] - dt'''
 	
 	# This part plot the arrows
-	anno_arrow (ax2, x, y, first, children_ctp, [0,5], die_set_ctp)
+	#anno_arrow (ax2, x, y, first, children_ctp, [0,5], die_set_ctp)
 	ax2.grid()
 	ax2.set_ylabel("Average Hops")
 	
@@ -611,12 +618,10 @@ if ELIMIT:
 	Tinterval=0
 	Tnew = 0
 	packet_hist = set()
-	die_set = set()
 	
 	for msg in OrwdebugMsgs:
 		if msg.type == NET_C_DIE:
-			if msg.node not in die_set:
-				die_set.add(msg.node)
+			if msg.node not in die_set_orw:
 			
 				die_minute = msg.timestamp / time_ratio / 60.0
 				die_time_orw[msg.node] = die_minute
@@ -632,13 +637,17 @@ if ELIMIT:
 				#curr_load_orw.pop(msg.node, None)
 				die_set_orw.add(msg.node)
 				#record the ratio of the died nodes
-				if msg.node in leaf_orw:
-					counter1 += 1
-				elif msg.node in relay_orw:
+				if msg.node in relay_orw:
 					counter2 += 1
 				elif msg.node in dir_neig_orw:
 					counter3 += 1
-				die_leaf_orw.append(counter1*100.0/len(leaf_orw))
+				elif msg.node in leaf_orw:
+					counter1 += 1
+				if len(leaf_orw) ==0:
+					die_leaf_orw.append(0)
+				else:
+					die_leaf_orw.append(counter1*100.0/len(leaf_orw))
+					
 				die_relay_orw.append(counter2*100.0/len(relay_orw))
 				die_dir_neig_orw.append(counter3*100.0/len(dir_neig_orw))
 		elif msg.type == NET_C_FE_RCV_MSG:
@@ -734,61 +743,61 @@ ax1.set_ylabel("# of Received Packets")
 #ax1.legend()
 ax1.grid()
 
-
-#ax2
-xp = np.arange(lb+1.1, ub-1.1, 1)
-first_ctp = derivative(f_ctp,xp,dx=1,n=1)
-first_orw = derivative(f_orw,xp,dx=1,n=1) 
-
-ax2 = fig.add_subplot(3,1,2, sharex=ax1)
-ax2.plot(xp, first_ctp, label='CTP')
-ax2.plot(xp, first_orw, linestyle='--', label='ORW')
-ax2.set_ylabel("Throughput (packet/s)")
-ax2.grid()
-ax2.legend()
-
-
-#ax3
-ax3 = fig.add_subplot(3,1,3, sharex=ax1)
-ax3.plot(time_list_orw, die_leaf_orw, color='g',linestyle='--' , label="orw_leaf")
-ax3.plot(time_list_orw, die_relay_orw, color='r', linestyle='--', label="orw_relay")
-ax3.plot(time_list_orw, die_dir_neig_orw, color='b', linestyle='--', label="orw_sink_neighbour")
-ax3.plot(time_list, die_leaf_ctp, color='g', label="ctp_leaf")
-ax3.plot(time_list, die_relay_ctp, color='r', label="ctp_relay")
-ax3.plot(time_list, die_dir_neig_ctp, color='b', label="ctp_sink_neighbour")
-ax3.grid()
-ax3.legend(loc=2, numpoints=200, prop={'size':10})
-ax3.set_ylabel("die percentage (%)")
-ax3.set_xlabel("Time (min)")
-
-#hide time
-pl.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
-ax1.set_xlim([lb, ub])
-fig.subplots_adjust(hspace=0)
-for ax in fig.axes:
-	yticks = ax.yaxis.get_major_ticks()
-	yticks[-1].label1.set_visible(False)
-fig.savefig("el1000Indriya.pdf", bbox_inches='tight')
-
-def find_element(element, list_element, another_list):
-	try:
-		index_element=list_element.index(element)
-		return another_list[index_element]
-	except ValueError:
-		return -1
-            
-die_S = find_element(100, die_dir_neig_ctp, time_list)
-die_R = find_element(100, die_relay_ctp, time_list)
-die_L = find_element(100, die_leaf_ctp, time_list)
-			
-print "CTP: First die:{:.2f} Last S, R, L Die:{:.2f} {:.2f} {:.2f}".format(
-                   time_list[0], die_S, die_R, die_L)
-                   
-die_S = find_element(100, die_dir_neig_orw, time_list_orw)
-die_R = find_element(100, die_relay_orw, time_list_orw)
-die_L = find_element(100, die_leaf_orw, time_list_orw)               
-print "ORW: First die:{:.2f} Last S, R, L Die:{:.2f} {:.2f} {:.2f}".format(
-                   time_list_orw[0], die_S, die_R, die_L)
+if ELIMIT:
+	#ax2
+	xp = np.arange(lb+1.1, ub-1.1, 1)
+	first_ctp = derivative(f_ctp,xp,dx=1,n=1)
+	first_orw = derivative(f_orw,xp,dx=1,n=1) 
+	
+	ax2 = fig.add_subplot(3,1,2, sharex=ax1)
+	ax2.plot(xp, first_ctp, label='CTP')
+	ax2.plot(xp, first_orw, linestyle='--', label='ORW')
+	ax2.set_ylabel("Throughput (packet/s)")
+	ax2.grid()
+	ax2.legend()
+	
+	
+	#ax3
+	ax3 = fig.add_subplot(3,1,3, sharex=ax1)
+	ax3.step(time_list_orw, die_leaf_orw, color='g',linestyle='--' , label="orw_leaf", where='post')
+	ax3.step(time_list_orw, die_relay_orw, color='r', linestyle='--', label="orw_relay", where='post')
+	ax3.step(time_list_orw, die_dir_neig_orw, color='b', linestyle='--', label="orw_sink_neighbour", where='post')
+	ax3.step(time_list, die_leaf_ctp, color='g', label="ctp_leaf", where='post')
+	ax3.step(time_list, die_relay_ctp, color='r', label="ctp_relay", where='post')
+	ax3.step(time_list, die_dir_neig_ctp, color='b', label="ctp_sink_neighbour", where='post')
+	ax3.grid()
+	ax3.legend(loc=2, numpoints=200, prop={'size':10})
+	ax3.set_ylabel("die percentage (%)")
+	ax3.set_xlabel("Time (min)")
+	
+	#hide time
+	pl.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
+	ax1.set_xlim([lb, ub])
+	fig.subplots_adjust(hspace=0)
+	for ax in fig.axes:
+		yticks = ax.yaxis.get_major_ticks()
+		yticks[-1].label1.set_visible(False)
+	fig.savefig("el1000Indriya.pdf", bbox_inches='tight')
+	
+	def find_element(element, list_element, another_list):
+		try:
+			index_element=list_element.index(element)
+			return another_list[index_element]
+		except ValueError:
+			return -1
+	            
+	die_S = find_element(100, die_dir_neig_ctp, time_list)
+	die_R = find_element(100, die_relay_ctp, time_list)
+	die_L = find_element(100, die_leaf_ctp, time_list)
+				
+	print "CTP: First die:{:.2f} Last S, R, L Die:{:.2f} {:.2f} {:.2f}".format(
+	                   time_list[0], die_S, die_R, die_L)
+	                   
+	die_S = find_element(100, die_dir_neig_orw, time_list_orw)
+	die_R = find_element(100, die_relay_orw, time_list_orw)
+	die_L = find_element(100, die_leaf_orw, time_list_orw)               
+	print "ORW: First die:{:.2f} Last S, R, L Die:{:.2f} {:.2f} {:.2f}".format(
+	                   time_list_orw[0], die_S, die_R, die_L)
 '''
 ###################################COMMON PART####################################
 if ELIMIT:

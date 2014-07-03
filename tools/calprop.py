@@ -47,7 +47,7 @@ def prop_orw(FileDict, args):
 							# add (origin, SeqNo) into history
 							rcv_hist_orw.append((msg.dbg__b, msg.dbg__a))
 							#if node is SINK, add node to direct neighbour
-							dir_neig_orw.add(msg.dbg__c)
+							#dir_neig_orw.add(msg.dbg__c)
 							total_receive_orw += 1
 						else:
 							route_hist_orw[(msg.dbg__b, msg.dbg__a)].discard(msg.dbg__c)
@@ -72,7 +72,7 @@ def prop_orw(FileDict, args):
 	counter = defaultdict(int)
 	total_hops_orw = defaultdict(int)
 	for (k, v) in route_hist_orw:
-		total_hops_orw[k] += max(len(route_hist_orw[(k,v)]) - 1, 0)
+		total_hops_orw[k] += len(route_hist_orw[(k,v)])
 		counter[k] += 1
 
 	avg_hops_orw = {k:total_hops_orw[k] / 1.0 / counter[k] for k in total_hops_orw}	
@@ -94,8 +94,8 @@ def prop_orw(FileDict, args):
 	leaf_orw = set()
 	relay_orw = set()
 	for node, hops in avg_hops_orw.iteritems():
-		'''if hops < 0.5:
-			dir_neig_orw.add(node)'''
+		if hops <= 1.5:
+			dir_neig_orw.add(node)
 		if node not in dir_neig_orw:
 			if node in load_orw:
 				if load_orw[node] < 1.5:
@@ -222,7 +222,7 @@ def prop_ctp(FileDict, args):
 		t_thl[k] += thl[(k,v)]
 		counter[k] += 1
 
-	avg_hops_ctp = {k:t_thl[k] / 1.0 / counter[k]-1 for k in t_thl}
+	avg_hops_ctp = {k:t_thl[k] / 1.0 / counter[k] for k in t_thl}
 	
 	#Calculate set of relays and leaves
 	relay_ctp = set()
@@ -231,7 +231,7 @@ def prop_ctp(FileDict, args):
 	tempdict = defaultdict(set)
 	#print sorted(avg_hops_ctp.keys())
 	for (node, hops) in avg_hops_ctp.iteritems():
-		if hops < 0.5:
+		if hops < 1.5:
 			dir_neig_ctp.add(node)
 		else:
 			if node in load_ctp:

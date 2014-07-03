@@ -123,6 +123,8 @@ fig.text(0.06, 0.5, 'Duty Cycle (%)', ha='center', va='center', rotation='vertic
 pl.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
 
 
+
+############ Figure 2 ############
 fig = pl.figure()
 if result['check']:
 	y11 = y1_ctp_c
@@ -141,9 +143,9 @@ else:
 	y23 = y3_orw
 	x = x1
 ax1 = fig.add_subplot(1,1,1)
-ax1.scatter(x,y11, color='b', marker='D', alpha=0.7, label='real_SN_ctp')
-ax1.scatter(x,y12, color='r', marker='D', alpha=0.7, label='real_RL_ctp')
-ax1.scatter(x,y13, color='g', marker='D', alpha=0.7, label='real_LF_ctp')
+#ax1.scatter(x,y11, color='b', marker='D', alpha=0.7, label='real_SN_ctp')
+#ax1.scatter(x,y12, color='r', marker='D', alpha=0.7, label='real_RL_ctp')
+#ax1.scatter(x,y13, color='g', marker='D', alpha=0.7, label='real_LF_ctp')
 ax1.scatter(x,y21, color='b', alpha=0.7, label='real_SN_orw')
 ax1.scatter(x,y22, color='r', alpha=0.7, label='real_RL_orw')
 ax1.scatter(x,y23, color='g', alpha=0.7, label='real_LF_orw')
@@ -203,9 +205,9 @@ for i, Tw in enumerate(x):
 	y_LF.append(temp)
 	
 
-ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
-ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
-ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
+#ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
+#ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
+#ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
 #########################section ORW###################
 F_SN = [] 
 Tao_SN = [] 
@@ -259,9 +261,9 @@ for i, Tw in enumerate(x):
 	temp = sum(DC_Model_orw(*(zip(*LF_Paras)[i]), Tw=Tw*1000.0))
 	y_LF.append(temp)
 	
-ax1.plot(x, y_SN, 'b--', label='model_orw_sinkN')
-ax1.plot(x, y_RL, 'r--', label='model_orw_relay')
-ax1.plot(x, y_LF, 'g--', label='model_orw_leaf')
+ax1.plot(x, y_SN, 'b', label='model_orw_sinkN')
+ax1.plot(x, y_RL, 'r', label='model_orw_relay')
+ax1.plot(x, y_LF, 'g', label='model_orw_leaf')
 ax1.set_xlabel('Wakeup Interval (s)')
 ax1.set_ylabel('Duty Cycle (%)')
 ax1.set_xscale('log', basex=2)

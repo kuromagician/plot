@@ -96,11 +96,12 @@ def update_fig(i, args, G, pos, lineset, start_time):
 		lineset[3].set_data(x, y3)
 	return ax1, lineset
 		
-def update_v2(G, pos, args, time):
+def update_v2(G, pos, args, lineset, time, die_ratio):
 	#args are node classes
 	timetext = "Elasped Time: \n" + translatetime(time) 
-
-	nodelist=set(G.nodes())
+	lineset[0], = ax3.plot([time, time], [0, 100])
+	allnodes = G.nodes()
+	nodelist=set(allnodes)
 	color=('b', 'r', 'g')
 	strings=('Sink neighbour', 'Relay', 'Leaf')
 	SN = set()
@@ -112,8 +113,13 @@ def update_v2(G, pos, args, time):
 	for i, s in enumerate(setlist):
 		s = args[i] & nodelist
 		if len(args[i]) != 0:
-			temp = "\n{:20s}: {:.2%}".format(strings[i], 1.0*len(s)/len(args[i]))
+			percentage = 100.0*len(s)/len(args[i])
+			temp = "\n{:15s}: {:.2f}%".format(strings[i], percentage)
 			timetext += temp
+		y[i+1].append(die_ratio[i][-1])
+		x[i+1].append(time)
+		lineset[i+1], = ax3.plot(x[i+1], y[i+1])
+			
 		if len(s) != 0:
 			plotobj = nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=s, node_color=color[i], ax=ax1)
 			returnlist.append(plotobj)
@@ -122,6 +128,8 @@ def update_v2(G, pos, args, time):
 	
 	returnlist.append(textobj)
 	returnlist.append(edges)
+	for item in lineset:
+		returnlist.append(item)
 	return returnlist
 
 def translatetime(time):
@@ -139,14 +147,43 @@ def translatetime(time):
 fig = pl.figure(figsize=[8,10])
 ax1 = pl.subplot2grid((5,4), (0,0), colspan=4, rowspan=4)
 ax1.set_axis_off()
+
+
 ax2 = pl.subplot2grid((5,4), (4,0), colspan=1, rowspan=1)
 ax2.set_axis_off()
+
+
 ax3 = pl.subplot2grid((5,4), (4,1), colspan=3, rowspan=1)
+#ax3 for die percentage
+sets = (SN_orw, RL_orw, LF_orw)
+
+timeline, = ax3.plot((0,0), (0, 100), 'k-')
+line_SN, = ax3.plot([0], [0], 'b-')
+line_RL, = ax3.plot([0], [0], 'r-')
+line_LF, = ax3.plot([0], [0], 'g-')
+ax3.set_xlabel('Time (s)')
+ax3.set_ylabel('%')
+y1=[0]
+y2=[0]
+y3=[0]
+y=[[0], [0], [0], [0]]
+x=[[0], [0], [0], [0]]
+step=[]
+step.append(100.0/len(SN_orw))
+step.append(100.0/len(RL_orw))
+if len(LF_orw) == 0:
+	step.append(0)
+else:
+	step.append(100.0/len(LF_orw))
+
+lineset = [timeline, line_SN, line_RL, line_LF]
+die_ratio = [[0], [0], [0]]
+
+
 G_orw = nx.Graph()
 node_w = {}
 die_orw = {}
 imgs = []
-sets = (SN_orw, RL_orw, LF_orw)
 
 #create postions first for simulation
 pos={}
@@ -159,9 +196,13 @@ for i in xrange(1, size+1):
 	for j in xrange(1, size+1):
 		pos[offset + j]=(interval*i, interval*j)
 		
-
+text = 'ORW processing progress: '
+filesize = len(OrwDebugMsgs)
+currline = 0
+lasttime=0
 #create orw network graph
 for msg in OrwDebugMsgs:
+	currline += 100
 	if msg.node <=300 and msg.timestamp >= time_TH:
 		if msg.node not in die_orw:
 			#if type is receive, record every edge that appears
@@ -171,29 +212,37 @@ for msg in OrwDebugMsgs:
 						G_orw[msg.dbg__c][msg.node]['weight'] += 1
 					else:
 						G_orw.add_edge(msg.dbg__c, msg.node, weight = 1)
-						im = update_v2(G_orw, pos, sets, msg.timestamp)
+						for i, group in enumerate(sets):
+							die_ratio[i].append(die_ratio[i][-1])
+						im = update_v2(G_orw, pos, sets, lineset, msg.timestamp, die_ratio)
 						imgs.append(im)
+						lasttime = msg.timestamp
 			elif msg.type == NET_C_DIE:
 				die_orw[msg.node] = int(round(msg.timestamp/time_ratio))
 				G_orw.remove_node(msg.node)
-				im = update_v2(G_orw, pos, sets, msg.timestamp)
+				for i, group in enumerate(sets):
+					if msg.node in group:
+						die_ratio[i].append(die_ratio[i][-1]+step[i])
+					else:
+						die_ratio[i].append(die_ratio[i][-1])
+					
+				im = update_v2(G_orw, pos, sets, lineset, msg.timestamp, die_ratio)
 				imgs.append(im)
-	
+				lasttime = msg.timestamp
+	update_progress(text, currline/filesize)
 
+lasttime = int(math.ceil(lasttime))
+ax3.set_xticks(xrange(0, (lasttime+1), lasttime/10))
+ax3.set_xticklabels(xrange(0, (lasttime+1)/60, lasttime/600))
 
-
-sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
-sorted_die_node = [k for (k,v) in sorted_die_orw]
-sorted_die_time = [v for (k,v) in sorted_die_orw]
+#sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
+#sorted_die_node = [k for (k,v) in sorted_die_orw]
+#sorted_die_time = [v for (k,v) in sorted_die_orw]
 
 anim = animation.ArtistAnimation(fig,imgs, interval=500, blit=True)
 anim.save('orw.mp4', bitrate=4000, extra_args=['-vcodec', 'libx264'])
+
 '''
-
-
-	
-
-
 nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[SINK_ID], node_color='k')
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=SN_orw & nodelist, node_color='b')
 nx.draw_networkx_nodes(G, pos, node_size = 150, nodelist=RL_orw & nodelist, node_color='r')
@@ -202,31 +251,6 @@ nx.draw_networkx_edges(G, pos, nodelist=nodelist, width=0.5, alpha=0.5)
 
 limit = ax1.axis()
 ax1.set_axis_off()
-
-
-#ax2 for die percentage
-sets = (SN_orw, RL_orw, LF_orw)
-ax2 = pl.subplot2grid((5,4), (4,0), colspan=4, xlim=(0, end_time), ylim=(-2, 100))
-timeline, = ax2.plot((0,0), (0, 100), 'k-')
-line_SN, = ax2.plot([0], [0], 'b-')
-line_RL, = ax2.plot([0], [0], 'r-')
-line_LF, = ax2.plot([0], [0], 'g-')
-ax2.set_xlabel('Time (s)')
-ax2.set_ylabel('%')
-y1=[0]
-y2=[0]
-y3=[0]
-step1=100.0/len(SN_orw)
-step2=100.0/len(RL_orw)
-if len(LF_orw) == 0:
-	step3=0
-else:
-	step3=100.0/len(LF_orw)
-ax2.set_xticks(xrange(0, 10801, 1200))
-ax2.set_xticklabels(xrange(0, 181, 20))
-
-
-lineset = [timeline, line_SN, line_RL, line_LF]
 
 
 ###########################################################
