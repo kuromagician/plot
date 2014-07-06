@@ -180,8 +180,8 @@ def getfile(args):
 				limited_ctp = "../Simulation/S_CTP_025s_N36_D10s_1h.txt"
 				limited_orw = "../Simulation/S_ORW_025s_N36_D10s_1h.txt"
 			else:
-				limited_ctp = "../Simulation/S_CTP_1s_2h.txt"
-				limited_orw = "../Simulation/ORW_test.txt"
+				limited_ctp = "../Simulation/S_CTP_r9c4_R35_1h.txt"
+				limited_orw = "../Simulation/S_ORW_r9c4_D10s_1h.txt"
 		elif args['lim']:
 			if ELIMIT == 0x1000:
 				limited_ctp = "../Simulation/CTP_el1000_2h.txt"
