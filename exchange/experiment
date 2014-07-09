@@ -146,6 +146,14 @@ note: model.py can use file above 48556
 49413 orw tw=16s
 49598 orw tw=8s
 49635 orw tw=4s
+49637 orw tw=2s
+//49661 orw tw=2s????   maybe wrong	
+49662 orw tw=1s
+49664 orw tw=0.5s
+49683 orw tw=0.25s
+
+49698 ctp tw=16s
+49709 ctp tw=8s
 
 
 
