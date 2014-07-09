@@ -154,6 +154,7 @@ note: model.py can use file above 48556
 
 49698 ctp tw=16s
 49709 ctp tw=8s
+49714 ctp tw=4s
 
 
 

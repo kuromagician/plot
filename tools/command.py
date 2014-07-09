@@ -230,7 +230,6 @@ def getfile(args):
 							'data-48637', 'data-48642', 'data-48651', 'data-48710', 'data-48774']
 			else:
 				wakeup_i = [0.25, 0.5, 1, 2, 4, 8, 16]
-				
 				'''#This is wrong log of neighbour
 				FileCollection_orw = ['data-48936', 'data-48934', 'data-48933', 'data-48932', 
 							'data-48931', 'data-48930', 'data-48952']
