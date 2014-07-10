@@ -37,19 +37,19 @@ if not TWIST:
 							'data-48637', 'data-48642', 'data-48651', 'data-48710', 'data-48774']
 	else:
 		wakeup = [0.25, 0.5, 1, 2, 4, 8, 16]
-		
+		'''
 		FileCollection_orw = ['data-48936', 'data-48934', 'data-48933', 'data-48932', 
 							'data-48931', 'data-49304', 'data-48952']
 		FileCollection_ctp = ['data-48929', 'data-48928', 'data-48925', 'data-48924', 
-							'data-48923', 'data-48922', 'data-48949']
-		'''
+							'data-48923', 'data-48922', 'data-48949']'''
+		
 		FileCollection_orw = ['data-49167', 'data-49137', 'data-49175', 'data-49104', 
-							'data-48931', 'data-48930', 'data-48952']
+							'data-48931', 'data-48930', 'data-49088']
 		FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
 							'data-49054', 'data-49059', 'data-49079']
-		
+		'''
 		FileCollection_orw = ['data-49683', 'data-49664', 'data-49662', 'data-49637', 
-							'data-49635', 'data-49598', 'data-49413']
+							'data-49635', 'data-49715', 'data-49413']
 		FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
 							'data-49054', 'data-49059', 'data-49079']'''
 
@@ -119,7 +119,7 @@ ax.plot(wakeup, ym[:,2], ls='--', color='g',label='ORW_LF')
 if TWIST:
 	fo = open("DC_measure_twist.txt", "a")
 else:
-	fo = open("DC_measure_indriya1.txt", "a")
+	fo = open("DC_measure_indriya.txt", "a")
 title = 'WakeupT\tSinkN\tRelay\tLeaf\tProto\tTw\n'
 #fo.write(title)
 for i, item in enumerate(y):

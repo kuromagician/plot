@@ -9,7 +9,7 @@ function generate_data(){
 	./model.py -$1 8
 	./model.py -$1 16
 	#this generates real measurements, notice the 1 is just dummy
-	python dataR_W.py -$1 1
+	#python dataR_W.py -$1 1
 }
 
 
@@ -19,9 +19,9 @@ if [ "$1" == "t" ]||[ "$1" == "twist" ]; then
 	exit 0
 else
 	#clean the original file
-	rm -f CTP_Paras.txt
-	rm -f ORW_Paras.txt
-	rm -f DC_measure_indriya.txt
+	#rm -f CTP_Paras.txt
+	#rm -f ORW_Paras.txt
+	#rm -f DC_measure_indriya.txt
 	#detect which computer it is
 	if [ "$name" == "js41" ]; then
 		arg1="apm"

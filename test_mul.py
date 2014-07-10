@@ -2,6 +2,7 @@
 import tools.twistReader as Treader
 import tools.command as command
 import tools.calprop as calprop
+import numpy as np
 from numpy import mean
 import matplotlib
 import pylab as pl
@@ -67,7 +68,7 @@ for i, logfile in enumerate(path):
 				y2_orw_c[i].append(float(row[2]))
 				y3_orw_c[i].append(float(row[3]))
 
-######## This part is only real measure by lines #######
+######## This part is only real measurements and error bar#######
 #average values
 avg_y1_ctp = mean(y1_ctp_c, axis=0)
 avg_y2_ctp = mean(y2_ctp_c, axis=0)
@@ -96,144 +97,123 @@ ax1.errorbar(x2, avg_y2_orw, yerr=err_y2_orw, fmt='o')
 ax1.errorbar(x2, avg_y3_orw, yerr=err_y3_orw, fmt='o')
 
 
-
-
-'''
-############ Figure 2 ############
-fig = pl.figure()
-if result['check']:
-	y11 = y1_ctp_c
-	y12 = y2_ctp_c
-	y13 = y3_ctp_c
-	y21 = y1_orw_c
-	y22 = y2_orw_c
-	y23 = y3_orw_c
-	x = x2
-else:
-	y11 = y1_ctp
-	y12 = y2_ctp
-	y13 = y3_ctp
-	y21 = y1_orw
-	y22 = y2_orw
-	y23 = y3_orw
-	x = x1
-ax1 = fig.add_subplot(1,1,1)
-#ax1.scatter(x,y11, color='b', marker='D', alpha=0.7, label='real_SN_ctp')
-#ax1.scatter(x,y12, color='r', marker='D', alpha=0.7, label='real_RL_ctp')
-#ax1.scatter(x,y13, color='g', marker='D', alpha=0.7, label='real_LF_ctp')
-ax1.scatter(x,y21, color='b', alpha=0.7, label='real_SN_orw')
-ax1.scatter(x,y22, color='r', alpha=0.7, label='real_RL_orw')
-ax1.scatter(x,y23, color='g', alpha=0.7, label='real_LF_orw')
-
-#########################plot real point ends###################
-
 #########################plot model begins###################
 #########################section CTP###################
-F_SN = [] 
-Tao_SN = [] 
-N_SN = []
-L_SN = [] 
-Fail_SN = []
+F_SN = [[] for i in range(0, numfiles)] 
+Tao_SN = [[] for i in range(0, numfiles)] 
+N_SN = [[] for i in range(0, numfiles)]
+L_SN = [[] for i in range(0, numfiles)] 
+Fail_SN = [[] for i in range(0, numfiles)]
 
-F_RL = [] 
-Tao_RL = [] 
-N_RL = []
-L_RL = [] 
-Fail_RL = []
+F_RL = [[] for i in range(0, numfiles)] 
+Tao_RL = [[] for i in range(0, numfiles)] 
+N_RL = [[] for i in range(0, numfiles)]
+L_RL = [[] for i in range(0, numfiles)] 
+Fail_RL = [[] for i in range(0, numfiles)]
 
-F_LF = [] 
-Tao_LF = [] 
-N_LF = []
-L_LF = [] 
-Fail_LF = []
+F_LF = [[] for i in range(0, numfiles)] 
+Tao_LF = [[] for i in range(0, numfiles)] 
+N_LF = [[] for i in range(0, numfiles)]
+L_LF = [[] for i in range(0, numfiles)] 
+Fail_LF = [[] for i in range(0, numfiles)]
+
+
+
+
 SN_Paras = [F_SN, Tao_SN, N_SN, L_SN, Fail_SN]
 RL_Paras = [F_RL, Tao_RL, N_RL, L_RL, Fail_RL]
 LF_Paras = [F_LF, Tao_LF, N_LF, L_LF, Fail_LF]
 
-if result['twist']:
-	path = "CTP_Paras_twist.txt"
-else:
-	path = "CTP_Paras.txt"
-with open(path) as fo:
-	lines = fo.readlines()
-	for row in lines:
-		a = mysplit(row)
-		if a[1] == 'SN':
-			for i, item in enumerate(SN_Paras):
-				item.append(float(a[i+3]))
-		if a[1] == 'RL':
-			for i, item in enumerate(RL_Paras):
-				item.append(float(a[i+3]))
-		if a[1] == 'LF':
-			for i, item in enumerate(LF_Paras):
-				item.append(float(a[i+3]))
+path = ("CTP_Paras.txt", "CTP_Paras1.txt", "CTP_Paras2.txt")
+for k, parafile in enumerate(path):
+	with open(parafile) as fo:
+		lines = fo.readlines()
+		for row in lines:
+			a = mysplit(row)
+			if a[1] == 'SN':
+				for i, item in enumerate(SN_Paras):
+					item[k].append(float(a[i+3]))
+			if a[1] == 'RL':
+				for i, item in enumerate(RL_Paras):
+					item[k].append(float(a[i+3]))
+			if a[1] == 'LF':
+				for i, item in enumerate(LF_Paras):
+					item[k].append(float(a[i+3]))
 				
+Avg_SN_Paras = mean(SN_Paras, axis=1)
+Avg_RL_Paras = mean(RL_Paras, axis=1)
+Avg_LF_Paras = mean(LF_Paras, axis=1)
+
 y_SN=[]
 y_RL=[]
 y_LF=[]
-for i, Tw in enumerate(x):
-	temp = DC_Model_ctp_SN(*(zip(*SN_Paras)[i]), Tw=Tw*1000.0)
+x=x2
+for i, Tw in enumerate(x2):
+	temp = DC_Model_ctp_SN(*(zip(*Avg_SN_Paras)[i]), Tw=Tw*1000.0)
 	y_SN.append(temp)
-	temp = DC_Model_ctp(*(zip(*RL_Paras)[i]), Tw=Tw*1000.0)
+	temp = DC_Model_ctp(*(zip(*Avg_RL_Paras)[i]), Tw=Tw*1000.0)
 	y_RL.append(temp)
-	temp = DC_Model_ctp(*(zip(*LF_Paras)[i]), Tw=Tw*1000.0)
+	temp = DC_Model_ctp(*(zip(*Avg_LF_Paras)[i]), Tw=Tw*1000.0)
 	y_LF.append(temp)
 	
 
 #ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
 #ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
 #ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
-#########################section ORW###################
-F_SN = [] 
-Tao_SN = [] 
-Fs_SN = []
-L_SN = [] 
-FWD_SN = []
+#########################section CTP###################
+F_SN = [[] for i in range(0, numfiles)] 
+Tao_SN = [[] for i in range(0, numfiles)] 
+Fs_SN = [[] for i in range(0, numfiles)]
+L_SN = [[] for i in range(0, numfiles)] 
+Fail_SN = [[] for i in range(0, numfiles)]
 
-F_RL = [] 
-Tao_RL = [] 
-Fs_RL = []
-L_RL = [] 
-FWD_RL = []
+F_RL = [[] for i in range(0, numfiles)] 
+Tao_RL = [[] for i in range(0, numfiles)] 
+Fs_RL = [[] for i in range(0, numfiles)]
+L_RL = [[] for i in range(0, numfiles)] 
+Fail_RL = [[] for i in range(0, numfiles)]
 
-F_LF = [] 
-Tao_LF = [] 
-Fs_LF = []
-L_LF = [] 
-FWD_LF = []
+F_LF = [[] for i in range(0, numfiles)] 
+Tao_LF = [[] for i in range(0, numfiles)] 
+Fs_LF = [[] for i in range(0, numfiles)]
+L_LF = [[] for i in range(0, numfiles)] 
+Fail_LF = [[] for i in range(0, numfiles)]
 SN_Paras = [F_SN, Tao_SN, Fs_SN, L_SN, Fail_SN]
 RL_Paras = [F_RL, Tao_RL, Fs_RL, L_RL, Fail_RL]
 LF_Paras = [F_LF, Tao_LF, Fs_LF, L_LF, Fail_LF]
 #for wake in wakeup:
 
-if result['twist']:
-	path = "ORW_Paras_twist.txt"
-else:
-	path = "ORW_Paras.txt"
+path = ("ORW_Paras.txt", "ORW_Paras1.txt", "ORW_Paras2.txt")
 
-with open(path, "r") as fo:
-	lines = fo.readlines()
-	for row in lines:
-		a = mysplit(row)
-		if a[1] == 'SN':
-			for i, item in enumerate(SN_Paras):
-				item.append(float(a[i+3]))
-		if a[1] == 'RL':
-			for i, item in enumerate(RL_Paras):
-				item.append(float(a[i+3]))
-		if a[1] == 'LF':
-			for i, item in enumerate(LF_Paras):
-				item.append(float(a[i+3]))
+for k, parafile in enumerate(path):
+	with open(parafile, "r") as fo:
+		lines = fo.readlines()
+		for row in lines:
+			a = mysplit(row)
+			if a[1] == 'SN':
+				for i, item in enumerate(SN_Paras):
+					item[k].append(float(a[i+3]))
+			elif a[1] == 'RL':
+				for i, item in enumerate(RL_Paras):
+					item[k].append(float(a[i+3]))
+			elif a[1] == 'LF':
+				for i, item in enumerate(LF_Paras):
+					item[k].append(float(a[i+3]))
+				
+
+Avg_SN_Paras = mean(SN_Paras, axis=1)
+Avg_RL_Paras = mean(RL_Paras, axis=1)
+Avg_LF_Paras = mean(LF_Paras, axis=1)
 				
 y_SN=[]
 y_RL=[]
 y_LF=[]
 for i, Tw in enumerate(x):
-	temp = sum(DC_Model_orw_SN(*(zip(*SN_Paras)[i]), Tw=Tw*1000.0))
+	temp = sum(DC_Model_orw_SN(*(zip(*Avg_SN_Paras)[i]), Tw=Tw*1000.0))
 	y_SN.append(temp)
-	temp = sum(DC_Model_orw(*(zip(*RL_Paras)[i]), Tw=Tw*1000.0))
+	temp = sum(DC_Model_orw(*(zip(*Avg_RL_Paras)[i]), Tw=Tw*1000.0))
 	y_RL.append(temp)
-	temp = sum(DC_Model_orw(*(zip(*LF_Paras)[i]), Tw=Tw*1000.0))
+	temp = sum(DC_Model_orw(*(zip(*Avg_LF_Paras)[i]), Tw=Tw*1000.0))
 	y_LF.append(temp)
 	
 ax1.plot(x, y_SN, 'b', label='model_orw_sinkN')
@@ -243,5 +223,6 @@ ax1.set_xlabel('Wakeup Interval (s)')
 ax1.set_ylabel('Duty Cycle (%)')
 ax1.set_xscale('log', basex=2)
 leg = ax1.legend(loc=2, fontsize=10, fancybox=True)
-leg.get_frame().set_alpha(0.5)'''
+leg.get_frame().set_alpha(0.5)
+
 pl.show()
