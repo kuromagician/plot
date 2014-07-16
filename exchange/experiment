@@ -155,10 +155,29 @@ note: model.py can use file above 48556
 49698 ctp tw=16s
 49709 ctp tw=8s
 49714 ctp tw=4s
+49718 ctp tw=2s
+49731 ctp tw=1s
+49733 ctp tw=0.5s
+49747 ctp tw=0.25s
 
 
 
 #######################
+######   This is after reduce the density	#####
+49754 ctp el=1000
+49766 ctp el=1000, power=11, mod=3
+49755 orw el=1000, power=11, mod=3
+49762 ctp el=1000, mod=3
+49763 orw el=1000, mod=3
+
+
+######   This is connectivity test           #####
+49758 power=11, mod=3
+49759 mod=3
+
+
+#######################
+
 ######using faisal's account##########
 49261 ctp tw=1s limit=0x2000
 49264 orw tw=1s limit=0x2000

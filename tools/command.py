@@ -6,7 +6,7 @@ import simReader as Sreader
 
 def main(argv):
 	result = {'kill':False, 'simple':False, 'lim':0, 'twist':False, \
-			  'connected':False, 'experiment':False, 'model':False,\
+			  'connectivity':False, 'experiment':False, 'model':False,\
 			  'wakeup':float(1.5), 'check':False, 'desktop':False,\
 			  'postpone':False, 'simulation': False, 'numnodes':36}
 	try:
@@ -16,7 +16,7 @@ def main(argv):
              \n        -k \tkill some nodes\
              \n        -s \tsimple version\
              \n        -t \tuse files from twist\
-             \n        -c \tgood connectivity\
+             \n        -c \tconnectivity test\
              \n        -e \ttest files\
              \n        -h \tshow help\
 			 \n        -m <wakeup interval>\t Set wakeup interval\
@@ -39,7 +39,7 @@ def main(argv):
 		elif opt in ("-t", "--twist"):
 			result['twist'] = True
 		elif opt in ("-c",):
-			result['connected'] = True
+			result['connectivity'] = True
 		elif opt in ("-e", "--experiment"):
 			result['experiment'] = True
 		elif opt in ("-m", "--model"):
@@ -59,7 +59,6 @@ def main(argv):
 	
 def getfile(args):
 	ELIMIT = args['lim']
-	CONNECT = args['connected']
 	if args['desktop']:
 		base_path = '/home/nagatoyuki/Thesis/Traces/Indriya/'
 	else:
@@ -221,6 +220,15 @@ def getfile(args):
 		# use wakeup time as parameters
 		if args['postpone']:
 			props['time_TH'] = props['timeratio']*60*10
+		if args['connectivity']:
+			#power=full
+			folder = 'data-49759'
+			#power=11
+			#folder = 'data-49758'
+			#power=full, all nodes
+			#folder = 'data-48413'
+			FileDict['ConnectDebug'] = reader.load_C_Data(base_path+folder, FileNames['ConnectDebug'])
+			return FileDict, props
 		if args['model']:
 			if not args['check']:
 				wakeup_i = [0.25, 0.5, 1, 1.5, 2, 2.5, 4, 6, 16]
@@ -253,52 +261,54 @@ def getfile(args):
 				lookup_dic[k] = (CTP, ORW)
 			limited_ctp = lookup_dic[args['wakeup']][0]
 			limited_orw = lookup_dic[args['wakeup']][1]
-			FileDict['CtpDebug'] = reader.loadDebug(base_path+limited_ctp, FileNames['CtpDebug']) 
-			FileDict['CtpData'] = reader.loadDataMsg(base_path+limited_ctp, FileNames['CtpData']) 
-			FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
-			FileDict['OrwNt'] = reader.loadNtDebug(base_path+limited_orw, FileNames['OrwNt']) 
-			return FileDict, props
-		#file prefix
-		if ELIMIT == 0:
-			if not CONNECT:
+		elif args['kill']:
+			FileNames['CtpDebug'] = ('26099.dat',)
+			FileNames['CtpData'] = ('26100.dat',)
+			#limited_ctp = 'data-49766'
+			#limited_orw = 'data-49755'
+			limited_ctp = 'data-49762'
+			limited_orw = 'data-49763'
+		elif args['lim']:
+			if ELIMIT == 0:
+				#if not CONNECT:
 				limited_ctp = 'data-47464'
 				limited_orw = 'data-47470'
+				#else:
+				#	limited_ctp = 'data-47933'
+				#	limited_orw = 'data-47934'
+			elif ELIMIT == 0xA00:
+				limited_ctp = 'data-47436'
+				limited_orw = 'data-47438'
+			elif ELIMIT == 0x1000:
+				FileNames['CtpDebug'] = ('26102.dat',)
+				FileNames['CtpData'] = ('26103.dat',)
+				FileNames['OrwDebug'] = ('26108.dat',)
+				FileNames['OrwNt'] = ('26107.dat',)
+				limited_ctp = 'data-49283'
+				limited_orw = 'data-49278'
+				'''if not CONNECT:
+					limited_ctp = 'data-47540'
+					limited_orw = 'data-47398'
+				else:
+					limited_ctp = 'data-48017'
+					limited_orw = 'data-48019'
+				'''
+			elif ELIMIT == 0x1200:
+				limited_ctp = 'data-47546'
+				limited_orw = 'data-47581'
+			elif ELIMIT == 0x1400:
+				limited_ctp = 'data-47566'
+				limited_orw = 'None'
+			elif ELIMIT == 0x2000:
+				FileNames['CtpDebug'] = ('26102.dat',)
+				FileNames['CtpData'] = ('26103.dat',)
+				FileNames['OrwDebug'] = ('26108.dat',)
+				FileNames['OrwNt'] = ('26107.dat',)
+				limited_ctp = 'data-49272'
+				limited_orw = 'data-49273'
 			else:
-				limited_ctp = 'data-47933'
-				limited_orw = 'data-47934'
-		elif ELIMIT == 0xA00:
-			limited_ctp = 'data-47436'
-			limited_orw = 'data-47438'
-		elif ELIMIT == 0x1000:
-			FileNames['CtpDebug'] = ('26102.dat',)
-			FileNames['CtpData'] = ('26103.dat',)
-			FileNames['OrwDebug'] = ('26108.dat',)
-			FileNames['OrwNt'] = ('26107.dat',)
-			limited_ctp = 'data-49283'
-			limited_orw = 'data-49278'
-			'''if not CONNECT:
-				limited_ctp = 'data-47540'
-				limited_orw = 'data-47398'
-			else:
-				limited_ctp = 'data-48017'
-				limited_orw = 'data-48019'
-			'''
-		elif ELIMIT == 0x1200:
-			limited_ctp = 'data-47546'
-			limited_orw = 'data-47581'
-		elif ELIMIT == 0x1400:
-			limited_ctp = 'data-47566'
-			limited_orw = 'None'
-		elif ELIMIT == 0x2000:
-			FileNames['CtpDebug'] = ('26102.dat',)
-			FileNames['CtpData'] = ('26103.dat',)
-			FileNames['OrwDebug'] = ('26108.dat',)
-			FileNames['OrwNt'] = ('26107.dat',)
-			limited_ctp = 'data-49272'
-			limited_orw = 'data-49273'
-		else:
-			print "Energy limit", hex(ELIMIT), "is not available, exit"
-			sys.exit()
+				print "Energy limit", hex(ELIMIT), "is not available, exit"
+				sys.exit()
 		#load files
 		FileDict['CtpDebug'] = reader.loadDebug(base_path+limited_ctp, FileNames['CtpDebug']) 
 		FileDict['CtpData'] = reader.loadDataMsg(base_path+limited_ctp, FileNames['CtpData']) 

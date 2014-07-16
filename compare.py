@@ -524,9 +524,9 @@ if ELIMIT:
 				xy = (x[node], y[node]), xytext = (0, 0))
 	
 	counter = defaultdict(int)
-	for msg in CtpdebugMsgs:
+	'''for msg in CtpdebugMsgs:
 		if msg.node == first[3] and msg.type != 0x40:
-			'''print "Node:", msg.node, "Type:", hex(msg.type), \
+			print "Node:", msg.node, "Type:", hex(msg.type), \
 			(msg.dbg__a), msg.dbg__b, msg.dbg__c, "timestamp", msg.timestamp / time_ratio, \
 			"Die time:", x[msg.node] - dt'''
 	
@@ -752,7 +752,7 @@ if ELIMIT:
 	ax2 = fig.add_subplot(3,1,2, sharex=ax1)
 	ax2.plot(xp, first_ctp, label='CTP')
 	ax2.plot(xp, first_orw, linestyle='--', label='ORW')
-	ax2.set_ylabel("Throughput (packet/s)")
+	ax2.set_ylabel("Throughput (packets/min)")
 	ax2.grid()
 	ax2.legend()
 	

@@ -20,41 +20,40 @@ base_path = '/home/nagatoyuki/Desktop/Thesis/Indriya/'
 #folder = 'data-48224/'
 folder = 'data-48413/'
 filenames = ('25593.dat',)
-
+'''
 
 #############################################################
 
+###########    Parsing Command line                  ########
 
-CMsgs = reader.load_C_Data(base_path+folder, filenames)
+result = command.main(sys.argv[1:])
+FileDict, props = command.getfile(result)
 
-statics = {}
+#############################################################
+CMsgs = FileDict['ConnectDebug']
+
+statics = defaultdict(dict)
 G = nx.Graph()
 
-for i in xrange(1, 300):
-	statics[i] = defaultdict(int)
 
-node_above_100 = set()
-Others = set()
 for msg in CMsgs:
-	if msg.node > 100:
-		node_above_100.add(msg.node)
+	if msg.source not in statics[msg.node]:
+		statics[msg.node][msg.source] = 0
 	else:
-		#Others.add(msg.node)
-		pass
-	statics[msg.node][msg.source] += 1
-#print statics[20]
-#print statics[75]	
+		statics[msg.node][msg.source] += 1
+	
+tempsum = 0
+for i, v in enumerate(statics.values()):
+	tempsum += len(v)
+	
+print "Avg neighbours: {:.2f}".format(tempsum*1.0/i)
+	
+	
+	
+	
 for node, neighbour_list in statics.iteritems():
 	for nid, num in neighbour_list.iteritems():
-		if node in node_above_100:
-			G.add_node(node)
-		if num >= 45 :
-			if node>100 and nid < 100:
-			#if True:#(msg.node in [20,75]):
-			#print "Node{} has perfect neighbour {}".format(node, nid)
-			#if node > 100:
-				Others.add(nid)
-				G.add_edge(node, nid)
+		G.add_edge(node, nid)
 			
 pos = nx.graphviz_layout(G)
 nodelist = G.nodes()
@@ -62,18 +61,18 @@ nodelist = G.nodes()
 labels={}
 
 pl.figure()
-for node in node_above_100.union(Others):
+for node in nodelist:
 	labels[node] = node
-nx.draw_networkx_nodes(G, pos, node_size = 120, nodelist=node_above_100, node_color='r')
-nx.draw_networkx_nodes(G, pos, node_size = 120, nodelist=Others, node_color='g')
+	
+nx.draw_networkx_nodes(G, pos, node_size = 120, node_color='r')
 #nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[20,75], node_color='b')
 nx.draw_networkx_edges(G, pos, alpha=0.5)
 nx.draw_networkx_labels(G,pos, labels=labels, font_size=6)
-pl.savefig("connectivity.pdf")'''
+pl.savefig("connectivity.pdf")
+pl.show()
 ################################################ABOVE IS CONNECTIVITY################################
+
 fig = pl.figure(figsize=[10,10])
-result = command.main(sys.argv[1:])
-FileDict, props = command.getfile(result)
 CtpDebugMsgs = FileDict['CtpDebug']
 OrwDebugMsgs = FileDict['OrwDebug']
 time_ratio = props['timeratio']
@@ -84,7 +83,9 @@ if result['postpone']:
 else:
 	time_TH = -1
 
+
 ###################################   ORW   ######################################
+
 ax3 = pl.subplot2grid((2,5), (1,0), colspan=4)#, sharex=ax1, sharey=ax1)
 G_orw = nx.Graph()
 #10 minutes later we start collect data
