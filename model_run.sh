@@ -19,8 +19,8 @@ if [ "$1" == "t" ]||[ "$1" == "twist" ]; then
 	exit 0
 else
 	#clean the original file
-	#rm -f CTP_Paras.txt
-	#rm -f ORW_Paras.txt
+	rm -f CTP_Paras2.txt
+	rm -f ORW_Paras2.txt
 	#rm -f DC_measure_indriya.txt
 	#detect which computer it is
 	if [ "$name" == "js41" ]; then
