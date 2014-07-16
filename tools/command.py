@@ -244,15 +244,16 @@ def getfile(args):
 				FileCollection_ctp = ['data-48929', 'data-48928', 'data-48925', 'data-48924', 
 							'data-48923', 'data-48922', 'data-48949']
 				'''#2nd
+				'''
 				FileCollection_orw = ['data-49167', 'data-49137', 'data-49175', 'data-49104', 
 							'data-48931', 'data-48930', 'data-49088']
 				FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
-							'data-49054', 'data-49059', 'data-49079']
-				'''#latest results
+							'data-49054', 'data-49059', 'data-49079']'''
+				#latest results
 				FileCollection_orw = ['data-49683', 'data-49664', 'data-49662', 'data-49637', 
 							'data-49635', 'data-49715', 'data-49413']
-				FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
-							'data-49054', 'data-49059', 'data-49079']'''
+				FileCollection_ctp = ['data-49747', 'data-49733', 'data-49731', 'data-49718', 
+							'data-49714', 'data-49709', 'data-49698']
 				
 			if args['wakeup'] not in wakeup_i:
 				print "No traces available for this setting, exit"

@@ -454,7 +454,7 @@ ax1.scatter(realrange, y3, color='g', marker='D', alpha=0.6)'''
 ######################       CTP SAVE        ########################
 
 if not TWIST:
-	fo = open("CTP_Paras.txt1", "a+")
+	fo = open("CTP_Paras2.txt", "a+")
 else:
 	fo = open("CTP_Paras_twist.txt", "a+")
 line = "{:<8.2f}{:<8s}{:<8s}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}\n".format(resultc['wakeup'],"SN", "CTP", F_SN, Tao_SN, N_SN, L_SN, Fail_SN)
@@ -548,7 +548,7 @@ fig.savefig("model" + str(resultc['wakeup']) + ".pdf")'''
 ############################################ ORW SAVE ################################################
 #record the result in to files that we dont need to run again
 if not TWIST:
-	fo = open("ORW_Paras.txt1", "a+")
+	fo = open("ORW_Paras2.txt", "a+")
 else:
 	fo = open("ORW_Paras_twist.txt", "a+")
 line = "{:<8.2f}{:<8s}{:<8s}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}{:<8.2f}\n".format(resultc['wakeup'],"SN", "ORW", F_SN, Tao_SN, Fs_SN, L_SN, Fail_SN)

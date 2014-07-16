@@ -10,6 +10,7 @@ from tools.functions import *
 import sys
 import array
 from scipy import stats
+from matplotlib.patches import Rectangle
 
 FileDict = {}
 
@@ -88,13 +89,13 @@ err_y3_orw = stats.sem(y3_orw_c, axis=0)
 
 fig = pl.figure()
 ax1 = fig.add_subplot(1,1,1)
-#ax1.errorbar(x2, avg_y1_ctp, yerr=err_y1_ctp, fmt='')
-#ax1.errorbar(x2, avg_y2_ctp, yerr=err_y2_ctp, fmt='')
-#ax1.errorbar(x2, avg_y3_ctp, yerr=err_y3_ctp, fmt='')
+ax1.errorbar(x2, avg_y1_ctp, yerr=err_y1_ctp, fmt='bo')
+ax1.errorbar(x2, avg_y2_ctp, yerr=err_y2_ctp, fmt='ro')
+ax1.errorbar(x2, avg_y3_ctp, yerr=err_y3_ctp, fmt='go')
 
-ax1.errorbar(x2, avg_y1_orw, yerr=err_y1_orw, fmt='o')
-ax1.errorbar(x2, avg_y2_orw, yerr=err_y2_orw, fmt='o')
-ax1.errorbar(x2, avg_y3_orw, yerr=err_y3_orw, fmt='o')
+#ax1.errorbar(x2, avg_y1_orw, yerr=err_y1_orw, fmt='o')
+#ax1.errorbar(x2, avg_y2_orw, yerr=err_y2_orw, fmt='o')
+#ax1.errorbar(x2, avg_y3_orw, yerr=err_y3_orw, fmt='o')
 
 
 #########################plot model begins###################
@@ -147,20 +148,36 @@ Avg_LF_Paras = mean(LF_Paras, axis=1)
 y_SN=[]
 y_RL=[]
 y_LF=[]
+y_SN_old=[]
+y_RL_old=[]
+y_LF_old=[]
+y_stack=[]
 x=x2
 for i, Tw in enumerate(x2):
+	#fixed model
 	temp = DC_Model_ctp_SN(*(zip(*Avg_SN_Paras)[i]), Tw=Tw*1000.0)
 	y_SN.append(temp)
 	temp = DC_Model_ctp(*(zip(*Avg_RL_Paras)[i]), Tw=Tw*1000.0)
 	y_RL.append(temp)
 	temp = DC_Model_ctp(*(zip(*Avg_LF_Paras)[i]), Tw=Tw*1000.0)
 	y_LF.append(temp)
+	#old model
+	temp = DC_Model_ctp_SN(*(zip(*Avg_SN_Paras)[i]), Tw=Tw*1000.0)
+	y_SN_old.append(temp)
+	temp = DC_Model_ctp_old(*(zip(*Avg_RL_Paras)[i]), Tw=Tw*1000.0)
+	y_RL_old.append(temp)
+	temp = DC_Model_ctp_old(*(zip(*Avg_LF_Paras)[i]), Tw=Tw*1000.0)
+	y_LF_old.append(temp)
+	#prepare for stack plot
+	y_stack.append( DC_Model_ctp_sep(*(zip(*Avg_RL_Paras)[i]), Tw=Tw*1000.0))
 	
 
-#ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
-#ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
-#ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
-#########################section CTP###################
+ax1.plot(x, y_SN_old, 'b', label='model_ctp_sinkN')
+ax1.plot(x, y_RL_old, 'r', label='model_ctp_relay')
+ax1.plot(x, y_LF_old, 'g', label='model_ctp_leaf')
+
+
+#########################section ORW###################
 F_SN = [[] for i in range(0, numfiles)] 
 Tao_SN = [[] for i in range(0, numfiles)] 
 Fs_SN = [[] for i in range(0, numfiles)]
@@ -216,13 +233,35 @@ for i, Tw in enumerate(x):
 	temp = sum(DC_Model_orw(*(zip(*Avg_LF_Paras)[i]), Tw=Tw*1000.0))
 	y_LF.append(temp)
 	
-ax1.plot(x, y_SN, 'b', label='model_orw_sinkN')
-ax1.plot(x, y_RL, 'r', label='model_orw_relay')
-ax1.plot(x, y_LF, 'g', label='model_orw_leaf')
+#ax1.plot(x, y_SN, 'b', label='model_orw_sinkN')
+#ax1.plot(x, y_RL, 'r', label='model_orw_relay')
+#ax1.plot(x, y_LF, 'g', label='model_orw_leaf')
 ax1.set_xlabel('Wakeup Interval (s)')
 ax1.set_ylabel('Duty Cycle (%)')
 ax1.set_xscale('log', basex=2)
+ax1.set_xlim([0.125, 32])
 leg = ax1.legend(loc=2, fontsize=10, fancybox=True)
 leg.get_frame().set_alpha(0.5)
+
+
+#########stack plot only for CTP############
+fig = pl.figure()
+ax=fig.add_subplot(1,1,1)
+xx=np.asarray(x)
+yy=np.asarray(y_stack).transpose()
+colors=['b','g','r','c','m']
+labels=[r'$\Delta_{rc}$', r'$\Delta_{bs}$', r'$\Delta_{br}$', r'$\Delta_{us}$', r'$\Delta_{ur}$']
+#pl.rc('text', usetex=True)
+ax.stackplot(x, yy, colors=colors)
+
+#proxy to draw legends
+p=[]
+for c in colors:
+	p.append(Rectangle((0, 0), 1, 1, fc=c))
+ax.legend(p, labels, loc=2)
+ax.set_xlabel('Wakeup Interval (s)')
+ax.set_ylabel('Duty Cycle (%)')
+ax.set_xscale('log', basex=2)
+
 
 pl.show()
