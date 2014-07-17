@@ -160,7 +160,8 @@ def getfile(args):
 					limited_orw = "../Simulation/S_ORW_1s_1h.txt"
 				else:
 					limited_ctp = "../Simulation/CTP_1s.txt"
-					limited_orw = "../Simulation/ORW_1s.txt"
+					#limited_orw = "../Simulation/ORW_1s.txt"
+					limited_orw = "../Simulation/ORW_test_cca.txt"
 			elif args['wakeup'] == 2:
 				#limited_ctp = "../Simulation/CTP_2s.txt"
 				#limited_orw = "../Simulation/ORW_2s.txt"
@@ -210,6 +211,10 @@ def getfile(args):
 				elif args['numnodes'] == 81:
 					limited_ctp = "../Simulation/S_CTP_el8000_R35_N81_7h.txt"
 					limited_orw = "../Simulation/S_ORW_el8000_R35_N81_7h.txt"
+		#this is for testing only, any files can be listed here
+		elif args['experiment']:
+			limited_ctp = "../Simulation/S_CTP_el8000_R35_N81_7h.txt"
+			limited_orw = "../Simulation/S_ORW_el8000_R35_N81_7h.txt"
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
 		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#
@@ -265,10 +270,10 @@ def getfile(args):
 		elif args['kill']:
 			FileNames['CtpDebug'] = ('26099.dat',)
 			FileNames['CtpData'] = ('26100.dat',)
-			#limited_ctp = 'data-49766'
-			#limited_orw = 'data-49755'
-			limited_ctp = 'data-49762'
-			limited_orw = 'data-49763'
+			limited_ctp = 'data-49766'
+			limited_orw = 'data-49755'
+			#limited_ctp = 'data-49762'
+			#limited_orw = 'data-49763'
 		elif args['lim']:
 			if ELIMIT == 0:
 				#if not CONNECT:

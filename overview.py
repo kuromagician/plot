@@ -12,7 +12,7 @@ import tools.twistReader as Treader
 import tools.calprop as calprop
 from tools.functions import *
 from tools.constant import *
-from collections import deque
+from collections import deque, defaultdict
 import sys
 
 '''
@@ -306,6 +306,31 @@ limits = ax3.axis()
 ax3.set_xlim([-1, limits[1]])
 fig.tight_layout()
 fig.savefig("figures/load_dc.pdf")
+
+
+###########################  FIGURE 3  ##############################
+#      Shows # received packets distribution of each node 
+#      
+#                         
+#      
+#####################################################################
+counter_ctp = defaultdict(int)
+for packet in hist_ctp:
+	counter_ctp[packet[0]] += 1
+	
+counter_orw = defaultdict(int)
+for packet in hist_orw:
+	counter_orw[packet[0]] += 1	
+	if packet[0] == 36:
+		print packet[1]
+	
+fig = pl.figure()
+ax1=fig.add_subplot(2,1,1)
+ax1.bar(counter_ctp.keys(), counter_ctp.values())
+
+ax2=fig.add_subplot(2,1,2)
+ax2.bar(counter_orw.keys(), counter_orw.values())
+
 
 pl.show()
 
