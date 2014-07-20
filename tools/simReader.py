@@ -48,6 +48,26 @@ def loadDebug(filepath):
 					OrwNtMsgs.append(ctpDebugMsg.SimNtMsg(node, timestamp, int(row[3]), int(row[4]), int(row[5]), int(row[6])))
 
 	return CtpDebugMsgs, CtpDataMsgs, OrwDebugMsgs, OrwNtMsgs
+	
+def load_C_Data(filepath):
+	C_Data = []
+	if not os.path.isfile(filepath):
+		sys.exit("File does not exist!")
+	with open(filepath, 'rb') as f:
+		lines = f.readlines()
+		for row in lines:
+			row = mysplit(row)
+			time = row[0].split(':')
+			if len(time) == 2:
+				timestamp = int(time[0])*60 + float(time[1])
+			else:
+				timestamp = int(time[0])*3600 + int(time[1])*60 + float(time[2])
+			node = int((row[1].split(':'))[1])
+			filetype = int(row[2])
+			counter = int(row[3])
+			source = int(row[4])
+			C_Data.append(ctpDebugMsg.ConnectMsg(node, counter, source, timestamp))
+	return C_Data
 				
 if __name__ == '__main__':
 	loadDebug(filepath)
