@@ -126,7 +126,8 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 	prob = ((1.5)*Tw)/_Tipi
 	newF = 0
 	total_prob = 0
-	temp = int(round(Tao))#int(round(F))
+	temp = int(round(max(Tao, F)))
+	#temp = int(round(Tao))#int(round(F))
 	for i in xrange(1, 13):
 		if i <= temp:
 			p = misc.comb(temp, i, 1)*prob**i*(1-prob)**(temp-i)

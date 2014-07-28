@@ -83,6 +83,8 @@ print "CTP:", a, b, c
 
 for msg in CtpDebugMsgs:
 	if msg.timestamp >= time_TH:
+		if msg.node == 77:
+			print msg.node, msg.type
 		temp = msg.timestamp/time_ratio
 		if msg.type == NET_C_FE_RCV_MSG:
 			if msg.node == SINK_ID:

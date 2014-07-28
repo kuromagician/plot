@@ -361,7 +361,7 @@ ax.boxplot([Avg_F_ctp.values(),Avg_F_orw.values()] , positions=[1,2])
 #ax.boxplot(Avg_F_orw.values())
 '''for node in [3,9,15,14,13]:
 	print "LOAD CTP: ", node, Avg_F_ctp[node]'''
-#pl.show()
+pl.show()
 
 
 ###################### draw model curve ########################

@@ -59,6 +59,7 @@ def main(argv):
 	
 def getfile(args):
 	ELIMIT = args['lim']
+	#print args
 	if args['desktop']:
 		base_path = '/home/nagatoyuki/Thesis/Traces/Indriya/'
 	else:
@@ -227,13 +228,25 @@ def getfile(args):
 			props['time_TH'] = props['timeratio']*60*10
 		if args['connectivity']:
 			#power=full
-			folder = 'data-49759'
+			#folder = 'data-49759'
 			#power=11
 			#folder = 'data-49758'
 			#power=full, all nodes
 			#folder = 'data-48413'
+			#power=11, all nodes
+			#folder = 'data-49995'
+			folder = 'data-50224'
 			FileDict['ConnectDebug'] = reader.load_C_Data(base_path+folder, FileNames['ConnectDebug'])
 			return FileDict, props
+		if args['experiment']:
+			#this is from faisal's account, only with 29 nodes, 1h
+			props['SINK_ID'] = 136
+			FileNames['CtpDebug'] = ('26102.dat',)
+			FileNames['CtpData'] = ('26103.dat',)
+			FileNames['OrwDebug'] = ('26108.dat',)
+			FileNames['OrwNt'] = ('26107.dat',)
+			limited_ctp = 'data-50231'
+			limited_orw = 'data-50232'
 		if args['model']:
 			if not args['check']:
 				wakeup_i = [0.25, 0.5, 1, 1.5, 2, 2.5, 4, 6, 16]
@@ -268,12 +281,24 @@ def getfile(args):
 			limited_ctp = lookup_dic[args['wakeup']][0]
 			limited_orw = lookup_dic[args['wakeup']][1]
 		elif args['kill']:
+			#These are only for the 1 hour kill
 			FileNames['CtpDebug'] = ('26099.dat',)
 			FileNames['CtpData'] = ('26100.dat',)
-			limited_ctp = 'data-49766'
-			limited_orw = 'data-49755'
-			#limited_ctp = 'data-49762'
-			#limited_orw = 'data-49763'
+			if ELIMIT == 0x1000:
+				#power=11, 1h
+				limited_ctp = 'data-49766'
+				limited_orw = 'data-49755'
+			elif ELIMIT == 0x2000:
+				#power=31, 1h
+				#limited_ctp = 'data-49762'
+				#limited_orw = 'data-49763'
+				#power=11, 3h
+				FileNames['CtpDebug'] = ('26102.dat',)
+				FileNames['CtpData'] = ('26103.dat',)
+				FileNames['OrwDebug'] = ('26108.dat',)
+				FileNames['OrwNt'] = ('26107.dat',)
+				limited_ctp = 'data-49270'
+				limited_orw = 'data-50125'
 		elif args['lim']:
 			if ELIMIT == 0:
 				#if not CONNECT:
@@ -290,8 +315,14 @@ def getfile(args):
 				FileNames['CtpData'] = ('26103.dat',)
 				FileNames['OrwDebug'] = ('26108.dat',)
 				FileNames['OrwNt'] = ('26107.dat',)
-				limited_ctp = 'data-49283'
-				limited_orw = 'data-49278'
+				#29 connected nodes, power=11
+				props['SINK_ID'] = 136
+				#limited_ctp = 'data-49283'
+				limited_ctp = 'data-50225'
+				limited_orw = 'data-50226'
+				#this is lower 36 nodes
+				#limited_ctp = 'data-50051'
+				#limited_orw = 'data-50160'
 				'''if not CONNECT:
 					limited_ctp = 'data-47540'
 					limited_orw = 'data-47398'
