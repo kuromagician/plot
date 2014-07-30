@@ -95,6 +95,7 @@ SINK_ID = props['SINK_ID']
 prefix = props['prefix']
 ELIMIT = resultc['lim']
 TWIST = resultc['twist']
+time_TH = props['time_TH']
 
 CtpdataMsgs = FileDict['CtpData']
 CtpdebugMsgs = FileDict['CtpDebug']
@@ -116,6 +117,7 @@ print "ORW  D R L:", len(dir_neig_orw), len(relay_orw), len(leaf_orw)
 num_node = len(avg_hops_ctp)
 
 print "Total connected nodes:", num_node
+
 #print "They're:\n", sorted(avg_hops_ctp.keys())
 
 '''#normally there should be 86 nodes in the test
@@ -156,54 +158,55 @@ total_rcv_ctp = []
 total_rcv_ctp_timeline = []
 
 for msg in CtpdebugMsgs:
-	if msg.type == NET_C_FE_SENT_MSG:
-		total_send_ctp += 1
-		num_init_ctp[msg.node] += 1
-		'''if total_send_ctp == num_node:
-			PRR_ctp.append(total_receive_ctp * 1.0 / total_send_ctp)
-			timeline_ctp.append((msg.timestamp/time_ratio + dt) / 60)
-			total_send_ctp = 0
-			total_receive_ctp = 0'''
-	#record beacon
-	elif msg.type == 0x33:
-		time_beacon.append((msg.timestamp/time_ratio)/60.0)
-		node_beacon.append(msg.node)
-	elif msg.type == NET_DC_REPORT and msg.node != SINK_ID:
-		if msg.dbg__a + msg.dbg__c < 10000:
-			DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
-	elif msg.type == NET_C_FE_FWD_MSG:
-		children_ctp[msg.dbg__c].add(msg.node)
-		num_fwd_ctp[msg.node] += 1
-	elif msg.type == NET_C_FE_RCV_MSG:
-		if msg.node == SINK_ID:
-			#record origin, seq
-			if (msg.dbg__b, msg.dbg__a) not in packet_hist:
-				packet_hist.add((msg.dbg__b, msg.dbg__a)) 
-				temp = msg.timestamp/time_ratio
-				total_receive_ctp += 1
-				Tcounter += 1
-				counter += 1
-				total_rcv_ctp.append(counter)
-				total_rcv_ctp_timeline.append(temp/60.0)
-				if Told == 0:
-					Told = msg.timestamp
-				else:
-					Tnew = msg.timestamp - Told
-					if Tnew > 60*time_ratio:
-						throughput.append(Tcounter*time_ratio/Tnew*60)
-						PRR_ctp.append(total_receive_ctp * 1.0 / total_send_ctp)
-						Ttimeline.append(temp / 60.0)
-						Told=0
-						Tcounter=0
-						total_receive_ctp = 0
-						total_send_ctp = 0
-				
-	elif msg.type == NET_C_FE_SEND_QUEUE_FULL:
-		send_Qfull_ctp[msg.node] += 1
-	elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND:
-		send_noACK_ctp[msg.node] += 1
-	elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
-		fwd_noACK_ctp[msg.node] += 1
+	if msg.timestamp >= time_TH:
+		if msg.type == NET_C_FE_SENT_MSG:
+			total_send_ctp += 1
+			num_init_ctp[msg.node] += 1
+			'''if total_send_ctp == num_node:
+				PRR_ctp.append(total_receive_ctp * 1.0 / total_send_ctp)
+				timeline_ctp.append((msg.timestamp/time_ratio + dt) / 60)
+				total_send_ctp = 0
+				total_receive_ctp = 0'''
+		#record beacon
+		elif msg.type == 0x33:
+			time_beacon.append((msg.timestamp/time_ratio)/60.0)
+			node_beacon.append(msg.node)
+		elif msg.type == NET_DC_REPORT and msg.node != SINK_ID:
+			if msg.dbg__a + msg.dbg__c < 10000:
+				DutyCycle_ctp[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
+		elif msg.type == NET_C_FE_FWD_MSG:
+			children_ctp[msg.dbg__c].add(msg.node)
+			num_fwd_ctp[msg.node] += 1
+		elif msg.type == NET_C_FE_RCV_MSG:
+			if msg.node == SINK_ID:
+				#record origin, seq
+				if (msg.dbg__b, msg.dbg__a) not in packet_hist:
+					packet_hist.add((msg.dbg__b, msg.dbg__a)) 
+					temp = msg.timestamp/time_ratio
+					total_receive_ctp += 1
+					Tcounter += 1
+					counter += 1
+					total_rcv_ctp.append(counter)
+					total_rcv_ctp_timeline.append(temp/60.0)
+					if Told == 0:
+						Told = msg.timestamp
+					else:
+						Tnew = msg.timestamp - Told
+						if Tnew > 60*time_ratio:
+							throughput.append(Tcounter*time_ratio/Tnew*60)
+							PRR_ctp.append(total_receive_ctp * 1.0 / total_send_ctp)
+							Ttimeline.append(temp / 60.0)
+							Told=0
+							Tcounter=0
+							total_receive_ctp = 0
+							total_send_ctp = 0
+					
+		elif msg.type == NET_C_FE_SEND_QUEUE_FULL:
+			send_Qfull_ctp[msg.node] += 1
+		elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND:
+			send_noACK_ctp[msg.node] += 1
+		elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
+			fwd_noACK_ctp[msg.node] += 1
 
 
 #packet lost statics
@@ -257,57 +260,59 @@ Tnew=0
 Told=0
 Tcounter = 0
 counter = 0
-
+#SINK_ID = 136
 for msg in OrwdebugMsgs:
-	if msg.type == NET_C_FE_RCV_MSG:
-		#if origin != last_hop, then last hop is forwarder
-		if msg.dbg__b != msg.dbg__c:
-			num_fwd_orw[msg.dbg__c] += 1
-		#last hop is current node's child
-		children_orw[msg.node].add(msg.dbg__c)
-		# (origin, SeqNo) += lasthop
-		route_hist_orw[(msg.dbg__b, msg.dbg__a)].add(msg.dbg__c)
-		#if node is SINK, add node to direct neighbour
-		if msg.node == SINK_ID:
-			#dir_neig_orw.add(msg.dbg__c)
-			connected.add(msg.dbg__b)
-			if (msg.dbg__b, msg.dbg__a) not in packet_hist:
-				total_receive_orw += 1
-				Tcounter += 1
-				counter += 1
-				packet_hist.add((msg.dbg__b, msg.dbg__a))
-				temp = msg.timestamp/time_ratio
-				total_rcv_orw.append(counter)
-				total_rcv_orw_timeline.append(temp/60.0)
-				if Told == 0:
-					Told = msg.timestamp
-				else:
-					Tnew = msg.timestamp - Told
-					if Tnew > 60*time_ratio:
-						PRR_orw.append(total_receive_orw * 1.0 / total_send_orw)
-						timeline_orw.append(temp / 60.0)
-						Told=0
-						total_receive_orw = 0
-						total_send_orw = 0
-	#elif msg.type == NET_DC_REPORT:
-	#	if msg.dbg__a + msg.dbg__c < 10000:
-	#		DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
-	elif msg.type == NET_APP_SENT:
-		num_init_orw[msg.node] += 1
-		total_send_orw += 1
-		'''if total_send_orw == num_node:
-			timeline_orw.append( (msg.timestamp/time_ratio +dt)/60.0 )
-			PRR_orw.append(total_receive_orw *1.0 / total_send_orw)
-			total_send_orw = 0
-			total_receive_orw = 0'''
-	#note: the parameter msg.dbg__c here is not correct, dont use, only record time
-	elif msg.type == NET_C_FE_SENT_MSG:
-		timeline_transmit_orw[msg.node].append((msg.timestamp/time_ratio)/60)
-		node_transmit_orw[msg.node].append(msg.node)
+	if msg.timestamp >= time_TH:
+		if msg.type == NET_C_FE_RCV_MSG:
+			#if origin != last_hop, then last hop is forwarder
+			if msg.dbg__b != msg.dbg__c:
+				num_fwd_orw[msg.dbg__c] += 1
+			#last hop is current node's child
+			children_orw[msg.node].add(msg.dbg__c)
+			# (origin, SeqNo) += lasthop
+			route_hist_orw[(msg.dbg__b, msg.dbg__a)].add(msg.dbg__c)
+			#if node is SINK, add node to direct neighbour
+			if msg.node == SINK_ID:
+				#dir_neig_orw.add(msg.dbg__c)
+				connected.add(msg.dbg__b)
+				if (msg.dbg__b, msg.dbg__a) not in packet_hist:
+					total_receive_orw += 1
+					Tcounter += 1
+					counter += 1
+					packet_hist.add((msg.dbg__b, msg.dbg__a))
+					temp = msg.timestamp/time_ratio
+					total_rcv_orw.append(counter)
+					total_rcv_orw_timeline.append(temp/60.0)
+					if Told == 0:
+						Told = msg.timestamp
+					else:
+						Tnew = msg.timestamp - Told
+						if Tnew > 60*time_ratio:
+							PRR_orw.append(total_receive_orw * 1.0 / total_send_orw)
+							timeline_orw.append(temp / 60.0)
+							Told=0
+							total_receive_orw = 0
+							total_send_orw = 0
+		#elif msg.type == NET_DC_REPORT:
+		#	if msg.dbg__a + msg.dbg__c < 10000:
+		#		DutyCycle_orw[msg.node].append((msg.dbg__a, msg.dbg__b, msg.dbg__c))
+		elif msg.type == NET_APP_SENT:
+			num_init_orw[msg.node] += 1
+			total_send_orw += 1
+			'''if total_send_orw == num_node:
+				timeline_orw.append( (msg.timestamp/time_ratio +dt)/60.0 )
+				PRR_orw.append(total_receive_orw *1.0 / total_send_orw)
+				total_send_orw = 0
+				total_receive_orw = 0'''
+		#note: the parameter msg.dbg__c here is not correct, dont use, only record time
+		elif msg.type == NET_C_FE_SENT_MSG:
+			timeline_transmit_orw[msg.node].append((msg.timestamp/time_ratio)/60)
+			node_transmit_orw[msg.node].append(msg.node)
 print "Total connected nodes:", len(connected)
+print "ORW NODES:\n", sorted(connected)
 load_orw = {}
 for k in num_init_orw:
-	if num_init_orw[k] > 40:
+	if num_init_orw[k] > 15:
 		load_orw[k] = num_fwd_orw[k] * 1.0 / num_init_orw[k]
 	else:
 		pass
@@ -324,6 +329,7 @@ for (k, v) in route_hist_orw:
 
 #avg_hops_orw = {k:total_hops_orw[k] / 1.0 / counter[k] for k in total_hops_orw}	
 avg_hops_orw = props_orw["Avg_Hops"]
+
 #get the average dutycycle of each node
 
 Avg_Data_dc_orw = props_orw['Avg_Data_dc']
@@ -472,40 +478,41 @@ if ELIMIT:
 	ax1 = fig.add_subplot(4,1,1)
 	ax1.grid(True, which='both')
 	for msg in CtpdebugMsgs:
-		if msg.type == NET_C_DIE:
-			if msg.node not in die_set:
-				die_set.add(msg.node)
-				die_minute = msg.timestamp / 60.0 / time_ratio
-				die_time[msg.node] = die_minute
-				if counter % 2 >= 0:
-					for id in num_init_ctp:
-						curr_load_ctp[id] = num_fwd_ctp[id] / num_init_ctp[id] + 1
-					bp = ax1.boxplot(curr_load_ctp.values(), positions=[die_minute,], widths=0.4, sym='.')
-					setbp(bp, alpha=0.7, linewidth=0.4, ms=3)
-					ax1.scatter(die_minute, curr_load_ctp[msg.node], s=4, c='y', marker='D', linewidths=(0.1,))
-					ax1.annotate(msg.node, textcoords = 'offset points', size=3, color='k',
-									xy = (die_minute, curr_load_ctp[msg.node]), xytext = (0, 0), ha='center')
-				num_init_ctp.pop(msg.node, None)
-				curr_load_ctp.pop(msg.node, None)
-				counter += 1
-				#record the ratio of the died nodes
-				if msg.node in leaf_ctp:
-					counter1 += 1
-				elif msg.node in relay_ctp:
-					counter2 += 1
-				elif msg.node in dir_neig_ctp:
-					counter3 += 1
-				if len(leaf_ctp) == 0:
-					die_leaf_ctp.append(0)
-				else:
-					die_leaf_ctp.append(counter1*100.0/len(leaf_ctp))
-				die_relay_ctp.append(counter2*100.0/len(relay_ctp))
-				die_dir_neig_ctp.append(counter3*100.0/len(dir_neig_ctp))
-				
-		elif msg.type == NET_C_FE_FWD_MSG:
-			num_fwd_ctp[msg.node] += 1
-		elif msg.type == NET_C_FE_SENT_MSG:
-			num_init_ctp[msg.node] += 1
+		if msg.timestamp >= time_TH:
+			if msg.type == NET_C_DIE:
+				if msg.node not in die_set and msg.node in avg_hops_ctp:
+					die_set.add(msg.node)
+					die_minute = msg.timestamp / 60.0 / time_ratio
+					die_time[msg.node] = die_minute
+					if counter % 2 >= 0:
+						for id in num_init_ctp:
+							curr_load_ctp[id] = num_fwd_ctp[id] / num_init_ctp[id] + 1
+						bp = ax1.boxplot(curr_load_ctp.values(), positions=[die_minute,], widths=0.4, sym='.')
+						setbp(bp, alpha=0.7, linewidth=0.4, ms=3)
+						ax1.scatter(die_minute, curr_load_ctp[msg.node], s=4, c='y', marker='D', linewidths=(0.1,))
+						ax1.annotate(msg.node, textcoords = 'offset points', size=3, color='k',
+										xy = (die_minute, curr_load_ctp[msg.node]), xytext = (0, 0), ha='center')
+					num_init_ctp.pop(msg.node, None)
+					curr_load_ctp.pop(msg.node, None)
+					counter += 1
+					#record the ratio of the died nodes
+					if msg.node in leaf_ctp:
+						counter1 += 1
+					elif msg.node in relay_ctp:
+						counter2 += 1
+					elif msg.node in dir_neig_ctp:
+						counter3 += 1
+					if len(leaf_ctp) == 0:
+						die_leaf_ctp.append(0)
+					else:
+						die_leaf_ctp.append(counter1*100.0/len(leaf_ctp))
+					die_relay_ctp.append(counter2*100.0/len(relay_ctp))
+					die_dir_neig_ctp.append(counter3*100.0/len(dir_neig_ctp))
+					
+			elif msg.type == NET_C_FE_FWD_MSG:
+				num_fwd_ctp[msg.node] += 1
+			elif msg.type == NET_C_FE_SENT_MSG:
+				num_init_ctp[msg.node] += 1
 	#if we dont want to see the ax, hide it
 	#ax1.set_visible(False)		
 	
@@ -578,6 +585,7 @@ if ELIMIT:
 	vmax=max(die_time.values())
 	#print die_time.values()
 	print "COLOR:", len(load_ctp), len(avg_hops_ctp), len(die_time)
+	print "CTP NODES:\n", sorted(avg_hops_ctp.keys())
 	cm = matplotlib.cm.get_cmap('Reds')
 	sc = ax1_x.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=35)
 	ax1_x.set_title("CTP")
@@ -620,43 +628,43 @@ if ELIMIT:
 	packet_hist = set()
 	
 	for msg in OrwdebugMsgs:
-		if msg.type == NET_C_DIE:
-			if msg.node not in die_set_orw:
-			
-				die_minute = msg.timestamp / time_ratio / 60.0
-				die_time_orw[msg.node] = die_minute
-				#plot the load when a node die, now disabled
-				'''for id in num_init_orw:
-					curr_load_orw[id] = num_fwd_orw[id]*1.0 / num_init_orw[id] + 1
-				bp = ax1.boxplot(curr_load_orw.values(), positions=[die_minute,], widths=0.8, sym=',')
-				setbp(bp, 0.7, 0.5, ms=3)
-				ax1.scatter(die_minute, curr_load_orw[msg.node], s=14, c='y', marker='*', linewidths=(0.1,))
-				ax1.annotate(msg.node, textcoords = 'offset points', size=3, color='k',
-								xy = (die_minute, curr_load_orw[msg.node]), xytext = (0, 0), ha='center')'''
-				#num_init_orw.pop(msg.node, None)
-				#curr_load_orw.pop(msg.node, None)
-				die_set_orw.add(msg.node)
-				#record the ratio of the died nodes
-				if msg.node in relay_orw:
-					counter2 += 1
-				elif msg.node in dir_neig_orw:
-					counter3 += 1
-				elif msg.node in leaf_orw:
-					counter1 += 1
-				if len(leaf_orw) ==0:
-					die_leaf_orw.append(0)
-				else:
-					die_leaf_orw.append(counter1*100.0/len(leaf_orw))
-					
-				die_relay_orw.append(counter2*100.0/len(relay_orw))
-				die_dir_neig_orw.append(counter3*100.0/len(dir_neig_orw))
-		elif msg.type == NET_C_FE_RCV_MSG:
-			#if origin != last_hop, then last hop is forwarder
-			if msg.dbg__b != msg.dbg__c:
-				num_fwd_orw[msg.dbg__c] += 1
-		elif msg.type == NET_APP_SENT:
-			if msg.node not in die_set_orw:
-				num_init_orw[msg.node] += 1
+		if msg.timestamp >= time_TH:
+			if msg.type == NET_C_DIE:
+				if msg.node not in die_set_orw and msg.node in avg_hops_orw:
+					die_minute = msg.timestamp / time_ratio / 60.0
+					die_time_orw[msg.node] = die_minute
+					#plot the load when a node die, now disabled
+					'''for id in num_init_orw:
+						curr_load_orw[id] = num_fwd_orw[id]*1.0 / num_init_orw[id] + 1
+					bp = ax1.boxplot(curr_load_orw.values(), positions=[die_minute,], widths=0.8, sym=',')
+					setbp(bp, 0.7, 0.5, ms=3)
+					ax1.scatter(die_minute, curr_load_orw[msg.node], s=14, c='y', marker='*', linewidths=(0.1,))
+					ax1.annotate(msg.node, textcoords = 'offset points', size=3, color='k',
+									xy = (die_minute, curr_load_orw[msg.node]), xytext = (0, 0), ha='center')'''
+					#num_init_orw.pop(msg.node, None)
+					#curr_load_orw.pop(msg.node, None)
+					die_set_orw.add(msg.node)
+					#record the ratio of the died nodes
+					if msg.node in relay_orw:
+						counter2 += 1
+					elif msg.node in dir_neig_orw:
+						counter3 += 1
+					elif msg.node in leaf_orw:
+						counter1 += 1
+					if len(leaf_orw) ==0:
+						die_leaf_orw.append(0)
+					else:
+						die_leaf_orw.append(counter1*100.0/len(leaf_orw))
+						
+					die_relay_orw.append(counter2*100.0/len(relay_orw))
+					die_dir_neig_orw.append(counter3*100.0/len(dir_neig_orw))
+			elif msg.type == NET_C_FE_RCV_MSG:
+				#if origin != last_hop, then last hop is forwarder
+				if msg.dbg__b != msg.dbg__c:
+					num_fwd_orw[msg.dbg__c] += 1
+			elif msg.type == NET_APP_SENT:
+				if msg.node not in die_set_orw:
+					num_init_orw[msg.node] += 1
 	
 	#die_time_orw.pop(20)
 	#die_time_orw.pop(75)
@@ -742,7 +750,7 @@ ax1.legend([p1, p2], ["CTP>ORW", "ORW>CTP"], loc=2)
 ax1.set_ylabel("# of Received Packets")
 #ax1.legend()
 ax1.grid()
-
+fig.tight_layout()
 if ELIMIT:
 	#ax2
 	xp = np.arange(lb+1.1, ub-1.1, 1)
@@ -772,7 +780,7 @@ if ELIMIT:
 	
 	#hide time
 	pl.setp([a.get_xticklabels() for a in fig.axes[:-1]], visible=False)
-	ax1.set_xlim([lb, ub])
+	ax1.set_xlim([lb-1, ub+1])
 	fig.subplots_adjust(hspace=0)
 	for ax in fig.axes:
 		yticks = ax.yaxis.get_major_ticks()

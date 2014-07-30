@@ -34,19 +34,31 @@ CMsgs = FileDict['ConnectDebug']
 
 statics = defaultdict(dict)
 G = nx.Graph()
+noderange = set()
 
+bigrange = range(60, 140)
 
+for node in bigrange:
+	if node not in (70,71,72,74,76,77,78,79,80,81,82,83,84,85,135,132):
+		noderange.add(node)
+'''
+for i in xrange(1, 140):
+	if i==1 or i % 3 == 0:
+		noderange.add(i)
+'''
 for msg in CMsgs:
-	if msg.source not in statics[msg.node]:
-		statics[msg.node][msg.source] = 0
-	else:
-		statics[msg.node][msg.source] += 1
-	
+	if msg.source in noderange and msg.node in noderange:
+		if msg.source not in statics[msg.node]:
+			statics[msg.node][msg.source] = 0
+		else:
+			statics[msg.node][msg.source] += 1
+
 tempsum = 0
 for i, v in enumerate(statics.values()):
 	tempsum += len(v)
 	
-print "Avg neighbours: {:.2f}".format(tempsum*1.0/i)
+print "Avg neighbours: {:.2f}, total nodes: {:3d}".format(tempsum*1.0/i, len(statics))
+print sorted(statics.keys())
 	
 	
 	
@@ -67,9 +79,8 @@ for node in nodelist:
 nx.draw_networkx_nodes(G, pos, node_size = 120, node_color='r')
 #nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[20,75], node_color='b')
 nx.draw_networkx_edges(G, pos, alpha=0.5)
-nx.draw_networkx_labels(G,pos, labels=labels, font_size=6)
 
-
+nx.draw_networkx_labels(G,pos, labels=labels, font_size=12)
 pl.savefig("connectivity.pdf")
 pl.show()
 ################################################ABOVE IS CONNECTIVITY################################
@@ -150,7 +161,7 @@ for node in pos.keys():
 nx.draw_networkx_edges(G_orw, pos, alpha=0.3, width=edgewidth, edge_color='m', edgelist=VIP_edges)
 #nx.draw_networkx_edges(G_orw, pos, width=0.3, edge_color='k', edgelist=VIP_edges)
 nx.draw_networkx_nodes(G_orw, pos , nodelist=pos.keys(), node_size=75)
-nx.draw_networkx_labels(G_orw, pos, labels=labels, font_size=5)
+nx.draw_networkx_labels(G_orw, pos, labels=labels, font_size=12)
 
 
 ax4 = pl.subplot2grid((2,5), (1,4), colspan=1)

@@ -87,6 +87,8 @@ for msg in CtpDebugMsgs:
 	if msg.node not in firstsee_ctp:
 		firstsee_ctp[msg.node] = msg.timestamp
 	if msg.timestamp >= time_TH:
+		if msg.node == 77:
+			print msg.node, msg.type
 		temp = msg.timestamp/time_ratio
 		if msg.type == NET_C_FE_RCV_MSG:
 			if msg.node == SINK_ID:

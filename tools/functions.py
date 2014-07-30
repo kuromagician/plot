@@ -130,6 +130,7 @@ def DC_Model_ctp(F, Tao, N, L, Fail, Tw):
 	total_prob = 0
 	
 	temp = max(int(round(Tao)),int(round(F-1)))
+
 	#temp = int(round(Tao))#int(round(F))
 	for i in xrange(1, 13):
 		if i <= temp:
