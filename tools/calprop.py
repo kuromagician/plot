@@ -209,12 +209,13 @@ def prop_ctp(FileDict, args):
 	#use THL to calculate hops
 	thl = defaultdict(int)
 	for msg in CtpDataMsgs:
-		if thl[(msg.origin, msg.seqno)] != 0:
-			thl[(msg.origin, msg.seqno)] = min(msg.thl, thl[(msg.origin, msg.seqno)])
-		else:
-			thl[(msg.origin, msg.seqno)] = msg.thl
-		#if msg.parent == SINK_ID:
-		#	dir_neig_ctp.add(msg.node)
+		if msg.timestamp >= time_TH:
+			if thl[(msg.origin, msg.seqno)] != 0:
+				thl[(msg.origin, msg.seqno)] = min(msg.thl, thl[(msg.origin, msg.seqno)])
+			else:
+				thl[(msg.origin, msg.seqno)] = msg.thl
+			#if msg.parent == SINK_ID:
+			#	dir_neig_ctp.add(msg.node)
 
 	t_thl = defaultdict(int)
 	counter = defaultdict(int)

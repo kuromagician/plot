@@ -142,8 +142,14 @@ for k, parafile in enumerate(path):
 					item[k].append(float(a[i+3]))
 				
 Avg_SN_Paras = mean(SN_Paras, axis=1)
+for i, items in enumerate(Avg_SN_Paras):
+		print items[2]
 Avg_RL_Paras = mean(RL_Paras, axis=1)
+for i, items in enumerate(Avg_RL_Paras):
+		print items[2]
 Avg_LF_Paras = mean(LF_Paras, axis=1)
+for i, items in enumerate(Avg_LF_Paras):
+		print items[2]
 
 y_SN=[]
 y_RL=[]
@@ -171,21 +177,21 @@ for i, Tw in enumerate(x2):
 	#prepare for stack plot
 	y_stack.append( DC_Model_ctp_sep(*(zip(*Avg_RL_Paras)[i]), Tw=Tw*1000.0))
 	
-'''
-ax1.plot(x, y_SN_old, 'b--', label='old_model_ctp_sinkN')
-ax1.plot(x, y_RL_old, 'r--', label='old_model_ctp_relay')
-ax1.plot(x, y_LF_old, 'g--', label='old_model_ctp_leaf')
-ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
-ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
-ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
+
+#ax1.plot(x, y_SN_old, 'b--', label='old_model_ctp_sinkN')
+#ax1.plot(x, y_RL_old, 'r--', label='old_model_ctp_relay')
+#ax1.plot(x, y_LF_old, 'g--', label='old_model_ctp_leaf')
+#ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
+#ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
+#ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
 
 
 for meas, old, new in zip(avg_y2_ctp, y_RL_old, y_RL):
 	temp_o = (old-meas)/meas*100
 	temp_n = (new-meas)/meas*100
-	temp_i = (temp_n-temp_o)/temp_o*100
+	temp_i = abs(abs(temp_o) - abs(temp_n))/abs(temp_o)*100.0
 	print "differece: O:{:.2f} N:{:.2f} I:{:.2f}".format(temp_o, temp_n, temp_i)
-'''
+
 
 #########################section ORW###################
 F_SN = [[] for i in range(0, numfiles)] 
@@ -229,8 +235,14 @@ for k, parafile in enumerate(path):
 				
 
 Avg_SN_Paras = mean(SN_Paras, axis=1)
+for i, items in enumerate(Avg_SN_Paras):
+		print items[2]
 Avg_RL_Paras = mean(RL_Paras, axis=1)
+for i, items in enumerate(Avg_RL_Paras):
+		print items[2]
 Avg_LF_Paras = mean(LF_Paras, axis=1)
+for i, items in enumerate(Avg_LF_Paras):
+		print items[2]
 				
 y_SN=[]
 y_RL=[]
@@ -256,7 +268,7 @@ for i, Tw in enumerate(x):
 for meas, old, new in zip(avg_y2_orw, y_RL_old, y_RL):
 	temp_o = (old-meas)/meas*100
 	temp_n = (new-meas)/meas*100
-	temp_i = (temp_n-temp_o)/temp_o*100
+	temp_i = abs(abs(temp_n)-abs(temp_o))/temp_o*100
 	print "differece: O:{:.2f} N:{:.2f} I:{:.2f}".format(temp_o, temp_n, temp_i)
 
 ax1.plot(x, y_SN_old, 'b--', label='old_model_orw_sinkN')

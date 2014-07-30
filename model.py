@@ -20,6 +20,7 @@ FileDict, props = command.getfile(resultc)
 CtpDebugMsgs = FileDict['CtpDebug']
 OrwDebugMsgs = FileDict['OrwDebug']
 OrwNtMsgs = FileDict['OrwNt']
+
 props_orw = calprop.prop_orw(FileDict, resultc)
 props_ctp = calprop.prop_ctp(FileDict, resultc)
 '''for node in props_orw['Fwd_Load']:

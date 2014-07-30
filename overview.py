@@ -81,7 +81,11 @@ b = len(relay_set)
 c = len(leaf_set)
 print "CTP:", a, b, c
 
+firstsee_ctp={}
+
 for msg in CtpDebugMsgs:
+	if msg.node not in firstsee_ctp:
+		firstsee_ctp[msg.node] = msg.timestamp
 	if msg.timestamp >= time_TH:
 		if msg.node == 77:
 			print msg.node, msg.type
@@ -89,7 +93,7 @@ for msg in CtpDebugMsgs:
 		if msg.type == NET_C_FE_RCV_MSG:
 			if msg.node == SINK_ID:
 				#remove dumplicate
-				if (msg.dbg__b, msg.dbg__a) not in hist_ctp:
+				if (msg.dbg__b, msg.dbg__a) not in hist_ctp and msg.dbg__b <=140:
 					hist_ctp.add((msg.dbg__b, msg.dbg__a))
 					counter_r += 1
 					rcv_time_ctp.append(temp/60.0)
@@ -114,12 +118,15 @@ for msg in CtpDebugMsgs:
 				die_num_RL_ctp.append(counter_d_RL*100.0/b)
 				die_num_LF_ctp.append(counter_d_LF*100.0/c)
 				die_time_ctp.append(temp/60.0)
-
+'''
+for k, v in firstsee_ctp.iteritems():
+	print "Node {}'s first log is {}".format(k,v)
+'''
 print "CTP Total Receive:{:6d}, Total Send:{:6d}, Duplicates:{:6d}, Deliver Rate:{:.2f}%".format(
 	                            counter_r, counter_s, counter_d, counter_r*100.0/counter_s)
 
 		
-##############################section of CTP#########################
+##############################section of ORW#########################
 OrwDebugMsgs = FileDict['OrwDebug']
 #store the packet as (src, seqNo)
 hist_orw = deque(maxlen=12000)
@@ -174,7 +181,7 @@ for msg in OrwDebugMsgs:
 		temp = msg.timestamp/time_ratio
 		if msg.type == NET_C_FE_RCV_MSG:
 			if msg.node == SINK_ID:
-				if (msg.dbg__b, msg.dbg__a) not in hist_orw:
+				if (msg.dbg__b, msg.dbg__a) not in hist_orw and msg.dbg__b <=140:
 					hist_orw.append((msg.dbg__b, msg.dbg__a))
 					counter_r += 1
 					rcv_time_orw.append(temp/60.0)
@@ -212,7 +219,7 @@ print "ORW Total Receive:{:6d}, Total Send:{:6d}, Duplicates:{:6d}, Deliver Rate
 	if (k,v) not in hist_orw:
 		print k, v'''
 		
-print counter_cd
+print "ORW DIE TIME:\n", die_time_orw
 
 #sys.exit()
 ###########################PLOT SECTION##############################
