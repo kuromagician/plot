@@ -20,6 +20,7 @@ FileDict, props = command.getfile(resultc)
 CtpDebugMsgs = FileDict['CtpDebug']
 OrwDebugMsgs = FileDict['OrwDebug']
 OrwNtMsgs = FileDict['OrwNt']
+
 props_orw = calprop.prop_orw(FileDict, resultc)
 props_ctp = calprop.prop_ctp(FileDict, resultc)
 '''for node in props_orw['Fwd_Load']:
@@ -361,7 +362,7 @@ ax.boxplot([Avg_F_ctp.values(),Avg_F_orw.values()] , positions=[1,2])
 #ax.boxplot(Avg_F_orw.values())
 '''for node in [3,9,15,14,13]:
 	print "LOAD CTP: ", node, Avg_F_ctp[node]'''
-#pl.show()
+pl.show()
 
 
 ###################### draw model curve ########################

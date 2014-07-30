@@ -128,6 +128,8 @@ sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
 sorted_die_node = [k for (k,v) in sorted_die_orw]
 sorted_die_time = [v for (k,v) in sorted_die_orw]
 
+print sorted_die_time
+
 start_time = sorted_die_time[0] - 300
 
 pos_orw = nx.graphviz_layout(G_orw, root=SINK_ID)

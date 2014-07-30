@@ -218,26 +218,28 @@ for msg in OrwDebugMsgs:
 						imgs.append(im)
 						lasttime = msg.timestamp
 			elif msg.type == NET_C_DIE:
-				die_orw[msg.node] = int(round(msg.timestamp/time_ratio))
-				G_orw.remove_node(msg.node)
-				for i, group in enumerate(sets):
-					if msg.node in group:
-						die_ratio[i].append(die_ratio[i][-1]+step[i])
-					else:
-						die_ratio[i].append(die_ratio[i][-1])
-					
-				im = update_v2(G_orw, pos, sets, lineset, msg.timestamp, die_ratio)
-				imgs.append(im)
-				lasttime = msg.timestamp
+				if msg.node not in die_orw:
+					die_orw[msg.node] = int(round(msg.timestamp/time_ratio))
+					G_orw.remove_node(msg.node)
+					for i, group in enumerate(sets):
+						if msg.node in group:
+							die_ratio[i].append(die_ratio[i][-1]+step[i])
+						else:
+							die_ratio[i].append(die_ratio[i][-1])
+						
+					im = update_v2(G_orw, pos, sets, lineset, msg.timestamp, die_ratio)
+					imgs.append(im)
+					lasttime = msg.timestamp
 	update_progress(text, currline/filesize)
 
 lasttime = int(math.ceil(lasttime))
 ax3.set_xticks(xrange(0, (lasttime+1), lasttime/10))
 ax3.set_xticklabels(xrange(0, (lasttime+1)/60, lasttime/600))
 
-#sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
-#sorted_die_node = [k for (k,v) in sorted_die_orw]
-#sorted_die_time = [v for (k,v) in sorted_die_orw]
+sorted_die_orw = sorted(die_orw.iteritems(), key=lambda (k,v): v)
+sorted_die_node = [k for (k,v) in sorted_die_orw]
+sorted_die_time = [v for (k,v) in sorted_die_orw]
+print sorted_die_time
 
 anim = animation.ArtistAnimation(fig,imgs, interval=500, blit=True)
 anim.save('orw.mp4', bitrate=4000, extra_args=['-vcodec', 'libx264'])

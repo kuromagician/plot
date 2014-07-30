@@ -57,7 +57,7 @@ for node, neighbour_list in statics.iteritems():
 			
 pos = nx.graphviz_layout(G)
 nodelist = G.nodes()
-#print connected_components(G)
+print connected_components(G)
 labels={}
 
 pl.figure()
@@ -68,6 +68,8 @@ nx.draw_networkx_nodes(G, pos, node_size = 120, node_color='r')
 #nx.draw_networkx_nodes(G, pos, node_size = 200, nodelist=[20,75], node_color='b')
 nx.draw_networkx_edges(G, pos, alpha=0.5)
 nx.draw_networkx_labels(G,pos, labels=labels, font_size=6)
+
+
 pl.savefig("connectivity.pdf")
 pl.show()
 ################################################ABOVE IS CONNECTIVITY################################

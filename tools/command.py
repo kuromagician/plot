@@ -8,9 +8,10 @@ def main(argv):
 	result = {'kill':False, 'simple':False, 'lim':0, 'twist':False, \
 			  'connectivity':False, 'experiment':False, 'model':False,\
 			  'wakeup':float(1.5), 'check':False, 'desktop':False,\
-			  'postpone':False, 'simulation': False, 'numnodes':36}
+			  'postpone':False, 'simulation': False, 'numnodes':36,\
+			  'range':35}
 	try:
-		opts, args = getopt.getopt(argv,"ehdl:m:kstcapin:",["limit","twist","experiment","cca"])
+		opts, args = getopt.getopt(argv,"acdehikl:m:n:prst:",["limit","twist","experiment","cca"])
 	except getopt.GetoptError:
 		print 'plot.py -l <energy limit>\
              \n        -k \tkill some nodes\
@@ -53,6 +54,8 @@ def main(argv):
 			result['simulation'] = True
 		elif opt in ("-n",):
 			result['numnodes'] = int(arg)
+		elif opt in ("-r",):
+			result['range'] = int(arg)
 	return result
 
 	
@@ -153,15 +156,29 @@ def getfile(args):
 		props['timeratio'] = 1.0
 		if args['postpone']:
 			props['time_TH'] = props['timeratio']*60*10
-		if args['model']:
+		#this is for testing only, any files can be listed here
+		if args['experiment']:
+			#limited_ctp = "../Simulation/S_CTP_el4000_B4096_R50_N81_7h.txt"
+			limited_ctp = "../Simulation/S_CTP_el4000_B2048_RAN14001400_N100_7h.txt"
+			#limited_ctp = "../Simulation/S_CTP_el4000_B2048_N81_7h.jar"
+			#limited_orw = "../Simulation/S_ORW_el4000_RAN5050_N100_7h.txt"
+			#limited_orw = "../Simulation/ORW_el4000_N81_R35_3h15_.txt"
+			limited_orw = "../Simulation/ORW_test4.txt"
+			#limited_orw = "../Simulation/S_ORW_el4000_R50_N81_7h.txt"
+		elif args['connectivity']:
+			filepath = "../Simulation/S_connect700700_N30.txt" 
+			FileDict['ConnectDebug'] = Sreader.load_C_Data(base_path+filepath)
+			return FileDict, props
+		elif args['model']:
 			if args['wakeup'] == 1:
 				if args['numnodes'] == 81:
 					limited_ctp = "../Simulation/S_CTP_1s_1h.txt"
 					limited_orw = "../Simulation/S_ORW_1s_1h.txt"
 				else:
-					limited_ctp = "../Simulation/CTP_1s.txt"
+					#limited_ctp = "../Simulation/CTP_1s.txt"
+					limited_ctp = "../Simulation/S_CTP_1s_D100s_2h.txt"
 					#limited_orw = "../Simulation/ORW_1s.txt"
-					limited_orw = "../Simulation/ORW_test_cca.txt"
+					limited_orw = "../Simulation/ORW_test_delay30.txt"
 			elif args['wakeup'] == 2:
 				#limited_ctp = "../Simulation/CTP_2s.txt"
 				#limited_orw = "../Simulation/ORW_2s.txt"
@@ -202,8 +219,10 @@ def getfile(args):
 				elif args['numnodes'] == 81:
 					#limited_ctp = "../Simulation/CTP_el4000_N81_R35_7h.txt"
 					#limited_orw = "../Simulation/ORW_el4000_N81_R35_3h15_.txt"
-					limited_ctp = "../Simulation/S_CTP_el4000_R35_N81_7h.txt"
-					limited_orw = "../Simulation/ORW_el4000_N81_R35_3h15_.txt"
+					#limited_ctp = "../Simulation/S_CTP_el4000_R35_N81_7h.txt"
+					#limited_orw = "../Simulation/ORW_el4000_N81_R35_3h15_.txt"
+					limited_ctp = "../Simulation/S_CTP_el4000_R50_N81_7h.txt"
+					limited_orw = "../Simulation/S_ORW_el4000_R50_N81_7h.txt"
 			elif ELIMIT == 0x8000:
 				if args['numnodes'] == 36:
 					limited_ctp = "../Simulation/CTP_el8000_7h50.txt"
@@ -211,10 +230,7 @@ def getfile(args):
 				elif args['numnodes'] == 81:
 					limited_ctp = "../Simulation/S_CTP_el8000_R35_N81_7h.txt"
 					limited_orw = "../Simulation/S_ORW_el8000_R35_N81_7h.txt"
-		#this is for testing only, any files can be listed here
-		elif args['experiment']:
-			limited_ctp = "../Simulation/S_CTP_el8000_R35_N81_7h.txt"
-			limited_orw = "../Simulation/S_ORW_el8000_R35_N81_7h.txt"
+
 		FileDict['CtpDebug'], FileDict['CtpData'], _, _ = Sreader.loadDebug(base_path+limited_ctp)
 		_, _, FileDict['OrwDebug'], FileDict['OrwNt']	= Sreader.loadDebug(base_path+limited_orw)
 	#
@@ -227,11 +243,13 @@ def getfile(args):
 			props['time_TH'] = props['timeratio']*60*10
 		if args['connectivity']:
 			#power=full
-			folder = 'data-49759'
+			#folder = 'data-49759'
 			#power=11
 			#folder = 'data-49758'
 			#power=full, all nodes
 			#folder = 'data-48413'
+			#power=11, all nodes
+			folder = 'data-49995'
 			FileDict['ConnectDebug'] = reader.load_C_Data(base_path+folder, FileNames['ConnectDebug'])
 			return FileDict, props
 		if args['model']:
@@ -319,5 +337,5 @@ def getfile(args):
 		FileDict['CtpDebug'] = reader.loadDebug(base_path+limited_ctp, FileNames['CtpDebug']) 
 		FileDict['CtpData'] = reader.loadDataMsg(base_path+limited_ctp, FileNames['CtpData']) 
 		FileDict['OrwDebug'] = reader.loadDebug(base_path+limited_orw, FileNames['OrwDebug']) 
-		FileDict['OrwNt'] = reader.loadNtDebug(base_path+limited_orw, FileNames['OrwDebug']) 
+		FileDict['OrwNt'] = reader.loadNtDebug(base_path+limited_orw, FileNames['OrwNt']) 
 	return FileDict, props
