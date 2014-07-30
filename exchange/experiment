@@ -166,7 +166,9 @@ note: model.py can use file above 48556
 ######   This is after reduce the density	#####
 49754 ctp el=1000
 49766 ctp el=1000, power=11, mod=3
+50271 1.5h faisal
 49755 orw el=1000, power=11, mod=3
+50272 1.5h faisal
 49762 ctp el=1000, mod=3
 49763 orw el=1000, mod=3
 50177 orw power=11, 28 connected nodes, sink=136, density=9.7?
@@ -207,12 +209,15 @@ note: model.py can use file above 48556
 50160 orw power=11 tw=1s limit=0x1000 node<35
 
 50125 orw power=11 tw=1s limit=0x2000 node%3==0
+
 50228 ctp power=11 tw=1s no limit all nodes sink=136 1h
 50229 orw power=11 tw=1s no limit all nodes sink=136 1h
 50231 ctp power=11 tw=1s no limit 29 nodes sink=136 1h
 50234
+50237
 50232 orw power=11 tw=1s no limit 29 nodes sink=136 1h
 50233
+50238
 
 
 

@@ -7,7 +7,7 @@ import simReader as Sreader
 def main(argv):
 	result = {'kill':False, 'simple':False, 'lim':0, 'twist':False, \
 			  'connectivity':False, 'experiment':False, 'model':False,\
-			  'wakeup':float(1.5), 'check':False, 'desktop':False,\
+			  'wakeup':float(1), 'check':False, 'desktop':False,\
 			  'postpone':False, 'simulation': False, 'numnodes':36}
 	try:
 		opts, args = getopt.getopt(argv,"ehdl:m:kstcapin:",["limit","twist","experiment","cca"])
@@ -247,7 +247,7 @@ def getfile(args):
 			FileNames['OrwNt'] = ('26107.dat',)
 			limited_ctp = 'data-50231'
 			limited_orw = 'data-50232'
-		if args['model']:
+		elif args['model']:
 			if not args['check']:
 				wakeup_i = [0.25, 0.5, 1, 1.5, 2, 2.5, 4, 6, 16]
 				FileCollection_orw = ['data-48680', 'data-48564', 'data-48640', 'data-48627', 
