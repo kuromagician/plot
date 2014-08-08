@@ -240,6 +240,8 @@ rcv_hist_ctp = set()
 relay_ctp = set()
 leaf_ctp = set()
 fail_ctp = defaultdict(int)
+parent_ctp = defaultdict(set)
+
 counter1=0
 counter2=0
 for msg in CtpDebugMsgs:
@@ -270,6 +272,7 @@ for msg in CtpDebugMsgs:
 			'''if msg.dbg__c == SINK_ID:
 				sink_neighbour_ctp.add(msg.node)'''
 			Tao_ctp[msg.dbg__c].add(msg.node)
+			parent_ctp[msg.node].add(msg.dbg__c)
 		#elif msg.type == NET_C_FE_SENDDONE_FAIL_ACK_SEND or\
 		#     msg.type == NET_C_FE_SENDDONE_FAIL_ACK_FWD:
 		elif msg.type == NET_C_FE_SENDDONE_WAITACK: 
@@ -305,8 +308,12 @@ Avg_L_ctp = {k:L_ctp[k]*ratio_ipi for k in L_ctp}
 #Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
 Avg_N_ctp = {k:len(neighbour_ctp[k]) for k in neighbour_ctp}
 Avg_Tao_ctp = defaultdict(int)
-for k in Tao_ctp:
+for k, v in zip(Tao_ctp, parent_ctp):
 	Avg_Tao_ctp[k] = len(Tao_ctp[k])
+	Avg_parent_ctp[k] = len(parent_ctp)
+	
+# This is the only place use the number of parent for CTP
+print "Parents for CTP: S, L, R:", Seperate_Avg(Avg_parent_ctp, sink_neighbour_ctp, leaf_ctp, relay_ctp)
 #Avg_Tao_ctp = {k: mean(Tao_ctp[k]) for k in Tao_ctp}
 Avg_Fail_ctp = {k:fail_ctp[k]*ratio_ipi for k in fail_ctp}
 #print Avg_Fail_ctp
