@@ -101,6 +101,10 @@ def update_progress(text, progress):
     sys.stdout.write("\r%-s%-26s%-d%%" %(text, '[ '+ '#'*(progress/5) + ' ]', progress))
     sys.stdout.flush()
 
+#find the element in list closest to target
+def closest(target, collection):
+	return min((abs(target - i), i) for i in collection)[1]
+
 ########################################################
 ##################IMPORTANT MODEL!!!!!!#################
 #cca check time if nothing happens

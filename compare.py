@@ -24,6 +24,10 @@ import sys, getopt
 # the threshold of the duty cycle that is regarded as "high"
 TH_dc = 6
 TH_load = 10
+font = {'family' : 'helvet',
+        'size'   : 17}
+
+matplotlib.rc('font', **font)
 
 ############################ Common Fuctions ######################
 
@@ -101,6 +105,9 @@ CtpdataMsgs = FileDict['CtpData']
 CtpdebugMsgs = FileDict['CtpDebug']
 props_ctp = calprop.prop_ctp(FileDict, resultc)
 props_orw = calprop.prop_orw(FileDict, resultc)
+
+loadmax=max(max(props_ctp['Fwd_Load'].values()), max(props_orw['Fwd_Load'].values()))
+
 #Average hops
 avg_hops_ctp = props_ctp['Avg_Hops']
 dir_neig_ctp = props_ctp['Dir_Neig']
@@ -587,7 +594,7 @@ if ELIMIT:
 	print "COLOR:", len(load_ctp), len(avg_hops_ctp), len(die_time)
 	print "CTP NODES:\n", sorted(avg_hops_ctp.keys())
 	cm = matplotlib.cm.get_cmap('Reds')
-	sc = ax1_x.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=35)
+	sc = ax1_x.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=loadmax)
 	ax1_x.set_title("CTP")
 	ax1_x.set_ylabel("Hops to sink")
 	figx.colorbar(sc)
@@ -718,9 +725,9 @@ if ELIMIT:
 	#print die_time.values()
 	print "COLOR:", len(load_orw), len(avg_hops_orw), len(die_time_orw)
 	#cm = matplotlib.cm.get_cmap('RdYlBu')
-	sc = ax2_x.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=35)
+	sc = ax2_x.scatter(z.values(), x.values(), c=y.values(), cmap=cm, s=100, vmin=1, vmax=loadmax)
 	figx.colorbar(sc)
-	ax1_x.set_xlim([0,180])
+	ax1_x.set_xlim([0,80])
 	ax2_x.set_title("ORW")
 	ax2_x.set_ylabel("Hops to sink")
 	ax2_x.set_xlabel("Time (min)")
@@ -730,7 +737,7 @@ if ELIMIT:
 
 ###################################Put Together####################################
 ###################################Total Rcv####################################
-fig = pl.figure(figsize=(12,8))
+fig = pl.figure()
 
 #ax1
 ax1 = fig.add_subplot(3,1,1)
@@ -746,8 +753,8 @@ ax1.fill_between(x, f_orw(x), f_ctp(x), facecolor='r', edgecolor='', hatch='\\',
 #dummy plot only for legend
 p1 = matplotlib.patches.Rectangle([0,0], 1, 1, fc='y', hatch='/')
 p2 = matplotlib.patches.Rectangle([0,0], 1, 1, fc='r', hatch='\\')
-ax1.legend([p1, p2], ["CTP>ORW", "ORW>CTP"], loc=2)
-ax1.set_ylabel("# of Received Packets")
+ax1.legend([p1, p2], ["CTP>ORW", "ORW>CTP"], loc=0)
+ax1.set_ylabel("# of\n Received Packets")
 #ax1.legend()
 ax1.grid()
 fig.tight_layout()
@@ -760,22 +767,22 @@ if ELIMIT:
 	ax2 = fig.add_subplot(3,1,2, sharex=ax1)
 	ax2.plot(xp, first_ctp, label='CTP')
 	ax2.plot(xp, first_orw, linestyle='--', label='ORW')
-	ax2.set_ylabel("Throughput (packets/min)")
+	ax2.set_ylabel("Throughput\n(packets/min)")
 	ax2.grid()
 	ax2.legend()
 	
 	
 	#ax3
 	ax3 = fig.add_subplot(3,1,3, sharex=ax1)
-	ax3.step(time_list_orw, die_leaf_orw, color='g',linestyle='--' , label="orw_leaf", where='post')
-	ax3.step(time_list_orw, die_relay_orw, color='r', linestyle='--', label="orw_relay", where='post')
-	ax3.step(time_list_orw, die_dir_neig_orw, color='b', linestyle='--', label="orw_sink_neighbour", where='post')
-	ax3.step(time_list, die_leaf_ctp, color='g', label="ctp_leaf", where='post')
-	ax3.step(time_list, die_relay_ctp, color='r', label="ctp_relay", where='post')
-	ax3.step(time_list, die_dir_neig_ctp, color='b', label="ctp_sink_neighbour", where='post')
+	ax3.step(time_list_orw, die_leaf_orw, color='g',linestyle='--' , label="ORW_LF", where='post')
+	ax3.step(time_list_orw, die_relay_orw, color='r', linestyle='--', label="ORW_RL", where='post')
+	ax3.step(time_list_orw, die_dir_neig_orw, color='b', linestyle='--', label="ORW_SN", where='post')
+	ax3.step(time_list, die_leaf_ctp, color='g', label="CTP_LF", where='post')
+	ax3.step(time_list, die_relay_ctp, color='r', label="CTP_RL", where='post')
+	ax3.step(time_list, die_dir_neig_ctp, color='b', label="CTP_SN", where='post')
 	ax3.grid()
-	ax3.legend(loc=2, numpoints=200, prop={'size':10})
-	ax3.set_ylabel("die percentage (%)")
+	ax3.legend(loc=2, numpoints=200, prop={'size':12})
+	ax3.set_ylabel("Die\nPercentage (%)")
 	ax3.set_xlabel("Time (min)")
 	
 	#hide time

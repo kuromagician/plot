@@ -65,7 +65,10 @@ def prop_orw(FileDict, args):
 					num_fwd_orw[msg.node] += 1
 
 	#Calculate Avg load
-	load_orw = {k: num_fwd_orw[k] * 1.0 / num_init_orw[k] + 1 for k in num_init_orw}
+	load_orw = {}
+	for k, init in num_init_orw.iteritems():
+		if init >= 10:
+			load_orw[k] = num_fwd_orw[k] * 1.0 / init + 1
 	
 	
 	#Calculate the average hops to SINK
@@ -188,7 +191,10 @@ def prop_ctp(FileDict, args):
 	
 	
 	#Calculate load  
-	load_ctp = {k: num_fwd_ctp[k] * 1.0 / num_init_ctp[k] + 1 for k in num_init_ctp}
+	load_ctp = {}
+	for k, init in num_init_ctp.iteritems():
+		if init >= 10:
+			load_ctp[k] = num_fwd_ctp[k] * 1.0 / num_init_ctp[k] + 1
 	
 	#get the average dutycycle of each node
 	Avg_DC_ctp = {k: mean(DutyCycle_ctp[k], axis=0) for k in DutyCycle_ctp}

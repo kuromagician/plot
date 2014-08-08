@@ -302,10 +302,19 @@ def getfile(args):
 			FileNames['CtpData'] = ('26100.dat',)
 			if ELIMIT == 0x1000:
 				#power=11, 1h
-				limited_ctp = 'data-49766'
-				limited_orw = 'data-49755'
+				#limited_ctp = 'data-49766'
+				#limited_orw = 'data-49755'
+				#this is from faisal
+				FileNames['CtpDebug'] = ('26102.dat',)
+				FileNames['CtpData'] = ('26103.dat',)
+				FileNames['OrwDebug'] = ('26108.dat',)
+				FileNames['OrwNt'] = ('26107.dat',)
+				#limited_ctp = 'data-50271'
+				#limited_orw = 'data-50272'
+				limited_ctp = 'data-50317'
+				limited_orw = 'data-50318'
 			elif ELIMIT == 0x2000:
-				#power=31, 1h
+				#power=31, 1h, mod = 3
 				#limited_ctp = 'data-49762'
 				#limited_orw = 'data-49763'
 				#power=11, 3h
@@ -331,11 +340,19 @@ def getfile(args):
 				FileNames['CtpData'] = ('26103.dat',)
 				FileNames['OrwDebug'] = ('26108.dat',)
 				FileNames['OrwNt'] = ('26107.dat',)
-				#29 connected nodes, power=11
-				props['SINK_ID'] = 136
 				#limited_ctp = 'data-49283'
-				limited_ctp = 'data-50225'
-				limited_orw = 'data-50226'
+				#limited_orw = 'data-49278'
+				#all nodes
+				#limited_ctp = 'data-49912'
+				#limited_orw = 'data-49953'
+				#mod 3
+				limited_ctp = 'data-50271'
+				limited_orw = 'data-50272'
+				#29 connected nodes, power=11
+				#props['SINK_ID'] = 136
+				#limited_ctp = 'data-49283'
+				#limited_ctp = 'data-50225'
+				#limited_orw = 'data-50226'
 				#this is lower 36 nodes
 				#limited_ctp = 'data-50051'
 				#limited_orw = 'data-50160'
