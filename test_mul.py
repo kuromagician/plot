@@ -79,23 +79,23 @@ avg_y2_orw = mean(y2_orw_c, axis=0)
 avg_y3_orw = mean(y3_orw_c, axis=0)
 
 #error bar
-err_y1_ctp = stats.sem(y1_ctp_c, axis=0)
-err_y2_ctp = stats.sem(y2_ctp_c, axis=0)
-err_y3_ctp = stats.sem(y3_ctp_c, axis=0)
-err_y1_orw = stats.sem(y1_orw_c, axis=0)
-err_y2_orw = stats.sem(y2_orw_c, axis=0)
-err_y3_orw = stats.sem(y3_orw_c, axis=0)
+err_y1_ctp = np.std(y1_ctp_c, axis=0)
+err_y2_ctp = np.std(y2_ctp_c, axis=0)
+err_y3_ctp = np.std(y3_ctp_c, axis=0)
+err_y1_orw = np.std(y1_orw_c, axis=0)
+err_y2_orw = np.std(y2_orw_c, axis=0)
+err_y3_orw = np.std(y3_orw_c, axis=0)
 
 
 fig = pl.figure()
 ax1 = fig.add_subplot(1,1,1)
-#ax1.errorbar(x2, avg_y1_ctp, yerr=err_y1_ctp, fmt='bo')
-#ax1.errorbar(x2, avg_y2_ctp, yerr=err_y2_ctp, fmt='ro')
-#ax1.errorbar(x2, avg_y3_ctp, yerr=err_y3_ctp, fmt='go')
+ax1.errorbar(x2, avg_y1_ctp, yerr=err_y1_ctp, fmt='bo')
+ax1.errorbar(x2, avg_y2_ctp, yerr=err_y2_ctp, fmt='ro')
+ax1.errorbar(x2, avg_y3_ctp, yerr=err_y3_ctp, fmt='go')
 
-ax1.errorbar(x2, avg_y1_orw, yerr=err_y1_orw, fmt='bo')
-ax1.errorbar(x2, avg_y2_orw, yerr=err_y2_orw, fmt='ro')
-ax1.errorbar(x2, avg_y3_orw, yerr=err_y3_orw, fmt='go')
+#ax1.errorbar(x2, avg_y1_orw, yerr=err_y1_orw, fmt='bo')
+#ax1.errorbar(x2, avg_y2_orw, yerr=err_y2_orw, fmt='ro')
+#ax1.errorbar(x2, avg_y3_orw, yerr=err_y3_orw, fmt='go')
 
 
 #########################plot model begins###################
@@ -178,12 +178,12 @@ for i, Tw in enumerate(x2):
 	y_stack.append( DC_Model_ctp_sep(*(zip(*Avg_RL_Paras)[i]), Tw=Tw*1000.0))
 	
 
-#ax1.plot(x, y_SN_old, 'b--', label='old_model_ctp_sinkN')
-#ax1.plot(x, y_RL_old, 'r--', label='old_model_ctp_relay')
-#ax1.plot(x, y_LF_old, 'g--', label='old_model_ctp_leaf')
-#ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
-#ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
-#ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
+ax1.plot(x, y_SN_old, 'b--', label='old_model_ctp_sinkN')
+ax1.plot(x, y_RL_old, 'r--', label='old_model_ctp_relay')
+ax1.plot(x, y_LF_old, 'g--', label='old_model_ctp_leaf')
+ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
+ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
+ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
 
 
 for meas, old, new in zip(avg_y2_ctp, y_RL_old, y_RL):
@@ -192,7 +192,7 @@ for meas, old, new in zip(avg_y2_ctp, y_RL_old, y_RL):
 	temp_i = abs(abs(temp_o) - abs(temp_n))/abs(temp_o)*100.0
 	print "differece: O:{:.2f} N:{:.2f} I:{:.2f}".format(temp_o, temp_n, temp_i)
 
-
+'''
 #########################section ORW###################
 F_SN = [[] for i in range(0, numfiles)] 
 Tao_SN = [[] for i in range(0, numfiles)] 
@@ -271,13 +271,13 @@ for meas, old, new in zip(avg_y2_orw, y_RL_old, y_RL):
 	temp_i = abs(abs(temp_n)-abs(temp_o))/temp_o*100
 	print "differece: O:{:.2f} N:{:.2f} I:{:.2f}".format(temp_o, temp_n, temp_i)
 
-ax1.plot(x, y_SN_old, 'b--', label='old_model_orw_sinkN')
-ax1.plot(x, y_RL_old, 'r--', label='old_model_orw_relay')
-ax1.plot(x, y_LF_old, 'g--', label='old_model_orw_leaf')
-ax1.plot(x, y_SN, 'b', label='model_orw_sinkN')
-ax1.plot(x, y_RL, 'r', label='model_orw_relay')
-ax1.plot(x, y_LF, 'g', label='model_orw_leaf')
-
+#ax1.plot(x, y_SN_old, 'b--', label='old_model_orw_sinkN')
+#ax1.plot(x, y_RL_old, 'r--', label='old_model_orw_relay')
+#ax1.plot(x, y_LF_old, 'g--', label='old_model_orw_leaf')
+#ax1.plot(x, y_SN, 'b', label='model_orw_sinkN')
+#ax1.plot(x, y_RL, 'r', label='model_orw_relay')
+#ax1.plot(x, y_LF, 'g', label='model_orw_leaf')
+'''
 #####plot configure#####
 ax1.set_xlabel('Wakeup Interval (s)')
 ax1.set_ylabel('Duty Cycle (%)')
