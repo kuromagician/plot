@@ -87,8 +87,8 @@ for msg in CtpDebugMsgs:
 	if msg.node not in firstsee_ctp:
 		firstsee_ctp[msg.node] = msg.timestamp
 	if msg.timestamp >= time_TH:
-		if msg.node == 77:
-			print msg.node, msg.type
+		#if msg.node == 77:
+		#	print msg.node, msg.type
 		temp = msg.timestamp/time_ratio
 		if msg.type == NET_C_FE_RCV_MSG:
 			if msg.node == SINK_ID:
@@ -324,14 +324,19 @@ fig.savefig("figures/load_dc.pdf")
 #      
 #####################################################################
 counter_ctp = defaultdict(int)
+temp_ctp = set()
 for packet in hist_ctp:
 	counter_ctp[packet[0]] += 1
+	if packet[0] == 19:
+		temp_ctp.add(packet[1])
+print sorted(temp_ctp)
 	
 counter_orw = defaultdict(int)
 for packet in hist_orw:
 	counter_orw[packet[0]] += 1	
 	if packet[0] == 36:
 		print packet[1]
+		
 	
 fig = pl.figure()
 ax1=fig.add_subplot(2,1,1)
@@ -340,6 +345,17 @@ ax1.bar(counter_ctp.keys(), counter_ctp.values())
 ax2=fig.add_subplot(2,1,2)
 ax2.bar(counter_orw.keys(), counter_orw.values())
 
+
+
+total_send_ctp = cal_prop_ctp['Total_Send']
+total_receive_ctp = cal_prop_ctp['Num_Rcv']
+total_send_orw = cal_prop_orw['Total_Send']
+total_receive_orw = cal_prop_orw['Num_Rcv']
+ratio = 100.0*total_send_orw/total_send_ctp
+ratio1 = 100.0*total_receive_orw/total_send_orw
+ratio2 = 100.0*total_receive_ctp/total_send_ctp
+print "Total send: ORW {:5d}, CTP {:5d}, ratio:{:5.2f}\
+     \nTotal Rcv:  ORW {:5d}, ratio:{:5.2f}, CTP {:5d}, ratio:{:5.2f}".format(total_send_orw, total_send_ctp, ratio, total_receive_orw, ratio1, total_receive_ctp, ratio2)
 
 pl.show()
 

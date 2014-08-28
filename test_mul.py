@@ -13,6 +13,9 @@ from scipy import stats
 from matplotlib.patches import Rectangle
 
 FileDict = {}
+font = {'size'   : 17}
+
+matplotlib.rc('font', **font)
 
 base_path = '/media/Data/ThesisData/Twist/'
 FileCollection_orw = ['trace_20140515_132005.1.txt', 'trace_20140515_160513.3.txt', 
@@ -178,12 +181,15 @@ for i, Tw in enumerate(x2):
 	y_stack.append( DC_Model_ctp_sep(*(zip(*Avg_RL_Paras)[i]), Tw=Tw*1000.0))
 	
 
-ax1.plot(x, y_SN_old, 'b--', label='old_model_ctp_sinkN')
-ax1.plot(x, y_RL_old, 'r--', label='old_model_ctp_relay')
-ax1.plot(x, y_LF_old, 'g--', label='old_model_ctp_leaf')
-ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
-ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
-ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
+ax1.plot(x, y_SN_old, 'b', label='old_model_ctp_sinkN')
+ax1.plot(x, y_RL_old, 'r', label='old_model_ctp_relay')
+ax1.plot(x, y_LF_old, 'g', label='old_model_ctp_leaf')
+#ax1.plot(x, y_SN_old,  label='old_model_ctp_sinkN')
+#ax1.plot(x, y_RL_old,  label='old_model_ctp_relay')
+#ax1.plot(x, y_LF_old,  label='old_model_ctp_leaf')
+#ax1.plot(x, y_SN, 'b', label='model_ctp_sinkN')
+#ax1.plot(x, y_RL, 'r', label='model_ctp_relay')
+#ax1.plot(x, y_LF, 'g', label='model_ctp_leaf')
 
 
 for meas, old, new in zip(avg_y2_ctp, y_RL_old, y_RL):
@@ -215,7 +221,7 @@ SN_Paras = [F_SN, Tao_SN, Fs_SN, L_SN, Fail_SN]
 RL_Paras = [F_RL, Tao_RL, Fs_RL, L_RL, Fail_RL]
 LF_Paras = [F_LF, Tao_LF, Fs_LF, L_LF, Fail_LF]
 #for wake in wakeup:
-
+x=x2
 path = ("ORW_Paras.txt", "ORW_Paras1.txt", "ORW_Paras2.txt")
 
 for k, parafile in enumerate(path):
@@ -271,19 +277,19 @@ for meas, old, new in zip(avg_y2_orw, y_RL_old, y_RL):
 	temp_i = abs(abs(temp_n)-abs(temp_o))/temp_o*100
 	print "differece: O:{:.2f} N:{:.2f} I:{:.2f}".format(temp_o, temp_n, temp_i)
 
-#ax1.plot(x, y_SN_old, 'b--', label='old_model_orw_sinkN')
-#ax1.plot(x, y_RL_old, 'r--', label='old_model_orw_relay')
-#ax1.plot(x, y_LF_old, 'g--', label='old_model_orw_leaf')
-#ax1.plot(x, y_SN, 'b', label='model_orw_sinkN')
-#ax1.plot(x, y_RL, 'r', label='model_orw_relay')
-#ax1.plot(x, y_LF, 'g', label='model_orw_leaf')
+ax1.plot(x, y_SN_old, 'b--', label='ported_model_orw_sinkN')
+ax1.plot(x, y_RL_old, 'r--', label='ported_model_orw_relay')
+ax1.plot(x, y_LF_old, 'g--', label='ported_model_orw_leaf')
+ax1.plot(x, y_SN, 'b', label='model_orw_sinkN')
+ax1.plot(x, y_RL, 'r', label='model_orw_relay')
+ax1.plot(x, y_LF, 'g', label='model_orw_leaf')
 '''
 #####plot configure#####
 ax1.set_xlabel('Wakeup Interval (s)')
 ax1.set_ylabel('Duty Cycle (%)')
 ax1.set_xscale('log', basex=2)
 ax1.set_xlim([0.125, 32])
-leg = ax1.legend(loc=2, fontsize=10, fancybox=True)
+leg = ax1.legend(loc=2, fancybox=True)
 leg.get_frame().set_alpha(0.5)
 
 

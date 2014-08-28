@@ -207,7 +207,7 @@ def DC_Model_orw(F, Tao, Fs, L, Fail, Tw):
 	
 
 	dc1 = _Tc/Tw
-	dc2 = 1.0/(Fs+1)*F*Tw/_Tipi# + Fail*Tw/_Tipi
+	dc2 = 1.0/(Fs+1)*Ff*Tw/_Tipi# + Fail*Tw/_Tipi
 	dc3 = L*(_Trx_orw)/_Tipi
 	#print "ORW fextra:{:.2f}, F:{:.2f}, Fs:{:.2f}m dc:{:.2f}".format(newF, Ff, Fs, dc2)
 	return dc1*100, dc2*100, dc3*100

@@ -299,6 +299,10 @@ for node in Avg_DC_ctp:
 print mean(Avg_Total_dc_ctp.values())
 ############################# real DC ##########################
 
+#get sinkN, relay and leaf set
+sink_neighbour_ctp = props_ctp['Dir_Neig']
+relay_ctp = props_ctp['Relay']
+leaf_ctp = props_ctp['Leaf']
 #F_ctp = prop_ctp['load']
 
 #Avg_F_ctp = {k:F_ctp[k]*ratio_ipi for k in F_ctp}
@@ -308,20 +312,17 @@ Avg_L_ctp = {k:L_ctp[k]*ratio_ipi for k in L_ctp}
 #Avg_N_ctp = {k:N_ctp[k]*ratio_ibi for k in N_ctp}
 Avg_N_ctp = {k:len(neighbour_ctp[k]) for k in neighbour_ctp}
 Avg_Tao_ctp = defaultdict(int)
-for k, v in zip(Tao_ctp, parent_ctp):
+Avg_parent_ctp = defaultdict(int)
+for k in Tao_ctp:
 	Avg_Tao_ctp[k] = len(Tao_ctp[k])
-	Avg_parent_ctp[k] = len(parent_ctp)
-	
+for k, v in parent_ctp.iteritems():
+	Avg_parent_ctp[k] = len(v)
+print Avg_parent_ctp	
 # This is the only place use the number of parent for CTP
 print "Parents for CTP: S, L, R:", Seperate_Avg(Avg_parent_ctp, sink_neighbour_ctp, leaf_ctp, relay_ctp)
 #Avg_Tao_ctp = {k: mean(Tao_ctp[k]) for k in Tao_ctp}
 Avg_Fail_ctp = {k:fail_ctp[k]*ratio_ipi for k in fail_ctp}
 #print Avg_Fail_ctp
-
-#get sinkN, relay and leaf set
-sink_neighbour_ctp = props_ctp['Dir_Neig']
-relay_ctp = props_ctp['Relay']
-leaf_ctp = props_ctp['Leaf']
 				
 modeled_dc_ctp = {}
 

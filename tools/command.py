@@ -160,8 +160,9 @@ def getfile(args):
 		#this is for testing only, any files can be listed here
 		if args['experiment']:
 			#limited_ctp = "../Simulation/S_CTP_el4000_B4096_R50_N81_7h.txt"
-			limited_ctp = "../Simulation/S_CTP_el4000_B2048_RAN14001400_N100_7h.txt"
+			#limited_ctp = "../Simulation/S_CTP_el4000_B2048_RAN14001400_N100_7h.txt"
 			#limited_ctp = "../Simulation/S_CTP_el4000_B2048_N81_7h.jar"
+			limited_ctp = "../Simulation/CTP_test4.txt"
 			#limited_orw = "../Simulation/S_ORW_el4000_RAN5050_N100_7h.txt"
 			#limited_orw = "../Simulation/ORW_el4000_N81_R35_3h15_.txt"
 			limited_orw = "../Simulation/ORW_test4.txt"
@@ -246,12 +247,12 @@ def getfile(args):
 			#power=full
 			#folder = 'data-49759'
 			#power=11
-			#folder = 'data-49758'
+			folder = 'data-49758'
 			#power=full, all nodes
 			#folder = 'data-48413'
 			#power=11, all nodes
 			#folder = 'data-49995'
-			folder = 'data-50224'
+			#folder = 'data-50224'
 			FileDict['ConnectDebug'] = reader.load_C_Data(base_path+folder, FileNames['ConnectDebug'])
 			return FileDict, props
 		if args['experiment']:
@@ -272,23 +273,26 @@ def getfile(args):
 							'data-48637', 'data-48642', 'data-48651', 'data-48710', 'data-48774']
 			else:
 				wakeup_i = [0.25, 0.5, 1, 2, 4, 8, 16]
-				'''#1st result. This is wrong log of neighbour
+				'''
+				#1st result. This is wrong log of neighbour
 				FileCollection_orw = ['data-48936', 'data-48934', 'data-48933', 'data-48932', 
 							'data-48931', 'data-48930', 'data-48952']
 				FileCollection_ctp = ['data-48929', 'data-48928', 'data-48925', 'data-48924', 
 							'data-48923', 'data-48922', 'data-48949']
-				'''#2nd
+				'''
+				#2nd
 				'''
 				FileCollection_orw = ['data-49167', 'data-49137', 'data-49175', 'data-49104', 
 							'data-48931', 'data-48930', 'data-49088']
 				FileCollection_ctp = ['data-49023', 'data-49029', 'data-49030', 'data-49045', 
-							'data-49054', 'data-49059', 'data-49079']'''
+							'data-49054', 'data-49059', 'data-49079']
+				'''
 				#latest results
 				FileCollection_orw = ['data-49683', 'data-49664', 'data-49662', 'data-49637', 
 							'data-49635', 'data-49715', 'data-49413']
 				FileCollection_ctp = ['data-49747', 'data-49733', 'data-49731', 'data-49718', 
 							'data-49714', 'data-49709', 'data-49698']
-				
+		
 			if args['wakeup'] not in wakeup_i:
 				print "No traces available for this setting, exit"
 				sys.exit(0)

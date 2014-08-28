@@ -32,6 +32,7 @@ def prop_orw(FileDict, args):
 	DutyCycle_orw = defaultdict(list)
 	dir_neig_orw = set()
 	total_receive_orw = 0
+	total_send_orw = 0
 
 	for msg in OrwDebugMsgs:
 		#only record data after 10 minutes, 
@@ -60,9 +61,11 @@ def prop_orw(FileDict, args):
 			elif msg.type == NET_APP_SENT:
 				num_init_orw[msg.node] += 1
 			elif msg.type == NET_C_FE_SENT_MSG:
+				total_send_orw += 1
 				#if origin != curr node, then it's is forwarder
 				if msg.dbg__b != msg.node:
 					num_fwd_orw[msg.node] += 1
+				
 
 	#Calculate Avg load
 	load_orw = {}
@@ -117,6 +120,7 @@ def prop_orw(FileDict, args):
 	props['Leaf'] = leaf_orw
 	props['Num_Rcv'] = total_receive_orw
 	props['Fwd_Load'] = load_orw
+	props['Total_Send'] = total_send_orw
 	return props
 	
 def prop_ctp(FileDict, args):
@@ -148,6 +152,7 @@ def prop_ctp(FileDict, args):
 	fwd_noACK_ctp = defaultdict(int)
 	dir_neig_ctp = set()
 	total_receive_ctp = 0
+	total_send_ctp = 0
 	
 
 
@@ -157,6 +162,7 @@ def prop_ctp(FileDict, args):
 		if msg.timestamp >= time_TH:
 			if msg.type == NET_C_FE_SENT_MSG:
 				num_init_ctp[msg.node] += 1
+				total_send_ctp += 1
 				'''if msg.dbg__c == SINK_ID:
 					dir_neig_ctp.add(msg.node)'''
 			#record beacon
@@ -170,6 +176,7 @@ def prop_ctp(FileDict, args):
 					DutyCycle_ctp[msg.node].append((10000, msg.dbg__b, 0))
 			elif msg.type == NET_C_FE_FWD_MSG:
 				num_fwd_ctp[msg.node] += 1
+				total_send_ctp += 1
 				'''if msg.dbg__c == SINK_ID:
 					dir_neig_ctp.add(msg.node)'''
 			elif msg.type == NET_C_FE_RCV_MSG:
@@ -260,6 +267,7 @@ def prop_ctp(FileDict, args):
 	props['Leaf'] = leaf_ctp
 	props['Num_Rcv'] = total_receive_ctp
 	props['Fwd_Load'] = load_ctp
+	props['Total_Send'] = total_send_ctp
 	
 	return props
 
