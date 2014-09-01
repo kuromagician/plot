@@ -181,11 +181,15 @@ note: model.py can use file above 48556
 50223 orw power=11, 29 connected nodes, sink=136, density=9.62
 
 50225 ctp power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect
-50359 ctp power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect
+50557 ctp power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect
+50573
+//50359 ctp power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect
 //50399 ctp power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect wrong sink....
 
 50226 orw power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect
-50358 orw power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect
+50547 ctp power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect
+50572
+//50358 orw power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect
 //50398 orw power=11, 29 connected nodes, sink=136, density=9.66 this should be perfect wrong sink....
 
 ######   This is connectivity test           #####
